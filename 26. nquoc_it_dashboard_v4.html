@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>NQuoc · IT Request v4</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#07090F;color:#F9FAFB;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+
+/* ── HEADER ── */
+.hdr{background:#0D1117;border-bottom:1px solid #1F2937;padding:11px 22px;display:flex;align-items:center;gap:11px;position:sticky;top:0;z-index:40}
+.logo{width:30px;height:30px;border-radius:7px;background:#7C3AED;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.hdr-t{font-weight:700;font-size:14px}
+.hdr-s{font-size:10px;color:#4B5563}
+
+/* ── SCORE BAR ── */
+.sbar{background:#0D1117;border-bottom:1px solid #111827;padding:7px 22px;position:sticky;top:52px;z-index:39}
+.sbar-row{display:flex;align-items:center;gap:10px}
+.sbar-bg{flex:1;height:4px;background:#111827;border-radius:3px;overflow:hidden}
+.sbar-fill{height:100%;border-radius:3px;transition:width .5s ease,background .3s}
+.sbar-pct{font-size:11px;font-weight:700;min-width:32px}
+.sbar-lbl{font-size:10px;color:#4B5563}
+
+/* ── TIMELINE ── */
+.timeline{background:#0D1117;border-bottom:1px solid #1F2937;padding:12px 22px;position:sticky;top:83px;z-index:38;overflow-x:auto}
+.tl-inner{display:flex;align-items:center;min-width:500px}
+.tl-step{display:flex;flex-direction:column;align-items:center;position:relative;flex:1}
+.tl-step:not(:last-child)::after{content:'';position:absolute;top:14px;left:50%;width:100%;height:2px;z-index:1}
+.tl-step.done:not(:last-child)::after{background:#16A34A}
+.tl-step.active:not(:last-child)::after{background:linear-gradient(90deg,#7C3AED,#1F2937)}
+.tl-step.locked:not(:last-child)::after{background:#1F2937}
+.tl-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;position:relative;z-index:2;flex-shrink:0;transition:all .3s}
+.tl-step.done .tl-dot{background:#16A34A;color:#fff;border:2px solid #16A34A}
+.tl-step.active .tl-dot{background:#7C3AED;color:#fff;border:2px solid #A78BFA;box-shadow:0 0 0 4px #7C3AED22;animation:pulse-dot 2s infinite}
+.tl-step.locked .tl-dot{background:#111827;color:#374151;border:2px solid #1F2937}
+.tl-step.error .tl-dot{background:#EF444422;color:#F87171;border:2px solid #EF4444}
+@keyframes pulse-dot{0%,100%{box-shadow:0 0 0 4px #7C3AED22}50%{box-shadow:0 0 0 8px #7C3AED11}}
+.tl-label{font-size:10px;margin-top:5px;font-weight:600;text-align:center;line-height:1.3}
+.tl-step.done .tl-label{color:#16A34A}
+.tl-step.active .tl-label{color:#A78BFA}
+.tl-step.locked .tl-label{color:#374151}
+.tl-step.error .tl-label{color:#F87171}
+.tl-sublabel{font-size:9px;color:#4B5563;text-align:center;margin-top:1px;max-width:80px;line-height:1.2}
+.tl-step.done .tl-sublabel{color:#16A34A88}
+.tl-step.active .tl-sublabel{color:#7C3AED88}
+
+/* ── MAIN ── */
+.main{max-width:720px;margin:0 auto;padding:24px 20px 100px}
+.tag{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#4B5563;margin-bottom:7px}
+h2{font-size:21px;font-weight:800;line-height:1.25;margin-bottom:5px;letter-spacing:-.4px}
+.sub{font-size:12px;color:#9CA3AF;margin-bottom:18px;line-height:1.65}
+
+/* ── STEP TRANSITION ── */
+.step-content{animation:fadeSlide .25s ease}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── GATE PANEL ── (eye-tracking: bottom of page, primary CTA zone) ── */
+.gate-panel{position:sticky;bottom:0;background:linear-gradient(to top,#07090F 80%,transparent);padding:16px 0 0;margin-top:24px;z-index:20}
+.gate-inner{background:#0D1117;border:1px solid #1F2937;border-radius:12px;padding:14px 16px;box-shadow:0 -8px 32px #000000aa}
+.gate-title{font-size:10px;font-weight:700;color:#4B5563;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
+.gate-list{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.gate-item{display:flex;align-items:center;gap:8px;font-size:12px;padding:6px 10px;border-radius:7px;transition:all .2s;cursor:default}
+.gate-item.ok{color:#4ADE80;background:#16A34A0D}
+.gate-item.missing{color:#FCD34D;background:#EAB3080D;cursor:pointer}
+.gate-item.missing:hover{background:#EAB30818}
+.gate-item.optional{color:#4B5563;background:transparent}
+.gate-dot{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0}
+.gate-item.ok .gate-dot{background:#16A34A33;color:#4ADE80}
+.gate-item.missing .gate-dot{background:#EAB30833;color:#FCD34D;animation:blink 1.5s infinite}
+.gate-item.optional .gate-dot{background:#1F2937;color:#4B5563}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes pop{0%{transform:scale(0.5);opacity:0}80%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+.gate-btn-row{display:flex;gap:8px;align-items:center}
+.gate-btn{flex:1;border:none;border-radius:9px;padding:11px 18px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:7px}
+.gate-btn.ready{background:#7C3AED;color:#fff}
+.gate-btn.ready:hover{background:#6D28D9;transform:translateY(-1px)}
+.gate-btn.blocked{background:#111827;color:#4B5563;cursor:not-allowed;border:1px solid #1F2937}
+.gate-btn.blocked:hover{background:#1A1A2E}
+.gate-back{background:transparent;border:1px solid #1F2937;border-radius:9px;padding:11px 14px;color:#4B5563;cursor:pointer;font-size:13px;font-family:inherit;transition:all .15s}
+.gate-back:hover{border-color:#374151;color:#9CA3AF}
+.missing-count{background:#EAB30822;color:#FCD34D;border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700}
+
+/* ── TEAM GRID ── */
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:8px}
+.tc{background:#111827;border:1px solid #1F2937;border-radius:12px;padding:15px 12px;cursor:pointer;text-align:center;transition:all .17s}
+.tc:hover{border-color:#7C3AED;background:#1C1535;transform:translateY(-1px)}
+.tc-e{font-size:25px;margin-bottom:6px}
+.tc-n{font-size:13px;font-weight:700;margin-bottom:3px}
+.tc-d{font-size:10px;color:#4B5563;line-height:1.4}
+
+/* ── REQ LIST ── */
+.rl{display:flex;flex-direction:column;gap:6px}
+.rc{background:#111827;border:1px solid #1F2937;border-radius:10px;padding:11px 15px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:all .15s}
+.rc:hover{border-color:#7C3AED;background:#1C1535}
+
+/* ── SEVERITY ── */
+.sev-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:16px}
+.sev-card{background:#111827;border:2px solid #1F2937;border-radius:10px;padding:11px 13px;cursor:pointer;transition:all .17s}
+.sev-card:hover{transform:translateY(-1px)}
+.sev-card.p0.sel{border-color:#EF4444;background:#1a0808}
+.sev-card.p1.sel{border-color:#F97316;background:#1a0e06}
+.sev-card.p2.sel{border-color:#EAB308;background:#1a1606}
+.sev-card.p3.sel{border-color:#16A34A;background:#06160a}
+/* required outline when missing */
+.sev-card.req-missing{border-color:#EAB30855;animation:req-pulse 2s infinite}
+@keyframes req-pulse{0%,100%{border-color:#EAB30855}50%{border-color:#EAB308aa}}
+.sev-lbl{font-size:13px;font-weight:800;margin-bottom:2px}
+.sev-desc{font-size:10px;color:#9CA3AF;margin-bottom:4px}
+.sev-sla{font-size:9px;font-weight:700;padding:2px 6px;border-radius:20px;display:inline-block}
+.p0 .sev-sla{background:#EF444422;color:#F87171}
+.p1 .sev-sla{background:#F9731622;color:#FB923C}
+.p2 .sev-sla{background:#EAB30822;color:#FCD34D}
+.p3 .sev-sla{background:#16A34A22;color:#4ADE80}
+
+/* ── ARCH ── */
+.arch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px;margin-bottom:16px}
+.arch-btn{background:#111827;border:1px solid #1F2937;border-radius:8px;padding:9px 10px;cursor:pointer;text-align:left;transition:all .15s;font-family:inherit;width:100%}
+.arch-btn:hover{border-color:#7C3AED}
+.arch-btn.sel{border-color:#7C3AED;background:#1C1535}
+.arch-btn.req-missing{border-color:#EAB30855;animation:req-pulse 2s infinite}
+.arch-icon{font-size:16px;margin-bottom:4px}
+.arch-name{font-size:11px;font-weight:700;color:#F9FAFB;margin-bottom:1px}
+.arch-desc{font-size:9px;color:#4B5563}
+
+/* ── EXPECTED/ACTUAL ── */
+.ea-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.ea-box{background:#111827;border:1px solid #1F2937;border-radius:10px;overflow:hidden;transition:border-color .2s}
+.ea-box.req-missing{border-color:#EAB30855;animation:req-pulse 2s infinite}
+.ea-hdr{padding:7px 11px;font-size:10px;font-weight:700}
+.ea-hdr.exp{background:#16A34A18;color:#4ADE80;border-bottom:1px solid #16A34A33}
+.ea-hdr.act{background:#EF444418;color:#F87171;border-bottom:1px solid #EF444433}
+.ea-box textarea{width:100%;background:transparent;border:none;outline:none;color:#F9FAFB;font-size:12px;padding:9px 11px;font-family:inherit;resize:none;min-height:70px}
+
+/* ── REPRO ── */
+.repro-row{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.repro-btn{background:#111827;border:1px solid #1F2937;border-radius:8px;padding:7px 12px;cursor:pointer;font-size:11px;font-family:inherit;color:#9CA3AF;transition:all .15s}
+.repro-btn:hover{border-color:#7C3AED;color:#F9FAFB}
+.repro-btn.sel{border-color:#7C3AED;background:#1C1535;color:#A78BFA;font-weight:700}
+
+/* ── CHAT ── */
+.chat-bot{display:flex;gap:7px;margin-bottom:10px}
+.chat-usr{display:flex;justify-content:flex-end;margin-bottom:10px}
+.av{width:23px;height:23px;border-radius:50%;background:#7C3AED;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;color:#fff}
+.bb{background:#111827;border:1px solid #1F2937;border-radius:3px 10px 10px 10px;padding:9px 12px;font-size:12px;max-width:90%;line-height:1.5}
+.bb.on{border-color:#7C3AED88}
+.bu{background:#1C1535;border:1px solid #7C3AED33;border-radius:10px 10px 10px 3px;padding:9px 12px;font-size:12px;max-width:80%;color:#C4B5FD;line-height:1.5}
+.qh{font-size:10px;color:#4B5563;margin-top:3px;font-style:italic}
+.qdots{display:flex;gap:4px;margin-bottom:14px}
+.qdot{width:17px;height:3px;border-radius:2px;transition:background .3s}
+.qib{background:#111827;border:1px solid #374151;border-radius:10px;overflow:hidden;margin-top:10px}
+.qib textarea,.qib input{width:100%;background:transparent;border:none;outline:none;color:#F9FAFB;font-size:12px;padding:11px 13px;font-family:inherit;resize:none}
+.qib-f{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-top:1px solid #1F2937;background:#0D1117}
+.ob{width:100%;background:#0D1117;border:1px solid #1F2937;border-radius:7px;padding:9px 12px;color:#9CA3AF;cursor:pointer;text-align:left;font-size:11px;font-family:inherit;transition:all .15s;margin-bottom:4px}
+.ob:hover{border-color:#7C3AED;color:#F9FAFB;background:#1C1535}
+.skip{background:none;border:none;color:#4B5563;cursor:pointer;font-size:10px;margin-top:5px;text-decoration:underline;font-family:inherit}
+
+/* ── UPLOAD AREA ── */
+.slot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:7px;margin-bottom:12px}
+.slot{border:1px dashed #1F2937;border-radius:10px;padding:11px;text-align:center;cursor:pointer;transition:all .2s;position:relative;min-height:105px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.slot.req{border-color:#7C3AED44}
+.slot.filled{border-style:solid;border-color:#16A34A55;background:#06160a}
+.slot.dragover-slot{border-color:#7C3AED;background:#1C153533;transform:scale(1.02)}
+.slot input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.slot-emoji{font-size:20px;margin-bottom:4px}
+.slot-label{font-size:11px;font-weight:700;color:#F9FAFB;margin-bottom:2px}
+.slot-hint{font-size:9px;color:#4B5563;margin-bottom:3px;line-height:1.3}
+.slot-badge{font-size:8px;padding:2px 6px;border-radius:12px;font-weight:700}
+.slot-badge.req{background:#7C3AED22;color:#A78BFA}
+.slot-badge.opt{background:#1F2937;color:#4B5563}
+.slot-badge.filled-ok{background:#16A34A22;color:#4ADE80}
+.slot-remove{position:absolute;top:4px;right:5px;background:#EF444422;border:none;border-radius:50%;width:16px;height:16px;color:#F87171;cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center;font-family:inherit}
+.dropzone{border:2px dashed #374151;border-radius:12px;padding:22px 16px;text-align:center;cursor:pointer;transition:all .2s;position:relative;margin-bottom:12px}
+.dropzone:hover,.dropzone.dragover{border-color:#7C3AED;background:#1C153518}
+.dropzone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.dz-icon{font-size:28px;margin-bottom:6px}
+.dz-text{font-size:13px;font-weight:700;color:#F9FAFB;margin-bottom:3px}
+.dz-sub{font-size:11px;color:#4B5563}
+.dz-types{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-top:8px}
+.dz-badge{font-size:9px;padding:2px 6px;border-radius:10px;background:#1F2937;color:#6B7280;font-weight:600}
+.file-item{background:#111827;border:1px solid #1F2937;border-radius:7px;padding:9px 11px;display:flex;align-items:center;gap:9px;margin-bottom:5px}
+.file-thumb{width:38px;height:38px;border-radius:5px;object-fit:cover;flex-shrink:0}
+.file-thumb-icon{width:38px;height:38px;border-radius:5px;background:#1F2937;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.file-name{font-size:11px;font-weight:700;color:#F9FAFB;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.file-meta{font-size:9px;color:#4B5563;margin-top:1px}
+.file-remove{background:none;border:none;color:#4B5563;cursor:pointer;font-size:15px;padding:2px 5px;border-radius:4px;margin-left:auto;flex-shrink:0}
+.file-remove:hover{color:#F87171;background:#EF444415}
+
+/* ── SEND BUTTON ── */
+.send-zone{background:linear-gradient(135deg,#1C1535,#0D1117);border:1px solid #7C3AED44;border-radius:12px;padding:16px 18px;margin-top:16px}
+.send-btn{width:100%;background:linear-gradient(135deg,#7C3AED,#2563EB);border:none;border-radius:10px;padding:13px;color:#fff;cursor:pointer;font-size:14px;font-weight:800;font-family:inherit;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px}
+.send-btn:hover{transform:translateY(-1px);box-shadow:0 4px 24px #7C3AED44}
+.send-ready{display:flex;align-items:center;gap:7px;margin-top:9px;font-size:10px;color:#4B5563;flex-wrap:wrap}
+.sc{display:flex;align-items:center;gap:3px}
+.sc.ok{color:#4ADE80}
+.sc.warn{color:#FCD34D}
+
+/* ── SEND MODAL ── */
+.modal-wrap{position:fixed;inset:0;background:#000000bb;z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{background:#0D1117;border:1px solid #374151;border-radius:14px;max-width:580px;width:100%;max-height:88vh;overflow:auto}
+.modal-hdr{padding:14px 18px;border-bottom:1px solid #1F2937;display:flex;justify-content:space-between;align-items:center}
+.modal-hdr h3{font-size:15px;font-weight:800}
+.modal-close{background:none;border:none;color:#4B5563;cursor:pointer;font-size:20px;font-family:inherit}
+.modal-body{padding:18px}
+.ch-card{background:#111827;border:1px solid #1F2937;border-radius:10px;padding:13px;margin-bottom:9px}
+.ch-hdr{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.ch-icon{font-size:18px}
+.ch-name{font-size:13px;font-weight:700;flex:1}
+.ch-desc{font-size:10px;color:#4B5563;margin-top:1px}
+.msg-preview{background:#07090F;border:1px solid #1F2937;border-radius:7px;padding:10px 12px;font-family:'Courier New',monospace;font-size:10px;color:#94A3B8;white-space:pre-wrap;word-break:break-word;max-height:160px;overflow:auto;margin-bottom:7px;line-height:1.6}
+
+/* ── OUTPUT TABS ── */
+.tab-bar{background:#111827;border:1px solid #1F2937;border-radius:9px;padding:3px;display:inline-flex;gap:2px;margin-bottom:13px}
+.tab{background:transparent;border:none;border-radius:7px;padding:6px 13px;color:#4B5563;cursor:pointer;font-size:11px;font-family:inherit;transition:all .2s}
+.tab.on{background:#7C3AED;color:#fff;font-weight:700}
+.cbox{border:1px solid #1F2937;border-radius:10px;overflow:hidden}
+.chdr{padding:8px 13px;border-bottom:1px solid #1F2937;display:flex;justify-content:space-between;align-items:center;background:#0D1117}
+.clbl{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#4B5563}
+.cbtn{background:#7C3AED;border:none;border-radius:6px;padding:5px 12px;color:#fff;cursor:pointer;font-size:11px;font-weight:700;font-family:inherit;transition:background .2s}
+.cbtn.ok{background:#16A34A}
+.cbody{padding:12px;font-family:'Courier New',monospace;font-size:10px;color:#94A3B8;overflow:auto;max-height:340px;line-height:1.7;white-space:pre-wrap;word-break:break-word;background:#07090F}
+.brief-card{background:#0D1117;border:1px solid #7C3AED44;border-radius:10px;overflow:hidden;margin-bottom:12px}
+.brief-hdr{background:#7C3AED18;padding:8px 13px;border-bottom:1px solid #7C3AED33;display:flex;justify-content:space-between;align-items:center}
+.brief-hdr span{font-size:10px;font-weight:700;color:#A78BFA;letter-spacing:.5px}
+.brief-body{padding:12px 13px;display:flex;flex-direction:column;gap:6px}
+.brief-row{display:flex;align-items:flex-start;gap:8px;font-size:12px}
+.brief-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+.brief-val{color:#E2E8F0;line-height:1.4}
+.brief-meta{font-size:9px;color:#4B5563}
+
+/* ── MISC ── */
+.divider{height:1px;background:#1F2937;margin:14px 0}
+.section-title{font-size:10px;font-weight:700;color:#9CA3AF;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.auto-row{background:#111827;border:1px solid #1F2937;border-radius:7px;padding:8px 12px;margin-bottom:12px;display:flex;gap:14px;flex-wrap:wrap}
+.auto-item{display:flex;gap:5px;align-items:center;font-size:11px}
+.auto-item .lbl{color:#4B5563}
+.auto-item .val{color:#9CA3AF;font-weight:600}
+.btn-p{background:#7C3AED;border:none;border-radius:7px;padding:7px 15px;color:#fff;cursor:pointer;font-size:12px;font-weight:700;font-family:inherit;transition:background .2s}
+.btn-p:hover{background:#6D28D9}
+.btn-g{background:transparent;border:1px solid #374151;border-radius:7px;padding:7px 15px;color:#9CA3AF;cursor:pointer;font-size:12px;font-family:inherit;transition:all .15s}
+.btn-g:hover{border-color:#7C3AED;color:#F9FAFB}
+.info-box{background:#1E3A5F15;border:1px solid #1E3A5F;border-radius:7px;padding:9px 12px;display:flex;gap:7px;margin-top:9px;font-size:11px;color:#93C5FD;line-height:1.6}
+
+/* ── REQUIRED LABEL ── */
+.req-label{font-size:9px;color:#A78BFA;font-weight:700;margin-left:5px;vertical-align:middle}
+.section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.section-status{font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px}
+.section-status.ok{background:#16A34A22;color:#4ADE80}
+.section-status.miss{background:#EAB30822;color:#FCD34D;animation:blink 1.5s infinite}
+</style>
+</head>
+<body>
+
+<!-- Send Modal -->
+<div id="sendModal" class="modal-wrap" style="display:none">
+  <div class="modal">
+    <div class="modal-hdr"><h3>📨 Gửi cho IT Team</h3><button class="modal-close" onclick="closeSendModal()">×</button></div>
+    <div class="modal-body" id="sendModalBody"></div>
+  </div>
+</div>
+
+<div id="app"></div>
+
+<script>
+// ── ENV ──────────────────────────────────────────────────────────────────────
+const ENV=(()=>{
+  const ua=navigator.userAgent;
+  let b='Unknown',o='Unknown';
+  if(/Chrome\//.test(ua)&&!/Edg\//.test(ua))b='Chrome';
+  else if(/Firefox\//.test(ua))b='Firefox';
+  else if(/Safari\//.test(ua)&&!/Chrome\//.test(ua))b='Safari';
+  else if(/Edg\//.test(ua))b='Edge';
+  if(/Windows/.test(ua))o='Windows';
+  else if(/Mac OS X/.test(ua))o='macOS';
+  else if(/iPhone|iPad/.test(ua))o='iOS';
+  else if(/Android/.test(ua))o='Android';
+  else if(/Linux/.test(ua))o='Linux';
+  return{browser:b,os:o,screen:`${screen.width}×${screen.height}`};
+})();
+
+// ── DATA ─────────────────────────────────────────────────────────────────────
+const TEAMS=[
+  {id:'editor',name:'Editor',e:'✍️',desc:'Nội dung, bài viết, kịch bản',arch:'nquoc.vn (React/TS), api.nquoc.vn, Google Drive/Docs, Supabase'},
+  {id:'design',name:'Design',e:'🎨',desc:'Visual, banner, asset thiết kế',arch:'nquoc.vn (React/TS), api.nquoc.vn, Wasabi (storage), Canva, Supabase'},
+  {id:'ndata',name:'N-Data',e:'📊',desc:'Survey, thu thập data, báo cáo',arch:'data.nquoc.vn (React/TS), api.nquoc.vn, Supabase RLS+Realtime, Google Sheets/Forms'},
+  {id:'nedu',name:'N-EDU Academy',e:'🎓',desc:'Khoá học, training, học viên',arch:'nquoc.vn–NLead (React/TS), api.nquoc.vn, Vimeo API, Supabase Auth'},
+  {id:'hr',name:'HR',e:'👥',desc:'Nhân sự, onboarding, hợp đồng',arch:'team.nquoc.vn (React/TS), api.nquoc.vn, tbot.nquoc.vn (Telegram), Supabase'},
+  {id:'admin',name:'Admin',e:'⚙️',desc:'Vận hành, hệ thống nội bộ',arch:'team.nquoc.vn + data.nquoc.vn, api.nquoc.vn, Supabase full (RLS owner)'},
+  {id:'nlt',name:'NLT · N-Lead',e:'🌟',desc:'Trainee, đánh giá, leadership',arch:'nquoc.vn–NLead, api.nquoc.vn, tbot.nquoc.vn, Supabase'},
+  {id:'social',name:'Social Event',e:'🎉',desc:'Sự kiện, community, social',arch:'nquoc.vn (React/TS), api.nquoc.vn, Supabase, Zoom API'},
+];
+const RT={
+  editor:[{id:'bug_ui',i:'🐛',l:'Màn hình hiển thị sai',d:'Layout vỡ, nút không click, trang trắng'},{id:'bug_content',i:'📝',l:'Nội dung bị mất hoặc sai',d:'Bài viết, text, hình bị mất hay sai'},{id:'feature',i:'✨',l:'Cần thêm tính năng mới',d:'NQuoc chưa có thứ tôi cần'},{id:'access',i:'🔐',l:'Không vào được / Mất quyền',d:'Không đăng nhập hoặc không thấy đúng'},{id:'performance',i:'🐌',l:'Chậm / Bị treo',d:'Trang load lâu hoặc không phản hồi'}],
+  design:[{id:'bug_ui',i:'🐛',l:'Giao diện bị lỗi',d:'Layout vỡ, hình không hiển thị đúng'},{id:'upload',i:'📁',l:'Upload file bị lỗi',d:'Không upload được ảnh, video, file thiết kế'},{id:'integration',i:'🔗',l:'Canva / Google Drive lỗi',d:'Tool bên ngoài không hoạt động'},{id:'feature',i:'✨',l:'Cần thêm tính năng',d:'Workflow hoặc công cụ mới'},{id:'access',i:'🔐',l:'Không vào được / Mất quyền',d:'Không thấy folder hoặc asset'}],
+  ndata:[{id:'bug_data',i:'📊',l:'Data bị sai hoặc thiếu',d:'Số liệu báo cáo không đúng hoặc mất'},{id:'bug_ui',i:'🐛',l:'Dashboard hiển thị sai',d:'data.nquoc.vn hiển thị lỗi'},{id:'integration',i:'🔗',l:'Google Sheet / Form lỗi',d:'Sync với Google không hoạt động'},{id:'export',i:'📥',l:'Xuất data bị lỗi',d:'Không export được hoặc file sai'},{id:'feature',i:'✨',l:'Cần thêm báo cáo / view',d:'Muốn xem thêm data hoặc biểu đồ'}],
+  nedu:[{id:'bug_ui',i:'🐛',l:'Trang học bị lỗi',d:'Video không chạy, bài học không mở'},{id:'bug_content',i:'📚',l:'Nội dung khoá học sai',d:'Quiz sai đáp án, nội dung thiếu'},{id:'access',i:'🔐',l:'Học viên không vào được',d:'Lỗi đăng nhập hoặc không thấy khoá học'},{id:'performance',i:'🐌',l:'Video / trang load chậm',d:'Video buffering hoặc trang lâu'},{id:'feature',i:'✨',l:'Cần thêm tính năng học',d:'Loại bài tập hoặc tính năng mới'}],
+  hr:[{id:'bug_ui',i:'🐛',l:'Màn hình HR bị lỗi',d:'Trang HR hiển thị sai'},{id:'bug_data',i:'📋',l:'Thông tin nhân viên sai',d:'Data nhân viên không đúng'},{id:'access',i:'🔐',l:'Vấn đề quyền truy cập',d:'Không thấy thông tin đúng theo role'},{id:'notification',i:'🔔',l:'Thông báo Telegram lỗi',d:'Bot không gửi hoặc gửi sai'},{id:'feature',i:'✨',l:'Cần thêm tính năng HR',d:'Quy trình hoặc công cụ mới'}],
+  admin:[{id:'bug_ui',i:'🐛',l:'Trang admin bị lỗi',d:'Thứ gì đó trên trang quản lý sai'},{id:'bug_data',i:'📋',l:'Dữ liệu hệ thống sai',d:'Số liệu vận hành không chính xác'},{id:'access',i:'🔐',l:'Vấn đề phân quyền',d:'Ai đó thấy / không thấy thứ sai role'},{id:'report',i:'📊',l:'Báo cáo sai / thiếu',d:'Báo cáo vận hành không chính xác'},{id:'feature',i:'✨',l:'Cần thêm công cụ quản lý',d:'Tính năng vận hành mới'}],
+  nlt:[{id:'bug_ui',i:'🐛',l:'Module NLead bị lỗi',d:'Tính năng training / đánh giá không hoạt động'},{id:'bug_data',i:'📊',l:'Điểm / tiến độ bị sai',d:'Tiến độ học hoặc điểm không đúng'},{id:'access',i:'🔐',l:'Trainee không vào được',d:'Lỗi đăng nhập hoặc không thấy bài học'},{id:'notification',i:'🔔',l:'Thông báo Telegram lỗi',d:'Bot không gửi hoặc gửi sai'},{id:'feature',i:'✨',l:'Cần thêm tính năng NLead',d:'Module hoặc công cụ mới'}],
+  social:[{id:'bug_ui',i:'🐛',l:'Trang event bị lỗi',d:'Giao diện sự kiện hiển thị sai'},{id:'bug_content',i:'📢',l:'Nội dung event bị sai',d:'Thông tin sự kiện không đúng'},{id:'integration',i:'🔗',l:'Lỗi kết nối mạng xã hội',d:'Chia sẻ lên social bị lỗi'},{id:'access',i:'🔐',l:'Vấn đề quyền truy cập',d:'Không quản lý được sự kiện'},{id:'feature',i:'✨',l:'Cần thêm tính năng event',d:'Công cụ quản lý sự kiện mới'}],
+};
+const QS={
+  bug_ui:[{id:'where',q:'Trang nào / URL nào khi thấy lỗi?',h:'VD: https://nquoc.vn/tasks hoặc mô tả trang',t:'text'},{id:'steps',q:'Từng bước bạn làm trước khi thấy lỗi:',h:'1. Mở NQuoc → 2. Click Task → 3. Lọc tuần → 4. Màn hình trắng',t:'area'},{id:'freq',q:'Lỗi xảy ra thường xuyên không?',h:'',t:'sel',o:['Mỗi lần vào trang (100%)','Thỉnh thoảng (~50%)','Chỉ một lần hôm nay','Từ hôm nay mới bắt đầu']}],
+  bug_data:[{id:'what',q:'Data nào đang bị sai hoặc thiếu?',h:'VD: Số responses tuần này, tên nhân viên X…',t:'area'},{id:'correct',q:'Giá trị đúng phải là gì?',h:'Nếu biết thì điền. Nếu không, giải thích tại sao bạn nghĩ nó sai.',t:'area'},{id:'where',q:'Bạn thấy data sai ở đâu?',h:'URL trang hoặc tên tab / section',t:'text'},{id:'scope',q:'Bao nhiêu người / record bị ảnh hưởng?',h:'',t:'sel',o:['Chỉ 1 record','Nhóm nhỏ (2–10)','Nhiều người (10+)','Toàn bộ báo cáo']}],
+  bug_content:[{id:'what',q:'Nội dung nào bị mất hoặc sai?',h:'Tên bài, tiêu đề, đoạn text, hình ảnh…',t:'area'},{id:'where',q:'Nằm ở đâu trên NQuoc?',h:'URL nếu có, hoặc mô tả đường dẫn',t:'text'},{id:'lastok',q:'Lần cuối thấy đúng là khi nào?',h:'',t:'sel',o:['Chưa bao giờ đúng','Trước lần update gần nhất','Hôm qua vẫn đúng','Tuần trước']}],
+  feature:[{id:'pain',q:'Hiện tại đang gặp khó khăn gì?',h:'Mô tả vấn đề — không cần giải pháp, chỉ cần nói đau chỗ nào.',t:'area'},{id:'workaround',q:'Đang tạm xử lý bằng cách nào?',h:'VD: Dùng Google Sheet riêng, nhắn Telegram thủ công…',t:'area'},{id:'ideal',q:'Muốn NQuoc hoạt động thế nào?',h:'"Khi tôi làm X, tôi muốn thấy Y, rồi Z xảy ra…"',t:'area'},{id:'who',q:'Tính năng giúp được ai?',h:'',t:'sel',o:['Chỉ mình tôi','Team tôi (2–10)','Nhiều team','Toàn công ty (130+)']}],
+  access:[{id:'what',q:'Không vào / thấy được thứ gì?',h:'VD: Không đăng nhập, không thấy tab X, không sửa được Y',t:'area'},{id:'err',q:'Màn hình có thông báo lỗi gì không?',h:'Copy text lỗi vào đây. Nếu không, mô tả màn hình.',t:'area'},{id:'who',q:'Ai đang bị ảnh hưởng?',h:'',t:'sel',o:['Chỉ mình tôi','Vài người trong team','Cả team','Một member cụ thể']}],
+  performance:[{id:'what',q:'Phần nào của NQuoc đang chậm?',h:'VD: Trang Dashboard, load danh sách task…',t:'text'},{id:'slow',q:'Chậm khoảng bao lâu?',h:'',t:'sel',o:['3–5 giây','5–10 giây','Hơn 10 giây','Load mãi — bị treo']},{id:'when',q:'Chậm vào thời điểm nào?',h:'',t:'sel',o:['Mọi lúc đều chậm','Chỉ giờ cao điểm','Buổi sáng sớm','Ngẫu nhiên']}],
+  integration:[{id:'tool',q:'Tool nào đang bị lỗi kết nối?',h:'',t:'sel',o:['Google Drive/Docs/Sheets','Google Forms','Canva','Telegram Bot','Zoom','Vimeo','Wasabi','Tool khác']},{id:'err',q:'Điều gì xảy ra khi dùng tính năng đó?',h:'Có thông báo lỗi không?',t:'area'},{id:'lastok',q:'Lần cuối hoạt động là khi nào?',h:'',t:'sel',o:['Chưa bao giờ','Hôm qua vẫn được','Tuần trước','Không nhớ']}],
+  upload:[{id:'ftype',q:'Loại file nào đang cố upload?',h:'',t:'sel',o:['Hình ảnh (JPG/PNG/GIF)','Video (MP4/MOV)','PDF','File thiết kế (PSD/AI/Figma)','File khác']},{id:'fsize',q:'File nặng khoảng bao nhiêu?',h:'',t:'sel',o:['Dưới 5MB','5–20MB','20–100MB','Hơn 100MB']},{id:'err',q:'Chuyện gì xảy ra khi upload?',h:'',t:'area'}],
+  export:[{id:'what',q:'Đang cố xuất loại data nào?',h:'VD: Báo cáo survey tuần, danh sách member…',t:'text'},{id:'fmt',q:'Muốn xuất dưới dạng gì?',h:'',t:'sel',o:['Excel (.xlsx)','CSV','PDF','Google Sheets','Không quan trọng']},{id:'err',q:'Chuyện gì xảy ra khi click xuất?',h:'',t:'sel',o:['Nút không hoạt động','File xuống nhưng data sai','File lỗi không mở được','Không có nút — cần thêm tính năng']}],
+  notification:[{id:'type',q:'Loại thông báo nào đang bị lỗi?',h:'',t:'sel',o:['Telegram bot không nhắn','Nhận thông báo nhầm','Không nhận được','Đến trễ','Đến quá nhiều']},{id:'trigger',q:'Sự kiện nào đáng lẽ phải trigger thông báo?',h:'VD: Khi có task mới, khi trainee nộp bài…',t:'area'},{id:'affected',q:'Ai đang bị ảnh hưởng?',h:'',t:'sel',o:['Chỉ mình tôi','Cả team','Member cụ thể','Nhiều team']}],
+  report:[{id:'which',q:'Báo cáo nào đang bị sai?',h:'Tên báo cáo hoặc mô tả',t:'text'},{id:'wrong',q:'Điều gì sai?',h:'Số liệu sai, thiếu, hiển thị lỗi…',t:'area'},{id:'usedfor',q:'Báo cáo này dùng để làm gì?',h:'VD: Report lên Nhi, báo cáo KPI…',t:'text'}],
+};
+const defaultQS=QS.bug_ui;
+const ARCH=[
+  {id:'frontend_nquoc',icon:'🌐',name:'nquoc.vn',desc:'Trang chính — all members'},
+  {id:'frontend_team',icon:'🏢',name:'team.nquoc.vn',desc:'Leader / HR / Manager'},
+  {id:'frontend_data',icon:'📊',name:'data.nquoc.vn',desc:'Analytics / Admin'},
+  {id:'api',icon:'⚙️',name:'api.nquoc.vn',desc:'Backend API (Express)'},
+  {id:'db',icon:'🗄️',name:'Supabase DB',desc:'Database / RLS / Auth'},
+  {id:'bot',icon:'🤖',name:'tbot.nquoc.vn',desc:'Telegram Bot worker'},
+  {id:'external',icon:'🔗',name:'External service',desc:'Google / Canva / Vimeo / Wasabi'},
+  {id:'unknown',icon:'❓',name:'Không rõ',desc:'Để IT xác định'},
+];
+const SEVS=[
+  {id:'P0',cls:'p0',emoji:'🔴',label:'P0 — Blocker',desc:'Hệ thống không dùng được',sla:'SLA: 2 giờ'},
+  {id:'P1',cls:'p1',emoji:'🟠',label:'P1 — Critical',desc:'Tính năng chính bị lỗi',sla:'SLA: 8 giờ'},
+  {id:'P2',cls:'p2',emoji:'🟡',label:'P2 — Medium',desc:'Bug nhỏ, có cách khác',sla:'SLA: 72 giờ'},
+  {id:'P3',cls:'p3',emoji:'🟢',label:'P3 — Low / Feature',desc:'Improvement, not urgent',sla:'SLA: Sprint tiếp'},
+];
+const REPRODUCTIONS=['✅ Reproduce 100%','⚠️ Reproduce ~50%','🎲 Chỉ một lần','❓ Chưa thử'];
+const FILE_SLOTS={
+  bug_ui:[{id:'screenshot',e:'📸',label:'Screenshot màn hình lỗi',hint:'Phải có URL bar trong ảnh',req:true,accept:'image/*'},{id:'recording',e:'🎬',label:'Screen recording',hint:'Quay lúc lỗi xảy ra',req:false,accept:'video/*'},{id:'console',e:'💻',label:'Console / Network logs',hint:'F12 → Console → Save as',req:false,accept:'.txt,.json,.har,.html,.log'},{id:'userstory',e:'📋',label:'User Story từ Claude',hint:'Output DOCX từ Claude.ai',req:true,accept:'.docx,.pdf,.txt,.md'}],
+  bug_data:[{id:'screenshot',e:'📸',label:'Screenshot data sai',hint:'Kèm source đúng để so sánh',req:true,accept:'image/*'},{id:'datafile',e:'📊',label:'File data (Excel / CSV)',hint:'File gốc nếu có',req:false,accept:'.xlsx,.csv,.xls,.json'},{id:'userstory',e:'📋',label:'User Story từ Claude',hint:'Output DOCX từ Claude.ai',req:true,accept:'.docx,.pdf,.txt'}],
+  bug_content:[{id:'screenshot',e:'📸',label:'Screenshot nội dung lỗi',hint:'Kèm URL bar trong ảnh',req:true,accept:'image/*'},{id:'backup',e:'📄',label:'Nội dung đúng (backup)',hint:'File text / DOCX nếu còn',req:false,accept:'.docx,.txt,.pdf,.md'},{id:'userstory',e:'📋',label:'User Story từ Claude',hint:'Output từ Claude.ai',req:true,accept:'.docx,.pdf,.txt'}],
+  feature:[{id:'sketch',e:'✏️',label:'Sketch / Mockup',hint:'Vẽ tay chụp lại hoặc Figma',req:false,accept:'image/*,.pdf,.fig'},{id:'recording',e:'🎬',label:'Recording quy trình hiện tại',hint:'Quay màn hình bạn đang làm thủ công',req:true,accept:'video/*'},{id:'reference',e:'🔗',label:'Screenshot tham khảo',hint:'App khác làm được điều bạn muốn',req:false,accept:'image/*'},{id:'userstory',e:'📋',label:'User Story từ Claude',hint:'Output DOCX từ Claude.ai',req:true,accept:'.docx,.pdf,.txt'}],
+  access:[{id:'screenshot',e:'📸',label:'Screenshot thông báo lỗi',hint:'Phải thấy URL bar + error message',req:true,accept:'image/*'},{id:'userstory',e:'📋',label:'User Story từ Claude',hint:'Output từ Claude.ai',req:true,accept:'.docx,.pdf,.txt'}],
+  performance:[{id:'recording',e:'🎬',label:'Screen recording chậm',hint:'Quay từ bắt đầu load đến hết',req:true,accept:'video/*'},{id:'network',e:'🌐',label:'Network HAR file',hint:'F12 → Network → Export HAR',req:false,accept:'.har,.json'},{id:'screenshot',e:'📸',label:'Screenshot Network tab',hint:'F12 → Network → chụp dòng đỏ',req:false,accept:'image/*'},{id:'userstory',e:'📋',label:'User Story từ Claude',hint:'Output từ Claude.ai',req:true,accept:'.docx,.pdf,.txt'}],
+  integration:[{id:'screenshot',e:'📸',label:'Screenshot thông báo lỗi',hint:'Chụp ngay khi lỗi xuất hiện',req:true,accept:'image/*'},{id:'userstory',e:'📋',label:'User Story từ Claude',hint:'Output từ Claude.ai',req:true,accept:'.docx,.pdf,.txt'}],
+  upload:[{id:'screenshot',e:'📸',label:'Screenshot lúc upload lỗi',hint:'Chụp ngay khi lỗi',req:true,accept:'image/*'},{id:'thefile',e:'📁',label:'File đang cố upload',hint:'ĐỪNG XÓA — IT cần test lại',req:true,accept:'*'},{id:'userstory',e:'📋',label:'User Story từ Claude',hint:'Output từ Claude.ai',req:false,accept:'.docx,.pdf,.txt'}],
+  export:[{id:'screenshot',e:'📸',label:'Screenshot khi xuất lỗi',hint:'Chụp ngay khi lỗi',req:true,accept:'image/*'},{id:'badfile',e:'📊',label:'File xuống (dù bị lỗi)',hint:'Đính kèm để IT so sánh',req:false,accept:'.xlsx,.csv,.pdf,.json'},{id:'userstory',e:'📋',label:'User Story từ Claude',hint:'Output từ Claude.ai',req:false,accept:'.docx,.pdf,.txt'}],
+  notification:[{id:'screenshot',e:'📸',label:'Screenshot Telegram / app',hint:'Chụp nơi thông báo bị lỗi',req:false,accept:'image/*'},{id:'userstory',e:'📋',label:'User Story từ Claude',hint:'Output từ Claude.ai',req:true,accept:'.docx,.pdf,.txt'}],
+  report:[{id:'screenshot',e:'📸',label:'Screenshot báo cáo sai',hint:'Kèm filter / điều kiện đang dùng',req:true,accept:'image/*'},{id:'userstory',e:'📋',label:'User Story từ Claude',hint:'Output từ Claude.ai',req:true,accept:'.docx,.pdf,.txt'}],
+};
+const defaultSlots=FILE_SLOTS.bug_ui;
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+const S={
+  step:1,team:null,req:null,severity:null,archComp:null,reproduced:null,
+  expectedBehavior:'',actualBehavior:'',qi:0,answers:{},tab:0,
+  copied:false,briefCopied:false,slotFiles:{},extraFiles:[],
+};
+
+// ── GATE LOGIC ────────────────────────────────────────────────────────────────
+function getGate(step){
+  const isBug=S.req&&!S.req.includes('feature');
+  const qs=getQs();
+  const answeredCount=qs.filter(q=>S.answers[q.id]&&S.answers[q.id]!=='(bỏ qua)').length;
+  const gates={
+    1:[{id:'team',label:'Chọn team của bạn',ok:!!S.team,req:true,targetId:'teamGrid'}],
+    2:[
+      {id:'team',label:`Team: ${getTeamObj()?.name||''}`,ok:true,req:true},
+      {id:'req',label:'Chọn loại yêu cầu',ok:!!S.req,req:true,targetId:'reqList'},
+    ],
+    3:[
+      {id:'sev',label:'Chọn mức độ ưu tiên (Severity)',ok:!!S.severity,req:true,targetId:'sevGrid'},
+      {id:'arch',label:'Chọn component bị ảnh hưởng',ok:!!S.archComp,req:true,targetId:'archGrid'},
+      ...(isBug?[
+        {id:'exp',label:'Điền Expected behavior (ô xanh lá)',ok:S.expectedBehavior.trim().length>5,req:true,targetId:'ea_exp'},
+        {id:'act',label:'Điền Actual behavior (ô đỏ)',ok:S.actualBehavior.trim().length>5,req:true,targetId:'ea_act'},
+        {id:'repro',label:'Chọn Reproducibility',ok:!!S.reproduced,req:false,targetId:'reproRow'},
+      ]:[]),
+    ],
+    4:[
+      {id:'qprog',label:`Trả lời câu hỏi phỏng vấn (${answeredCount}/${qs.length})`,ok:answeredCount>=qs.length,req:true},
+    ],
+    5:[
+      {id:'files',label:`Upload ít nhất 1 file`,ok:totalFileCount()>0,req:true,targetId:'uploadSection'},
+      {id:'reqslots',label:'Điền đủ các slot file bắt buộc',ok:requiredSlotsFilled(),req:false,targetId:'uploadSection'},
+    ],
+  };
+  return gates[step]||[];
+}
+function canProceed(step){
+  return getGate(step).filter(g=>g.req).every(g=>g.ok);
+}
+function missingCount(step){
+  return getGate(step).filter(g=>g.req&&!g.ok).length;
+}
+
+// ── SCORE ─────────────────────────────────────────────────────────────────────
+function calcScore(){
+  let s=0;
+  if(S.team)s+=8;if(S.req)s+=8;if(S.severity)s+=12;if(S.archComp)s+=8;if(S.reproduced)s+=5;
+  const isBug=S.req&&!S.req.includes('feature');
+  if(isBug){if(S.expectedBehavior.trim().length>5)s+=9;if(S.actualBehavior.trim().length>5)s+=9;}else s+=18;
+  const qs=getQs();
+  const ans=qs.filter(q=>S.answers[q.id]&&S.answers[q.id]!=='(bỏ qua)').length;
+  s+=Math.round((ans/Math.max(qs.length,1))*18);
+  const slots=getSlots();
+  const filled=slots.filter(sl=>!!S.slotFiles[sl.id]).length;
+  s+=Math.round((filled/Math.max(slots.length,1))*15);
+  if(totalFileCount()>0)s=Math.max(s,30);
+  if(S.step>=5)s=Math.max(s,50);
+  return Math.min(s,100);
+}
+function scoreColor(s){return s>=85?'#16A34A':s>=60?'#EAB308':'#EF4444';}
+function scoreLabel(s){return s>=85?'Đủ để IT fix ngay ✓':s>=60?'Gần đủ':'Cần thêm thông tin';}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function getTeamObj(){return TEAMS.find(x=>x.id===S.team);}
+function getReqObj(){return(RT[S.team]||[]).find(x=>x.id===S.req);}
+function getQs(){return QS[S.req]||defaultQS;}
+function getSevObj(){return SEVS.find(x=>x.id===S.severity);}
+function getArchObj(){return ARCH.find(x=>x.id===S.archComp);}
+function getSlots(){return FILE_SLOTS[S.req]||defaultSlots;}
+function isBugType(){return S.req&&!S.req.includes('feature');}
+function totalFileCount(){return Object.keys(S.slotFiles).length+S.extraFiles.length;}
+function requiredSlotsFilled(){return getSlots().filter(s=>s.req).every(s=>!!S.slotFiles[s.id]);}
+function fmtSize(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFixed(1)+'KB';return(b/1048576).toFixed(1)+'MB';}
+function fileIcon(n){const e=(n.split('.').pop()||'').toLowerCase();if(['jpg','jpeg','png','gif','webp'].includes(e))return'🖼️';if(['mp4','mov','avi','webm'].includes(e))return'🎬';if(['pdf'].includes(e))return'📕';if(['docx','doc'].includes(e))return'📝';if(['xlsx','xls','csv'].includes(e))return'📊';if(['zip','rar'].includes(e))return'🗜️';if(['txt','md','log'].includes(e))return'📄';if(['har','json'].includes(e))return'💾';return'📎';}
+function isImage(t){return t&&t.startsWith('image/');}
+function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function escA(s){return String(s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function readFile(file,cb){const r=new FileReader();r.onload=e=>cb({name:file.name,type:file.type,size:file.size,dataUrl:e.target.result});r.readAsDataURL(file);}
+function handleSlotDrop(slotId,files){if(!files?.length)return;readFile(files[0],data=>{S.slotFiles[slotId]=data;renderUpload();updateScore();});}
+function handleExtraFiles(files){Array.from(files).forEach(f=>readFile(f,data=>{S.extraFiles.push(data);renderUpload();updateScore();}));}
+function removeSlotFile(slotId){delete S.slotFiles[slotId];renderUpload();updateScore();}
+function removeExtraFile(i){S.extraFiles.splice(i,1);renderUpload();updateScore();}
+
+// ── SCROLL TO FIELD ───────────────────────────────────────────────────────────
+function scrollToMissing(step){
+  const gates=getGate(step);
+  const first=gates.find(g=>g.req&&!g.ok&&g.targetId);
+  if(first){const el=document.getElementById(first.targetId);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.style.outline='2px solid #EAB308';setTimeout(()=>{el.style.outline='';},2000);}}
+}
+
+// ── TIMELINE DATA ─────────────────────────────────────────────────────────────
+const TL_STEPS=[
+  {id:1,label:'Team',subFn:()=>getTeamObj()?.name||'Chọn team'},
+  {id:2,label:'Loại',subFn:()=>getReqObj()?.l.substring(0,18)||'Chọn loại'},
+  {id:3,label:'Context',subFn:()=>S.severity?(getSevObj()?.id+' · '+(getArchObj()?.name||'?')):'Severity + Component'},
+  {id:4,label:'Phỏng vấn',subFn:()=>{const qs=getQs();const ans=qs.filter(q=>S.answers[q.id]&&S.answers[q.id]!=='(bỏ qua)').length;return S.step>4?`${ans}/${qs.length} câu`:`${ans}/${qs.length} câu đã trả lời`;}},
+  {id:5,label:'Upload & Gửi',subFn:()=>totalFileCount()>0?`${totalFileCount()} files`:'Upload file + Gửi IT'},
+];
+
+function renderTimeline(){
+  return`<div class="timeline"><div class="tl-inner">${TL_STEPS.map((tl,i)=>{
+    const done=S.step>tl.id&&canProceed(tl.id);
+    const active=S.step===tl.id;
+    const err=S.step>tl.id&&!canProceed(tl.id);
+    const cls=done?'done':active?'active':err?'error':'locked';
+    const dotContent=done?'✓':active?String(tl.id):err?'!':String(tl.id);
+    const clickable=done||active;
+    const clk=clickable?'onclick="goStep('+tl.id+')" style="cursor:pointer"':'';
+    return`<div class="tl-step ${cls}" ${clk}>
+      <div class="tl-dot">${dotContent}</div>
+      <div class="tl-label">${tl.label}</div>
+      <div class="tl-sublabel">${tl.subFn()}</div>
+    </div>`;
+  }).join('')}</div></div>`;
+}
+
+// ── GATE PANEL ────────────────────────────────────────────────────────────────
+function renderGatePanel(step,nextStep,nextLabel,backStep){
+  const gates=getGate(step);
+  const ready=canProceed(step);
+  const missing=missingCount(step);
+  const gateItems=gates.map(g=>{
+    const cls2=g.ok?'ok':g.req?'missing':'optional';
+    const oc=(!g.ok&&g.req&&g.targetId)?'onclick="document.getElementById(\''+g.targetId+'\')?.scrollIntoView({behavior:\'smooth\',block:\'center\'})"':'';
+    const dot=g.ok?'✓':g.req?'!':'○';
+    const arrow=(!g.ok&&g.req)?'<span style="font-size:9px;color:#EAB308;margin-left:auto">← click để đến đây</span>':'';
+    return`<div class="gate-item ${cls2}" ${oc}><div class="gate-dot">${dot}</div><span>${g.label}</span>${arrow}</div>`;
+  }).join('');
+  const btnText=ready?(nextLabel+' →'):('Cần '+missing+' mục nữa để tiếp tục');
+  return`<div class="gate-panel">
+    <div class="gate-inner">
+      <div class="gate-title">Checklist bước ${step}</div>
+      <div class="gate-list">${gateItems}</div>
+      <div class="gate-btn-row">
+        ${backStep?('<button class="gate-back" onclick="goStep('+backStep+')">← Quay lại</button>'):''}
+        <button class="gate-btn ${ready?'ready':'blocked'}" onclick="${ready?'goStep('+nextStep+')':'scrollToMissing('+step+')'}">
+          ${!ready?('<span class="missing-count">'+missing+'</span>'):''}
+          ${btnText}
+        </button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── PROMPT BUILDER ─────────────────────────────────────────────────────────────
+function buildPrompt(){
+  const t=getTeamObj()||{name:'',arch:''};const r=getReqObj()||{l:''};
+  const sev=getSevObj()||{id:'P2',sla:'72h'};const arch=getArchObj()||{name:'?',desc:''};
+  const qs=getQs();const d=new Date().toLocaleDateString('vi-VN');const score=calcScore();
+  const answered=qs.map(q=>'- '+q.q+'\n  -> '+(S.answers[q.id]||'(chua tra loi)')).join('\n\n');
+  const allFiles=[
+    ...Object.entries(S.slotFiles).map(([sid,f])=>{const sl=getSlots().find(s=>s.id===sid);return'  '+f.name+' ('+fmtSize(f.size)+') - '+(sl?sl.label:'Extra');}),
+    ...S.extraFiles.map(f=>'  '+f.name+' ('+fmtSize(f.size)+')')
+  ].join('\n');
+  const ea=isBugType()?('\nExpected: '+(S.expectedBehavior||'(chua dien)')+'\nActual: '+(S.actualBehavior||'(chua dien)')+'\nRepro: '+(S.reproduced||'(chua chon)')):'(feature request)';
+  const dv='='.repeat(63);
+  return ['='.repeat(64),'   YEU CAU IT - NhiLe Holdings / NQuoc v4','='.repeat(64),'',
+    sev.emoji+' '+sev.id+' | Team '+t.name+' | '+r.l+' | '+score+'% complete',
+    'Component: '+arch.name+' ('+arch.desc+') | '+sev.sla,'',
+    'FILES ('+totalFileCount()+'):',allFiles||'  (chua co file)','',
+    'EXPECTED vs ACTUAL:',ea,'',
+    'Browser: '+ENV.browser+' / '+ENV.os+' / '+ENV.screen+' / '+d,
+    'Stack: '+t.arch,'','PHONG VAN:',answered,'',
+    dv,'HUONG DAN CHO CLAUDE - PASTE VAO CLAUDE.AI',dv,'',
+    'Ban la Senior Software Architect review ticket tu team '+t.name+'.',
+    'Severity: '+sev.id+' - '+sev.sla+' | Component: '+arch.name,
+    'Stack: nquoc.vn/team.nquoc.vn/data.nquoc.vn (React/TS), api.nquoc.vn (Express/TS), Supabase',
+    'External: Google Cloud, Telegram Bot API, Vimeo, Canva, Wasabi, SMTP, Zoom','',
+    '5 buoc:','1. PHAN TICH KY THUAT - loai issue + root cause',
+    '2. USER STORY (1-3) - As a/I want/So that/AC/Tech Notes/Priority '+sev.id,
+    '3. CHECKLIST IT - 3-5 buoc check','4. GIAI PHAP - code/SQL/config',
+    '5. HOI LAI - toi da 2 cau (ticket da '+score+'% complete)',dv].join('\n');
+}
+function buildBriefText(){
+  const t=getTeamObj()||{name:''};const r=getReqObj()||{l:''};
+  const sev=getSevObj()||{id:'P2',sla:'72h'};const arch=getArchObj()||{name:'?'};const score=calcScore();
+  const files=[
+    ...Object.entries(S.slotFiles).map(([sid,f])=>{const sl=getSlots().find(s=>s.id===sid)||{};return(sl.e||'*')+' '+f.name+' ('+fmtSize(f.size)+')';}),
+    ...S.extraFiles.map(f=>fileIcon(f.name)+' '+f.name+' ('+fmtSize(f.size)+')')
+  ].join('\n');
+  const ea=isBugType()?('\nExpected: '+(S.expectedBehavior.substring(0,80)||'-')+'\nActual: '+(S.actualBehavior.substring(0,80)||'-')+(S.reproduced?'\nRepro: '+S.reproduced:'')):'\n(Feature request)';
+  return 'YEU CAU IT - NhiLe Holdings\n'+'─'.repeat(30)+'\n'
+    +sev.emoji+' '+sev.id+' | Team '+t.name+' | '+r.l+'\n'
+    +'Component: '+arch.name+' | '+ENV.browser+'/'+ENV.os+'\n'
+    +sev.sla+' | '+score+'% complete'+ea+'\n\n'
+    +'Files ('+totalFileCount()+'):\n'+(files||'(chua co file)')+'\n\n'
+    +'-> Paste Claude prompt de nhan User Story day du.';
+}
+// ── RENDER UPLOAD ──────────────────────────────────────────────────────────────
+function renderUpload(){
+  const c=document.getElementById('uploadTabContent');if(!c)return;
+  const slots=getSlots();
+  // Build slots HTML with string concat — no nested template literals
+  let slotsHtml='';
+  slots.forEach(sl=>{
+    const f=S.slotFiles[sl.id];
+    const sc='slot'+(sl.req?' req':'')+(f?' filled':'');
+    const dAttrs='ondragover="event.preventDefault();this.classList.add(\'dragover-slot\')" '
+      +'ondragleave="this.classList.remove(\'dragover-slot\')" '
+      +'ondrop="this.classList.remove(\'dragover-slot\');handleSlotDrop(\''+sl.id+'\',event.dataTransfer?.files)"';
+    let inner='';
+    if(f) inner+='<button class="slot-remove" onclick="event.stopPropagation();removeSlotFile(\''+sl.id+'\')">×</button>';
+    inner+='<div class="slot-emoji">'+(f?(isImage(f.type)?'':fileIcon(f.name)):sl.e)+'</div>';
+    if(f&&isImage(f.type)) inner+='<img src="'+f.dataUrl+'" style="width:46px;height:36px;object-fit:cover;border-radius:5px;margin-bottom:4px">';
+    inner+='<div class="slot-label">'+sl.label+'</div>';
+    inner+='<div class="slot-hint">'+sl.hint+'</div>';
+    const bc=f?'filled-ok':sl.req?'req':'opt';
+    const bt=f?'✓ Đã có':sl.req?'Bắt buộc':'Tốt nếu có';
+    inner+='<span class="slot-badge '+bc+'">'+bt+'</span>';
+    if(f) inner+='<div style="font-size:9px;color:#4ADE80;margin-top:3px;word-break:break-all;max-width:130px">'+escH(f.name)+'</div>'
+            +'<div style="font-size:8px;color:#4B5563">'+fmtSize(f.size)+'</div>';
+    if(!f) inner+='<input type="file" onchange="handleSlotDrop(\''+sl.id+'\',this.files)">';
+    slotsHtml+='<div class="'+sc+'" '+dAttrs+'>'+inner+'</div>';
+  });
+  // Extra files
+  let extraHtml='';
+  if(S.extraFiles.length){
+    extraHtml='<div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px">Files bổ sung</div>';
+    S.extraFiles.forEach((f,i)=>{
+      const thumb=isImage(f.type)
+        ?'<img class="file-thumb" src="'+f.dataUrl+'">'
+        :'<div class="file-thumb-icon">'+fileIcon(f.name)+'</div>';
+      extraHtml+='<div class="file-item">'+thumb
+        +'<div style="flex:1;min-width:0">'
+          +'<div class="file-name">'+escH(f.name)+'</div>'
+          +'<div class="file-meta">'+fmtSize(f.size)+' · File bổ sung</div>'
+        +'</div>'
+        +'<button class="file-remove" onclick="removeExtraFile('+i+')">×</button>'
+        +'</div>';
+    });
+  }
+  // Send readiness
+  const sv=S.severity?'ok':'warn', sv2=S.archComp?'ok':'warn';
+  const fc=totalFileCount(), rs=requiredSlotsFilled(), sc2=calcScore();
+  const sendReady='<div class="sc '+(fc>0?'ok':'warn')+'">'+(fc>0?'✓ '+fc+' files':'⚠ Chưa có file')+'</div>'
+    +'<div class="sc '+(rs?'ok':'warn')+'">'+(rs?'✓ Slots OK':'⚠ Thiếu slot bắt buộc')+'</div>'
+    +'<div class="sc '+(sc2>=70?'ok':'warn')+'">'+sc2+'% complete</div>';
+
+  c.innerHTML='<p style="font-size:11px;color:#9CA3AF;margin-bottom:12px;line-height:1.6">Kéo thả vào từng slot. File đầy đủ = IT <strong style="color:#F9FAFB">không cần hỏi lại</strong>.</p>'
+    +'<div class="section-title" id="uploadSection">📂 Slots file theo loại yêu cầu</div>'
+    +'<div class="slot-grid">'+slotsHtml+'</div>'
+    +'<div class="section-title" style="margin-top:16px">📁 Thêm bất kỳ file nào khác</div>'
+    +'<div class="dropzone" ondragover="event.preventDefault();this.classList.add(\'dragover\')" ondragleave="this.classList.remove(\'dragover\')" ondrop="this.classList.remove(\'dragover\');handleExtraFiles(event.dataTransfer?.files)">'
+      +'<input type="file" multiple onchange="handleExtraFiles(this.files)">'
+      +'<div class="dz-icon">📂</div>'
+      +'<div class="dz-text">Kéo thả bất kỳ file vào đây</div>'
+      +'<div class="dz-sub">hoặc click để chọn nhiều file</div>'
+      +'<div class="dz-types">'
+        +'<span class="dz-badge">📸 Screenshot .PNG .JPG</span>'
+        +'<span class="dz-badge">🎬 Recording .MP4 .MOV</span>'
+        +'<span class="dz-badge">📋 UserStory .DOCX .PDF</span>'
+        +'<span class="dz-badge">📊 Data .XLSX .CSV</span>'
+        +'<span class="dz-badge">💻 Console .HAR .JSON</span>'
+        +'<span class="dz-badge">🗜️ Archive .ZIP</span>'
+        +'<span class="dz-badge">🎨 Design .FIG .PSD .AI</span>'
+      +'</div>'
+    +'</div>'
+    +extraHtml
+    +'<div class="send-zone">'
+      +'<div style="font-size:12px;font-weight:700;color:#A78BFA;margin-bottom:5px">📨 Sẵn sàng gửi cho IT Team</div>'
+      +'<div class="send-ready">'
+        +'<div class="sc '+sv+'">'+( S.severity?'✓':'⚠')+' Severity</div>'
+        +'<div class="sc '+sv2+'">'+(S.archComp?'✓':'⚠')+' Component</div>'
+        +sendReady
+      +'</div>'
+      +'<button class="send-btn" onclick="openSendModal()" style="margin-top:12px">📨 Gửi cho IT Team →</button>'
+    +'</div>';
+}
+
+function openSendModal(){
+  try{
+    const score=calcScore();
+    const brief=buildBriefText();
+    const slots=getSlots();
+    const fileCount=totalFileCount();
+    // Build files list
+    let fHtml='';
+    Object.entries(S.slotFiles).forEach(([sid,f])=>{
+      const sl=slots.find(s=>s.id===sid)||{};
+      fHtml+='<div style="display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:1px solid #1F2937;font-size:11px">'
+        +'<span style="font-size:14px">'+(sl.e||'📎')+'</span>'
+        +'<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escH(f.name)+'</span>'
+        +'<span style="color:#4B5563;flex-shrink:0">'+fmtSize(f.size)+'</span>'
+        +(sl.req?'<span style="background:#7C3AED22;color:#A78BFA;font-size:8px;padding:1px 6px;border-radius:10px;margin-left:4px;flex-shrink:0">Bắt buộc</span>':'')
+        +'</div>';
+    });
+    S.extraFiles.forEach(f=>{
+      fHtml+='<div style="display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:1px solid #1F2937;font-size:11px">'
+        +'<span style="font-size:14px">'+fileIcon(f.name)+'</span>'
+        +'<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escH(f.name)+'</span>'
+        +'<span style="color:#4B5563;flex-shrink:0">'+fmtSize(f.size)+'</span>'
+        +'</div>';
+    });
+    if(!fHtml) fHtml='<div style="color:#4B5563;font-size:11px;text-align:center;padding:10px">Chưa có file — quay lại upload trước khi gửi</div>';
+    const statusMsg=score>=85
+      ?'✅ Ticket đầy đủ — IT có thể bắt đầu fix ngay.'
+      :score>=60
+        ?'⚠️ Gần đủ — IT có thể cần hỏi thêm vài điểm.'
+        :'❗ Chưa đủ — nên bổ sung thêm thông tin.';
+    const body=document.getElementById('sendModalBody');
+    if(!body){console.error('sendModalBody not found');return;}
+    body.innerHTML=
+      '<p style="font-size:11px;color:#9CA3AF;margin-bottom:14px;line-height:1.6">'+statusMsg+'</p>'
+      +'<div class="ch-card">'
+        +'<div class="ch-hdr">'
+          +'<div class="ch-icon">🤖</div>'
+          +'<div><div class="ch-name">Telegram — Nhóm IT NhiLe</div>'
+          +'<div class="ch-desc">Paste message này + đính kèm '+fileCount+' file</div></div>'
+          +'<button class="cbtn" id="copyBriefBtn" onclick="doCopyBrief()" style="margin-left:auto;font-size:10px;padding:3px 10px">Copy</button>'
+        +'</div>'
+        +'<div class="msg-preview" id="tgMsgContent" style="white-space:pre-wrap">'+escH(brief)+'</div>'
+      +'</div>'
+      +'<div style="background:#111827;border:1px solid #1F2937;border-radius:9px;padding:12px;margin-bottom:12px">'
+        +'<div style="font-size:10px;font-weight:700;color:#9CA3AF;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">📎 Files đính kèm ('+fileCount+')</div>'
+        +fHtml
+      +'</div>'
+      +'<div style="display:flex;gap:8px">'
+        +'<button class="btn-p" onclick="confirmSent()" style="flex:1">✓ Đã gửi xong</button>'
+        +'<button class="btn-g" onclick="closeSendModal()">Quay lại bổ sung</button>'
+      +'</div>';
+    const modal=document.getElementById('sendModal');
+    if(modal) modal.style.display='flex';
+  }catch(err){
+    console.error('openSendModal error:',err);
+    alert('Lỗi khi mở giao diện gửi: '+err.message+'\n\nVui lòng reload trang và thử lại.');
+  }
+}
+function doCopyBrief(){
+  const el=document.getElementById('tgMsgContent');
+  if(!el) return;
+  copyText(el.textContent||el.innerText);
+  const btn=document.getElementById('copyBriefBtn');
+  if(btn){btn.textContent='✓ Copied!';btn.classList.add('ok');setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('ok');},2500);}
+}
+
+function closeSendModal(){document.getElementById('sendModal').style.display='none';}
+function confirmSent(){document.getElementById('sendModal').style.display='none';S.step=6;render();}
+function copyText(txt){if(navigator.clipboard)navigator.clipboard.writeText(txt);else{const t=document.createElement('textarea');t.value=txt;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);}}
+
+// ── MAIN RENDER ────────────────────────────────────────────────────────────────
+function updateScore(){
+  const s=calcScore();
+  const f=document.querySelector('.sbar-fill');if(f){f.style.width=s+'%';f.style.background=scoreColor(s);}
+  const p=document.querySelector('.sbar-pct');if(p){p.textContent=s+'%';p.style.color=scoreColor(s);}
+  const l=document.querySelector('.sbar-lbl');if(l)l.textContent=scoreLabel(s);
+}
+
+function render(){
+  const team=getTeamObj(),req=getReqObj(),sev=getSevObj(),arch=getArchObj();
+  const qs=getQs(),cq=qs[S.qi]||qs[0];
+  const score=calcScore();
+  const isBug=isBugType();
+
+  // ── STEP 6: SUCCESS SCREEN ──────────────────────────────────────────────────
+  if(S.step===6){
+    const sev=getSevObj()||{emoji:'🟡',id:'P2',sla:'72 gio'};
+    const team=getTeamObj()||{name:'?',e:''};
+    const req2=getReqObj()||{l:'?'};
+    const fc=totalFileCount();
+    const slaTxt=sev.sla.replace('SLA: ','');
+    const now=new Date();
+    const ts=now.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})+' · '+now.toLocaleDateString('vi-VN');
+    document.getElementById('app').innerHTML=
+      '<div class="hdr"><div class="logo">✅</div>'
+        +'<div><div class="hdr-t">NQuoc · IT Request</div><div class="hdr-s">Yêu cầu đã gửi thành công</div></div>'
+      +'</div>'
+      +'<div style="max-width:500px;margin:0 auto;padding:32px 20px">'
+        +'<div style="text-align:center;margin-bottom:28px">'
+          +'<div style="font-size:64px;margin-bottom:12px">✅</div>'
+          +'<h2 style="font-size:22px;font-weight:800;letter-spacing:-.4px;margin-bottom:6px">Đã gửi cho IT Team!</h2>'
+          +'<p style="font-size:13px;color:#9CA3AF;line-height:1.65">Yêu cầu đã được ghi nhận.<br>IT team sẽ phản hồi trong vòng <strong style="color:#F9FAFB">'+slaTxt+'</strong>.</p>'
+        +'</div>'
+        +'<div style="background:#111827;border:1px solid #1F2937;border-radius:12px;padding:16px;margin-bottom:14px">'
+          +'<div style="font-size:10px;font-weight:700;color:#4B5563;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Tóm tắt yêu cầu</div>'
+          +'<div style="display:flex;flex-direction:column;gap:8px">'
+            +'<div style="display:flex;gap:12px;font-size:12px"><span style="color:#4B5563;width:90px;flex-shrink:0">Team</span><span style="color:#F9FAFB;font-weight:600">'+team.e+' '+team.name+'</span></div>'
+            +'<div style="display:flex;gap:12px;font-size:12px"><span style="color:#4B5563;width:90px;flex-shrink:0">Loại vấn đề</span><span style="color:#F9FAFB">'+req2.l+'</span></div>'
+            +'<div style="display:flex;gap:12px;font-size:12px"><span style="color:#4B5563;width:90px;flex-shrink:0">Mức độ</span><span style="color:#F9FAFB;font-weight:600">'+sev.emoji+' '+sev.id+'</span></div>'
+            +'<div style="display:flex;gap:12px;font-size:12px"><span style="color:#4B5563;width:90px;flex-shrink:0">SLA phản hồi</span><span style="color:#F9FAFB">'+slaTxt+'</span></div>'
+            +'<div style="display:flex;gap:12px;font-size:12px"><span style="color:#4B5563;width:90px;flex-shrink:0">Files đính kèm</span><span style="color:#F9FAFB">'+fc+' files</span></div>'
+            +'<div style="display:flex;gap:12px;font-size:12px"><span style="color:#4B5563;width:90px;flex-shrink:0">Gửi lúc</span><span style="color:#F9FAFB">'+ts+'</span></div>'
+          +'</div>'
+        +'</div>'
+        +'<div style="background:#16A34A0D;border:1px solid #16A34A33;border-radius:10px;padding:12px 16px;margin-bottom:20px">'
+          +'<div style="font-size:11px;color:#4ADE80;font-weight:700;margin-bottom:6px">Bước tiếp theo</div>'
+          +'<div style="font-size:12px;color:#9CA3AF;line-height:1.75">'
+            +'• IT Leader sẽ confirm nhận ticket qua Telegram<br>'
+            +'• Nếu cần thêm thông tin, IT sẽ nhắn trực tiếp cho bạn<br>'
+            +'• Khi fix xong, IT báo lại và yêu cầu bạn test verify<br>'
+            +'• Phản hồi trong <strong style="color:#F9FAFB">'+slaTxt+'</strong>'
+          +'</div>'
+        +'</div>'
+        +'<div style="display:flex;flex-direction:column;gap:8px">'
+          +'<button class="btn-p" onclick="goStep(5);S.tab=0;render()" style="width:100%;padding:11px;font-size:13px">✏️ Chỉnh sửa / xem lại yêu cầu</button>'
+          +'<button onclick="showDeleteConfirm()" style="width:100%;background:transparent;border:1px solid #EF444433;border-radius:7px;padding:10px;color:#F87171;cursor:pointer;font-size:13px;font-family:inherit;transition:all .15s">🗑️ Xoá yêu cầu (vấn đề đã tự giải quyết)</button>'
+          +'<button class="btn-g" onclick="reset()" style="width:100%;padding:10px;font-size:13px">+ Gửi yêu cầu mới</button>'
+        +'</div>'
+      +'</div>';
+    return;
+  }
+
+
+  let h=`<div class="hdr">
+    <div class="logo">🔧</div>
+    <div><div class="hdr-t">NQuoc · IT Request v4</div><div class="hdr-s">Checklist-gated · Timeline · 95% complete</div></div>
+  </div>
+  <div class="sbar">
+    <div class="sbar-row">
+      <div class="sbar-bg"><div class="sbar-fill" style="width:${score}%;background:${scoreColor(score)}"></div></div>
+      <div class="sbar-pct" style="color:${scoreColor(score)}">${score}%</div>
+      <div class="sbar-lbl">${scoreLabel(score)}</div>
+    </div>
+  </div>
+  ${renderTimeline()}
+  <div class="main"><div class="step-content">`;
+
+  // ── STEP 1: TEAM ──
+  if(S.step===1){
+    h+=`<div class="tag">Trạm 1 / 5</div>
+    <h2>Bạn đang ở team nào?</h2>
+    <p class="sub">Mỗi team có backend riêng. Chọn đúng → IT debug đúng chỗ ngay.</p>
+    <div class="tgrid" id="teamGrid">${TEAMS.map(t=>`<div class="tc" onclick="selTeam('${t.id}')"><div class="tc-e">${t.e}</div><div class="tc-n">${t.name}</div><div class="tc-d">${t.desc}</div></div>`).join('')}</div>
+    ${renderGatePanel(1,2,'Chọn loại yêu cầu',null)}`;
+  }
+
+  // ── STEP 2: REQUEST TYPE ──
+  else if(S.step===2){
+    h+=`<div class="tag">Trạm 2 / 5</div>
+    <h2>${team?.e} Team ${team?.name}</h2>
+    <p class="sub">Chọn loại vấn đề để nhận bộ câu hỏi và file slot phù hợp.</p>
+    <div class="rl" id="reqList">${(RT[S.team]||[]).map(r=>`<div class="rc" onclick="selReq('${r.id}')"><div style="font-size:18px;width:24px;text-align:center;flex-shrink:0">${r.i}</div><div><div style="font-size:13px;font-weight:700">${r.l}</div><div style="font-size:10px;color:#4B5563;margin-top:2px">${r.d}</div></div><span style="color:#374151;margin-left:auto">→</span></div>`).join('')}</div>
+    ${renderGatePanel(2,3,'Chọn severity & context',1)}`;
+  }
+
+  // ── STEP 3: CONTEXT ──
+  else if(S.step===3){
+    const sevMissing=!S.severity,archMissing=!S.archComp,expMissing=isBug&&S.expectedBehavior.trim().length<=5,actMissing=isBug&&S.actualBehavior.trim().length<=5;
+    h+=`<div class="tag">Trạm 3 / 5 — Context cho IT</div>
+    <h2>Severity · Component · Expected/Actual</h2>
+    <p class="sub">3 thứ này giúp IT biết ngay: fix bao lâu, fix ở đâu, test xong là đúng chưa. <strong style="color:#A78BFA">Tất cả là bắt buộc.</strong></p>
+
+    <div class="section-hdr"><div class="section-title">1 · Mức độ ưu tiên <span class="req-label">★ bắt buộc</span></div><span class="section-status ${S.severity?'ok':'miss'}">${S.severity?'✓ '+S.severity:'⚠ Chưa chọn'}</span></div>
+    <div class="sev-grid" id="sevGrid">${SEVS.map(sv=>`<div class="sev-card ${sv.cls} ${S.severity===sv.id?'sel':''} ${sevMissing?'req-missing':''}" onclick="S.severity='${sv.id}';render()"><div class="sev-lbl">${sv.emoji} ${sv.label}</div><div class="sev-desc">${sv.desc}</div><span class="sev-sla">${sv.sla}</span></div>`).join('')}</div>
+
+    <div class="divider"></div>
+    <div class="section-hdr"><div class="section-title">2 · Component bị ảnh hưởng <span class="req-label">★ bắt buộc</span></div><span class="section-status ${S.archComp?'ok':'miss'}">${S.archComp?(getArchObj()?.name||'✓'):'⚠ Chưa chọn'}</span></div>
+    <div class="arch-grid" id="archGrid">${ARCH.map(a=>`<button class="arch-btn ${S.archComp===a.id?'sel':''} ${archMissing?'req-missing':''}" onclick="S.archComp='${a.id}';updateScore();document.querySelectorAll('.arch-btn').forEach(b=>b.classList.remove('req-missing'))"><div class="arch-icon">${a.icon}</div><div class="arch-name">${a.name}</div><div class="arch-desc">${a.desc}</div></button>`).join('')}</div>
+
+    ${isBug?`<div class="divider"></div>
+    <div class="section-hdr"><div class="section-title">3 · Expected vs Actual <span class="req-label">★ bắt buộc cho bug</span></div><span class="section-status ${!expMissing&&!actMissing?'ok':'miss'}">${!expMissing&&!actMissing?'✓ Đã điền':'⚠ Cần cả 2 ô'}</span></div>
+    <div class="ea-grid">
+      <div class="ea-box ${expMissing?'req-missing':''}"><div class="ea-hdr exp">✅ EXPECTED — Đáng lẽ phải thế này</div>
+      <textarea id="ea_exp" placeholder="VD: Click Save → hiện 'Đã lưu thành công'" oninput="S.expectedBehavior=this.value;updateScore()">${escH(S.expectedBehavior)}</textarea></div>
+      <div class="ea-box ${actMissing?'req-missing':''}"><div class="ea-hdr act">❌ ACTUAL — Thực tế đang xảy ra</div>
+      <textarea id="ea_act" placeholder="VD: Click Save → trang trắng, không có gì" oninput="S.actualBehavior=this.value;updateScore()">${escH(S.actualBehavior)}</textarea></div>
+    </div>
+    <div class="divider"></div>
+    <div class="section-title">4 · Reproducibility <span style="color:#4B5563;font-size:9px">(không bắt buộc)</span></div>
+    <div class="repro-row" id="reproRow">${REPRODUCTIONS.map(r=>{const sc=S.reproduced===r?'sel':'';return`<button class="repro-btn ${sc}" onclick="S.reproduced='${escA(r)}';render()">${r}</button>`;}).join('')}</div>`:''}
+
+    <div class="divider"></div>
+    <div class="section-title">🤖 Environment (auto-detected)</div>
+    <div class="auto-row"><div class="auto-item"><span class="lbl">Browser:</span><span class="val">${ENV.browser}</span></div><div class="auto-item"><span class="lbl">OS:</span><span class="val">${ENV.os}</span></div><div class="auto-item"><span class="lbl">Screen:</span><span class="val">${ENV.screen}</span></div></div>
+
+    ${renderGatePanel(3,4,'Bắt đầu phỏng vấn chi tiết',2)}`;
+  }
+
+  // ── STEP 4: INTERVIEW ──
+  else if(S.step===4){
+    let chat='';
+    for(let i=0;i<S.qi;i++){const q=qs[i];chat+=`<div class="chat-bot"><div class="av">IT</div><div class="bb">${escH(q.q)}</div></div><div class="chat-usr"><div class="bu">${escH(S.answers[q.id]||'(bỏ qua)')}</div></div>`;}
+    const dots=qs.map((_,i)=>`<div class="qdot" style="background:${i<S.qi?'#16A34A':i===S.qi?'#7C3AED':'#1F2937'}"></div>`).join('');
+    let inp='';
+    if(cq.t==='sel'){inp=cq.o.map(o=>`<button class="ob" onclick="submitAns('${escA(o)}')">${escH(o)}</button>`).join('');}
+    else{const ta=cq.t==='area';const fldHtml=ta?'<textarea id="di" rows="3" placeholder="Nhap cau tra loi..." onkeydown="handleKey(event)"></textarea>':'<input id="di" type="text" placeholder="Nhap cau tra loi..." onkeydown="handleKey(event)">';const nextLbl=S.qi<qs.length-1?'Tiep →':'Hoan thanh ✓';inp=`<div class="qib">${fldHtml}<div class="qib-f"><span style="font-size:10px;color:#4B5563">Ctrl+Enter de gui</span><button class="btn-p" style="font-size:11px;padding:5px 12px" onclick="submitFromInput()">${nextLbl}</button></div></div>`;}
+    h+=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:13px">
+      <div class="tag" style="margin:0">Trạm 4 / 5 · Câu ${S.qi+1} / ${qs.length}</div>
+      <div class="qdots">${dots}</div>
+    </div>
+    ${chat}
+    <div class="chat-bot"><div class="av">IT</div><div class="bb on"><div style="font-weight:700;font-size:13px">${escH(cq.q)}</div>${cq.h?`<div class="qh">${escH(cq.h)}</div>`:''}</div></div>
+    ${inp}
+    <button class="skip" onclick="skipQ()">Bỏ qua câu này</button>
+    ${renderGatePanel(4,5,'Đến Upload & Gửi IT',3)}`;
+  }
+
+  // ── STEP 5: OUTPUT ──
+  else if(S.step===5){
+    h+=`<div style="display:flex;align-items:center;gap:9px;margin-bottom:6px">
+      <div style="width:33px;height:33px;border-radius:50%;background:#16A34A22;display:flex;align-items:center;justify-content:center;font-size:16px">✅</div>
+      <div><h2 style="margin-bottom:1px">Trạm cuối — ${score}% complete</h2>
+      <div style="font-size:10px;color:#4B5563">${team?.e} ${team?.name} · ${req?.l} · ${sev?.id||''} · ${arch?.name||''}</div></div>
+    </div>
+    <p class="sub">Upload file → Copy brief → Gửi IT. Ba bước, không thiếu gì.</p>
+    <div class="tab-bar">
+      <button class="tab ${S.tab===0?'on':''}" onclick="setTab(0)">📁 Upload & Gửi</button>
+      <button class="tab ${S.tab===1?'on':''}" onclick="setTab(1)">⚡ IT Brief</button>
+      <button class="tab ${S.tab===2?'on':''}" onclick="setTab(2)">📋 Claude Prompt</button>
+    </div>
+    <div id="uploadTabContent"></div>`;
+
+    if(S.tab===1){
+      const briefText=buildBriefText();
+      h+=`<div class="brief-card">
+        <div class="brief-hdr"><span>⚡ IT QUICK BRIEF — đọc 10 giây</span>
+        <button class="cbtn ${S.briefCopied?'ok':''}" onclick="doBriefCopy()" style="font-size:10px;padding:3px 10px">${S.briefCopied?'✓ Copied!':'Copy'}</button></div>
+        <div class="brief-body">
+          <div class="brief-row"><div class="brief-icon">${sev?.emoji||'🟡'}</div><div><div class="brief-val">${sev?.id} — ${sev?.label?.split('—')[1]?.trim()||''}</div><div class="brief-meta">SLA: ${sev?.sla}</div></div></div>
+          <div class="brief-row"><div class="brief-icon">👥</div><div><div class="brief-val">Team ${team?.name} · ${req?.l}</div></div></div>
+          <div class="brief-row"><div class="brief-icon">📍</div><div><div class="brief-val">${arch?.name}</div><div class="brief-meta">${arch?.desc||''}</div></div></div>
+          ${isBugType()&&S.expectedBehavior?`<div class="brief-row"><div class="brief-icon">✅</div><div><div class="brief-val">${escH(S.expectedBehavior.substring(0,90))}</div><div class="brief-meta">Expected</div></div></div>`:``}
+          ${isBugType()&&S.actualBehavior?`<div class="brief-row"><div class="brief-icon">❌</div><div><div class="brief-val">${escH(S.actualBehavior.substring(0,90))}</div><div class="brief-meta">Actual</div></div></div>`:``}
+          <div class="brief-row"><div class="brief-icon">📎</div><div><div class="brief-val" style="color:${totalFileCount()>0?'#4ADE80':'#F87171'}">${totalFileCount()>0?totalFileCount()+' files':'Chưa có file'}</div></div></div>
+          <div class="brief-row"><div class="brief-icon">✅</div><div><div class="brief-val" style="color:${scoreColor(score)}">${score}% complete</div></div></div>
+        </div>
+      </div>`;
+    } else if(S.tab===2){
+      const prompt=buildPrompt();
+      h+=`<div class="cbox"><div class="chdr"><span class="clbl">Prompt → Claude.ai</span><button class="cbtn ${S.copied?'ok':''}" onclick="doCopy()">${S.copied?'✓ Đã copy!':'📋 Copy'}</button></div><div class="cbody">${escH(prompt)}</div></div>
+      <div class="info-box"><span style="font-size:14px;flex-shrink:0">💡</span><div>Copy toàn bộ → mở <strong>claude.ai</strong> → paste → gửi. Claude viết User Story + checklist + code suggestion cho IT.</div></div>`;
+    }
+    h+=`<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:18px">
+      <button class="btn-p" onclick="reset()">+ Yêu cầu mới</button>
+      <button class="btn-g" onclick="goStep(4);S.qi=0;S.answers={};render()">↩ Phỏng vấn lại</button>
+      <button class="btn-g" onclick="goStep(3)">↩ Đổi severity</button>
+    </div>`;
+  }
+
+  h+='</div></div>';
+  document.getElementById('app').innerHTML=h;
+  if(S.step===5&&S.tab===0)renderUpload();
+  if(S.step===4&&(cq.t==='text'||cq.t==='area')){const el=document.getElementById('di');if(el)el.focus();}
+  window._currentPrompt=S.step===5?buildPrompt():'';
+  window._briefText=S.step===5?buildBriefText():'';
+}
+
+// ── ACTIONS ────────────────────────────────────────────────────────────────────
+function selTeam(id){S.team=id;S.req=null;S.slotFiles={};render();}
+function selReq(id){S.req=id;S.qi=0;S.answers={};S.slotFiles={};render();}
+function goStep(n){S.step=n;render();}
+function setTab(n){S.tab=n;render();}
+function submitAns(v){if(!v?.trim())return;const qs=getQs();S.answers[qs[S.qi].id]=v;if(S.qi<qs.length-1){S.qi++;}else{S.step=5;S.tab=0;}render();}
+function submitFromInput(){const el=document.getElementById('di');const v=el?el.value.trim():'';if(v)submitAns(v);}
+function handleKey(e){if(e.key==='Enter'&&(e.ctrlKey||e.metaKey||(e.target.tagName!=='TEXTAREA'))){e.preventDefault();submitFromInput();}}
+function skipQ(){submitAns('(bỏ qua)');}
+function doCopy(){const txt=window._currentPrompt||'';(navigator.clipboard?navigator.clipboard.writeText(txt):Promise.resolve(fallbackCopy(txt))).then(()=>{S.copied=true;render();setTimeout(()=>{S.copied=false;render();},3000);});}
+function doBriefCopy(){const txt=window._briefText||'';(navigator.clipboard?navigator.clipboard.writeText(txt):Promise.resolve(fallbackCopy(txt))).then(()=>{S.briefCopied=true;render();setTimeout(()=>{S.briefCopied=false;render();},3000);});}
+function fallbackCopy(txt){const t=document.createElement('textarea');t.value=txt;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);}
+function showDeleteConfirm(){
+  if(confirm('Xác nhận xoá yêu cầu?\n\nChọn OK nếu vấn đề đã tự giải quyết — IT team sẽ không cần xử lý nữa.')){
+    alert('Đã xoá yêu cầu thành công.\nNếu vấn đề xuất hiện lại, hãy tạo yêu cầu mới.');
+    reset();
+  }
+}
+
+function reset(){Object.assign(S,{step:1,team:null,req:null,severity:null,archComp:null,reproduced:null,expectedBehavior:'',actualBehavior:'',qi:0,answers:{},tab:0,copied:false,briefCopied:false,slotFiles:{},extraFiles:[]});render();}
+
+render();
+</script>
+</body>
+</html>

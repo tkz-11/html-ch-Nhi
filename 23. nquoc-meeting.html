@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NQuoc — Cuộc họp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #F0F2F5;
+      --white:    #FFFFFF;
+      --ink:      #111827;
+      --muted:    #6B7280;
+      --muted2:   #9CA3AF;
+      --border:   #E5E7EB;
+      --border2:  #D1D5DB;
+
+      /* Primary — orange gradient */
+      --p-from:   #F97316;
+      --p-to:     #EA580C;
+      --p-hover:  #DC4F09;
+      --p-text:   #FFFFFF;
+      --p-shadow: rgba(249,115,22,.28);
+
+      /* Zoom blue */
+      --z-bg:     #EFF6FF;
+      --z-border: #BFDBFE;
+      --z-text:   #1D4ED8;
+      --z-hover:  #DBEAFE;
+
+      /* Meet green */
+      --m-bg:     #F0FDF4;
+      --m-border: #BBF7D0;
+      --m-text:   #15803D;
+      --m-hover:  #DCFCE7;
+
+      /* Ghost — share */
+      --g-text:   #6B7280;
+      --g-hover:  #F9FAFB;
+
+      --r: 14px;
+      --r-sm: 10px;
+    }
+
+    body {
+      font-family: 'Be Vietnam Pro', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulseDot {
+      0%,100% { transform: scale(1); opacity: 1; }
+      50%      { transform: scale(.75); opacity: .6; }
+    }
+    .au { animation: fadeUp .5s cubic-bezier(.22,.68,0,1.2) forwards; opacity: 0; }
+    .d1 { animation-delay: .06s; }
+    .d2 { animation-delay: .12s; }
+    .d3 { animation-delay: .18s; }
+    .d4 { animation-delay: .24s; }
+    .d5 { animation-delay: .30s; }
+    .d6 { animation-delay: .36s; }
+
+    /* ── Layout ── */
+    .shell {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 36px 24px 64px;
+    }
+
+    /* ── Topbar ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .logo-box {
+      width: 30px; height: 30px;
+      background: #005FE7;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo-name { font-size: 15px; font-weight: 600; letter-spacing: -.01em; }
+    .nav-pills { display: flex; gap: 2px; background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 3px; }
+    .nav-pill { padding: 5px 14px; border-radius: 7px; font-size: 13px; font-weight: 500; color: var(--muted); cursor: pointer; border: none; background: none; font-family: inherit; transition: all .15s; }
+    .nav-pill.active { background: var(--ink); color: var(--white); }
+    .avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #DBEAFE; color: #1D4ED8;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 600;
+      border: 2px solid var(--white);
+      box-shadow: 0 1px 3px rgba(0,0,0,.1);
+    }
+
+    /* ══════════════════
+       GREETING CARD
+    ══════════════════ */
+    .greeting-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px 32px 28px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.04);
+    }
+    .greeting-time {
+      font-size: 12px;
+      color: var(--muted2);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-bottom: 6px;
+    }
+    .greeting-title {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      margin-bottom: 4px;
+    }
+    .greeting-title span { color: #005FE7; }
+    .greeting-sub {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    /* ═════════════════════════
+       BUTTON HIERARCHY SYSTEM
+    ═════════════════════════ */
+
+    /* ── TẦNG 1: PRIMARY ── */
+    /* Full width, cam đậm, lớn nhất */
+    .btn-primary {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 17px 22px;
+      background: linear-gradient(135deg, var(--p-from) 0%, var(--p-to) 100%);
+      color: var(--p-text);
+      border: none;
+      border-radius: var(--r);
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: -.01em;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 18px var(--p-shadow), 0 1px 3px rgba(0,0,0,.1);
+      transition: box-shadow .2s, transform .15s;
+      margin-bottom: 10px;
+    }
+    .btn-primary:hover {
+      box-shadow: 0 8px 28px var(--p-shadow), 0 2px 6px rgba(0,0,0,.12);
+      transform: translateY(-1px);
+    }
+    .btn-primary:active { transform: translateY(0); box-shadow: 0 2px 10px var(--p-shadow); }
+    .btn-primary .btn-icon { font-size: 20px; }
+    .btn-primary .btn-label { flex: 1; text-align: left; }
+    .btn-primary .btn-sub { font-size: 12px; font-weight: 400; opacity: .75; }
+    .btn-primary .btn-arrow {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(255,255,255,.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    /* Shimmer on primary */
+    .btn-primary::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
+      transition: left .5s;
+    }
+    .btn-primary:hover::after { left: 150%; }
+
+    /* ── TẦNG 2: SECONDARY ── */
+    /* 50/50 grid, màu nhạt nhận diện platform */
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .btn-secondary {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 13px 16px;
+      border-radius: var(--r-sm);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1.5px solid;
+      transition: background .15s, transform .15s, box-shadow .15s;
+      letter-spacing: -.01em;
+    }
+    .btn-secondary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+    .btn-secondary:active { transform: translateY(0); box-shadow: none; }
+    .btn-secondary .btn-icon { font-size: 16px; }
+    .btn-secondary .s-text { display: flex; flex-direction: column; gap: 1px; }
+    .btn-secondary .s-label { font-size: 13px; font-weight: 600; }
+    .btn-secondary .s-sub   { font-size: 11px; font-weight: 400; opacity: .65; }
+
+    .btn-zoom {
+      background: var(--z-bg);
+      border-color: var(--z-border);
+      color: var(--z-text);
+    }
+    .btn-zoom:hover { background: var(--z-hover); }
+
+    .btn-meet {
+      background: var(--m-bg);
+      border-color: var(--m-border);
+      color: var(--m-text);
+    }
+    .btn-meet:hover { background: var(--m-hover); }
+
+    /* ── TẦNG 3: GHOST / TERTIARY ── */
+    /* Nhỏ nhất, outline nhạt, ít nhất dùng */
+    .btn-ghost {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 10px 16px;
+      background: transparent;
+      border: 1px solid var(--border2);
+      border-radius: var(--r-sm);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--g-text);
+      cursor: pointer;
+      transition: background .15s, border-color .15s;
+      letter-spacing: -.01em;
+    }
+    .btn-ghost:hover { background: var(--g-hover); border-color: #9CA3AF; }
+    .btn-ghost .btn-icon { font-size: 15px; opacity: .7; }
+    .btn-ghost .ghost-arrow { margin-left: auto; opacity: .4; font-size: 12px; }
+
+    /* Hierarchy labels (subtle UI annotation) */
+    .hier-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted2);
+      margin-bottom: 7px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .hier-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ══════════════════
+       MEETING LIST CARD
+    ══════════════════ */
+    .list-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,.04);
+    }
+    .list-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .list-header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .list-add {
+      width: 30px; height: 30px; border-radius: 8px;
+      background: #EFF6FF; border: 1px solid #BFDBFE;
+      display: flex; align-items: center; justify-content: center;
+      color: #1D4ED8; font-size: 18px; cursor: pointer;
+      transition: background .15s;
+    }
+    .list-add:hover { background: #DBEAFE; }
+    .list-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .12em;
+    }
+    .list-refresh {
+      width: 30px; height: 30px; border-radius: 8px;
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted2); font-size: 15px; cursor: pointer;
+      background: none; transition: background .15s, transform .3s;
+    }
+    .list-refresh:hover { background: var(--bg); transform: rotate(180deg); }
+
+    /* Meeting grid */
+    .meeting-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+    }
+    .meeting-item {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: background .15s;
+      cursor: pointer;
+      position: relative;
+    }
+    .meeting-item:nth-child(even) { border-right: none; }
+    .meeting-item:nth-last-child(-n+2) { border-bottom: none; }
+    .meeting-item:hover { background: #FAFAFA; }
+
+    .meeting-icon {
+      width: 36px; height: 36px;
+      border-radius: 9px;
+      background: #F3F4F6;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 16px;
+      color: var(--muted);
+    }
+    .meeting-info { flex: 1; min-width: 0; }
+    .meeting-meta {
+      font-size: 10px;
+      color: var(--muted2);
+      font-weight: 500;
+      margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .meeting-status {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      padding: 1px 6px;
+      border-radius: 4px;
+    }
+    .st-done { background: #F3F4F6; color: var(--muted); }
+    .st-soon { background: #FEF3C7; color: #92400E; }
+    .st-now  { background: #D1FAE5; color: #065F46; }
+    .meeting-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 2px;
+      letter-spacing: -.01em;
+    }
+    .meeting-from { font-size: 11px; color: var(--muted2); }
+    .join-btn {
+      flex-shrink: 0;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 5px 11px;
+      border-radius: 6px;
+      border: 1px solid var(--border2);
+      background: var(--white);
+      color: var(--muted);
+      cursor: pointer;
+      font-family: inherit;
+      transition: all .15s;
+    }
+    .join-btn:hover { background: var(--ink); color: var(--white); border-color: var(--ink); }
+    .join-btn.active { background: #005FE7; color: var(--white); border-color: #005FE7; }
+
+    /* N-Chat bubble */
+    .nchat {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      background: var(--ink);
+      color: var(--white);
+      border-radius: 999px;
+      padding: 10px 18px 10px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0,0,0,.2);
+      transition: box-shadow .2s, transform .15s;
+    }
+    .nchat:hover { box-shadow: 0 8px 24px rgba(0,0,0,.25); transform: translateY(-1px); }
+    .nchat-dot { width: 6px; height: 6px; border-radius: 50%; background: #34D399; animation: pulseDot 2s ease-in-out infinite; }
+
+    /* ── Platform logo chips ── */
+    .zoom-chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: #EFF6FF; border: 1px solid #BFDBFE;
+      border-radius: 6px; padding: 2px 7px;
+      font-size: 10px; font-weight: 700; color: #1D4ED8;
+    }
+    .meet-chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: #F0FDF4; border: 1px solid #BBF7D0;
+      border-radius: 6px; padding: 2px 7px;
+      font-size: 10px; font-weight: 700; color: #15803D;
+    }
+  </style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- TOPBAR -->
+  <div class="topbar au d1">
+    <div class="logo">
+      <div class="logo-box">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M2 2h4v4H2zM8 2h4v4H8zM2 8h4v4H2zM8 8h4v4H8z" fill="white" fill-opacity=".9"/>
+        </svg>
+      </div>
+      <span class="logo-name">NQuoc</span>
+    </div>
+    <nav class="nav-pills">
+      <button class="nav-pill">Tổng quan</button>
+      <button class="nav-pill active">Họp</button>
+      <button class="nav-pill">Tác vụ</button>
+      <button class="nav-pill">Tài liệu</button>
+    </nav>
+    <div class="avatar">NL</div>
+  </div>
+
+
+  <!-- GREETING CARD -->
+  <div class="greeting-card au d2">
+    <p class="greeting-time" id="time-label">Buổi chiều · Thứ Sáu, 04/04/2026</p>
+    <h1 class="greeting-title">Chào buổi chiều, <span>Nhi Le</span>!</h1>
+    <p class="greeting-sub">Bạn có 2 cuộc họp hôm nay — cuộc tiếp theo lúc 14:00</p>
+
+    <!-- ═══════════ BUTTONS — 3-TIER HIERARCHY ═══════════ -->
+
+    <!-- TẦNG 1 — PRIMARY (1 nút duy nhất, full width, cam) -->
+    <div class="hier-label">Hành động chính</div>
+    <button class="btn-primary" onclick="joinNow()">
+      <span class="btn-icon">📹</span>
+      <span class="btn-label">
+        Vào họp ngay
+        <span class="btn-sub">Training Thu Thập Data · đang diễn ra</span>
+      </span>
+      <span class="btn-arrow">→</span>
+    </button>
+
+    <!-- TẦNG 2 — SECONDARY (2 nút ngang, màu platform nhạt) -->
+    <div class="hier-label">Tạo cuộc họp</div>
+    <div class="btn-row">
+      <button class="btn-secondary btn-zoom" onclick="createZoom()">
+        <span class="btn-icon">
+          <!-- Zoom Z icon -->
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <rect width="20" height="20" rx="5" fill="#2563EB"/>
+            <path d="M4 7h8l-8 6h8" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span class="s-text">
+          <span class="s-label">Tạo với Zoom</span>
+          <span class="s-sub">Mời link tự động</span>
+        </span>
+      </button>
+      <button class="btn-secondary btn-meet" onclick="createMeet()">
+        <span class="btn-icon">
+          <!-- Meet camera icon -->
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <rect width="20" height="20" rx="5" fill="#059669"/>
+            <rect x="3" y="6" width="10" height="8" rx="2" fill="white"/>
+            <path d="M14 8l3-2v8l-3-2V8z" fill="white"/>
+          </svg>
+        </span>
+        <span class="s-text">
+          <span class="s-label">Tạo với Meet</span>
+          <span class="s-sub">Google Calendar</span>
+        </span>
+      </button>
+    </div>
+
+    <!-- TẦNG 3 — GHOST (1 nút nhỏ nhất, outline mờ) -->
+    <div class="hier-label">Khác</div>
+    <button class="btn-ghost" onclick="shareMeeting()">
+      <span class="btn-icon">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+        </svg>
+      </span>
+      Chia sẻ lịch họp với đồng đội
+      <span class="ghost-arrow">→</span>
+    </button>
+
+  </div><!-- /greeting-card -->
+
+
+  <!-- MEETING LIST -->
+  <div class="list-card au d4">
+    <div class="list-header">
+      <div class="list-header-left">
+        <div class="list-add">+</div>
+        <span class="list-title">Lịch họp của bạn</span>
+      </div>
+      <button class="list-refresh" title="Làm mới">↻</button>
+    </div>
+
+    <div class="meeting-grid">
+
+      <!-- 1 -->
+      <div class="meeting-item au d4">
+        <div class="meeting-icon">📹</div>
+        <div class="meeting-info">
+          <div class="meeting-meta">
+            01/04 · 08:00
+            <span class="meeting-status st-done">ĐÃ DIỄN RA</span>
+            <span class="zoom-chip">Z</span>
+          </div>
+          <div class="meeting-name">Training Thu Data Buổi 2</div>
+          <div class="meeting-from">tranthuha2000_Nedu</div>
+        </div>
+        <button class="join-btn">Xem lại</button>
+      </div>
+
+      <!-- 2 -->
+      <div class="meeting-item au d4">
+        <div class="meeting-icon">📹</div>
+        <div class="meeting-info">
+          <div class="meeting-meta">
+            02/04 · 14:00
+            <span class="meeting-status st-done">ĐÃ DIỄN RA</span>
+            <span class="meet-chip">M</span>
+          </div>
+          <div class="meeting-name">Training Thu Thập Data…</div>
+          <div class="meeting-from">tranthuha2000_Nedu</div>
+        </div>
+        <button class="join-btn">Xem lại</button>
+      </div>
+
+      <!-- 3 -->
+      <div class="meeting-item au d5">
+        <div class="meeting-icon">📹</div>
+        <div class="meeting-info">
+          <div class="meeting-meta">
+            03/04 · 07:00
+            <span class="meeting-status st-done">ĐÃ DIỄN RA</span>
+            <span class="zoom-chip">Z</span>
+          </div>
+          <div class="meeting-name">Training Thu Thập Data…</div>
+          <div class="meeting-from">tranthuha2000_Nedu</div>
+        </div>
+        <button class="join-btn">Xem lại</button>
+      </div>
+
+      <!-- 4 — TODAY, ACTIVE -->
+      <div class="meeting-item au d5" style="background:#FAFFFE">
+        <div class="meeting-icon" style="background:#D1FAE5;color:#059669">📹</div>
+        <div class="meeting-info">
+          <div class="meeting-meta">
+            04/04 · 14:00
+            <span class="meeting-status st-now">ĐANG DIỄN RA</span>
+            <span class="meet-chip">M</span>
+          </div>
+          <div class="meeting-name">Training Thu Thập Data…</div>
+          <div class="meeting-from">tranthuha2000_Nedu</div>
+        </div>
+        <button class="join-btn active">Tham gia</button>
+      </div>
+
+      <!-- 5 — UPCOMING -->
+      <div class="meeting-item au d6">
+        <div class="meeting-icon" style="background:#FEF3C7;color:#D97706">📅</div>
+        <div class="meeting-info">
+          <div class="meeting-meta">
+            05/04 · 09:00
+            <span class="meeting-status st-soon">SẮP DIỄN RA</span>
+            <span class="zoom-chip">Z</span>
+          </div>
+          <div class="meeting-name">Team Sync — IT &amp; Design</div>
+          <div class="meeting-from">nhile_admin</div>
+        </div>
+        <button class="join-btn">Nhắc nhở</button>
+      </div>
+
+      <!-- 6 — UPCOMING -->
+      <div class="meeting-item au d6">
+        <div class="meeting-icon" style="background:#F3E8FF;color:#7C3AED">📅</div>
+        <div class="meeting-info">
+          <div class="meeting-meta">
+            07/04 · 10:00
+            <span class="meeting-status st-soon">SẮP DIỄN RA</span>
+            <span class="meet-chip">M</span>
+          </div>
+          <div class="meeting-name">NQuoc Sprint Review S4</div>
+          <div class="meeting-from">nhile_admin</div>
+        </div>
+        <button class="join-btn">Nhắc nhở</button>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /shell -->
+
+
+<!-- N-Chat bubble -->
+<div class="nchat">
+  <span class="nchat-dot"></span>
+  N-Chat nhanh
+</div>
+
+
+<script>
+  /* ── Time greeting ── */
+  (function () {
+    const now  = new Date();
+    const h    = now.getHours();
+    const days = ['Chủ Nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
+    const greet = h < 12 ? 'buổi sáng' : h < 18 ? 'buổi chiều' : 'buổi tối';
+    const dayStr = `${days[now.getDay()]}, ${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
+
+    document.getElementById('time-label').textContent = greet[0].toUpperCase() + greet.slice(1) + ' · ' + dayStr;
+
+    const title = document.querySelector('.greeting-title');
+    title.innerHTML = `Chào ${greet}, <span style="color:#005FE7">Nhi Le</span>!`;
+  })();
+
+  /* ── Handlers ── */
+  function joinNow()     { alert('📹  Đang kết nối vào cuộc họp…'); }
+  function createZoom()  { alert('+ Đang tạo phòng Zoom mới…'); }
+  function createMeet()  { alert('+ Đang mở Google Meet…'); }
+  function shareMeeting(){ alert('👥  Chia sẻ lịch họp với đồng đội'); }
+</script>
+
+</body>
+</html>

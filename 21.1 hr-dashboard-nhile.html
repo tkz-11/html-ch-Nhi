@@ -1,0 +1,1548 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HR Admin — NhiLe Holding</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,700;1,800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1B3A6B;
+    --navy-light: #223d70;
+    --navy-dark: #122851;
+    --blue: #2E86AB;
+    --teal: #00838F;
+    --gold: #E07B39;
+    --gold-light: #f08a4a;
+    --green: #2E7D32;
+    --red: #C62828;
+    --bg: #F0F2F5;
+    --white: #FFFFFF;
+    --gray-50: #F8F9FA;
+    --gray-100: #EAECEF;
+    --gray-200: #D1D5DB;
+    --gray-400: #9CA3AF;
+    --gray-600: #4B5563;
+    --gray-900: #111827;
+    --sidebar-w: 240px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Be Vietnam Pro', sans-serif;
+    background: var(--bg);
+    color: var(--gray-900);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    font-size: 14px;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--navy);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .sidebar-logo {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .sidebar-logo .brand {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .sidebar-logo .brand-icon {
+    width: 34px; height: 34px;
+    background: var(--gold);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 14px; color: white;
+    letter-spacing: -0.5px;
+  }
+  .sidebar-logo .brand-text { color: white; }
+  .sidebar-logo .brand-name { font-weight: 800; font-size: 15px; letter-spacing: -0.3px; }
+  .sidebar-logo .brand-sub { font-size: 10px; opacity: 0.45; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; }
+  .sidebar-logo .role-badge {
+    margin-top: 12px;
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 10px; color: rgba(255,255,255,0.6); font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .role-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+
+  .sidebar-nav { flex: 1; overflow-y: auto; padding: 12px 12px; }
+  .sidebar-nav::-webkit-scrollbar { display: none; }
+
+  .nav-section-label {
+    font-size: 9px; font-weight: 800; letter-spacing: 1.5px;
+    color: rgba(255,255,255,0.28); text-transform: uppercase;
+    padding: 12px 8px 6px;
+  }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 10px; border-radius: 8px;
+    cursor: pointer; transition: all 0.15s;
+    color: rgba(255,255,255,0.55);
+    font-size: 13px; font-weight: 500;
+    margin-bottom: 1px;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.85); }
+  .nav-item.active { background: rgba(255,255,255,0.12); color: white; font-weight: 700; }
+  .nav-item.active .nav-icon { opacity: 1; }
+  .nav-icon { font-size: 15px; opacity: 0.6; flex-shrink: 0; width: 20px; text-align: center; }
+  .nav-badge {
+    margin-left: auto; background: var(--gold); color: white;
+    font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 10px;
+  }
+  .nav-badge.red { background: var(--red); }
+
+  .sidebar-footer {
+    padding: 14px 16px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    font-size: 11px; color: rgba(255,255,255,0.3);
+    font-weight: 500;
+  }
+
+  /* ── MAIN ── */
+  .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+  .topbar {
+    background: white;
+    border-bottom: 1px solid var(--gray-100);
+    padding: 0 28px;
+    height: 60px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .topbar-left h1 { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+  .topbar-left p { font-size: 12px; color: var(--gray-400); font-weight: 400; }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  .topbar-avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--navy); color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 12px;
+  }
+  .topbar-time { font-size: 11px; color: var(--gray-400); font-weight: 600; }
+
+  .content { flex: 1; overflow-y: auto; padding: 24px 28px; }
+  .content::-webkit-scrollbar { width: 4px; }
+  .content::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 2px; }
+
+  /* ── PANELS ── */
+  .panel { display: none; animation: fadeIn 0.2s ease; }
+  .panel.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  /* ── CARDS & GRIDS ── */
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+  .stat-card {
+    background: white; border-radius: 16px;
+    padding: 20px 22px;
+    border: 1px solid var(--gray-100);
+  }
+  .stat-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: var(--gray-400); margin-bottom: 6px; }
+  .stat-value { font-size: 36px; font-weight: 900; letter-spacing: -2px; line-height: 1; }
+  .stat-value.green { color: var(--green); }
+  .stat-value.blue { color: var(--blue); }
+  .stat-value.amber { color: #D97706; }
+  .stat-value.red { color: var(--red); }
+  .stat-sub { font-size: 11px; color: var(--gray-400); margin-top: 4px; font-weight: 500; }
+
+  .grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  .card {
+    background: white; border-radius: 16px;
+    border: 1px solid var(--gray-100);
+    padding: 22px;
+  }
+  .card-title { font-size: 13px; font-weight: 800; letter-spacing: -0.3px; margin-bottom: 16px; }
+  .card-title.lg { font-size: 16px; margin-bottom: 18px; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 700;
+    cursor: pointer; border: none; transition: all 0.15s; font-family: inherit;
+  }
+  .btn-primary { background: var(--navy); color: white; }
+  .btn-primary:hover { background: var(--navy-light); }
+  .btn-gold { background: var(--gold); color: white; }
+  .btn-gold:hover { background: var(--gold-light); }
+  .btn-ghost { background: var(--gray-100); color: var(--gray-900); }
+  .btn-ghost:hover { background: var(--gray-200); }
+  .btn-sm { padding: 5px 12px; font-size: 11px; }
+  .btn-danger { background: #FEE2E2; color: var(--red); }
+
+  /* ── TABS ── */
+  .tab-bar {
+    display: flex; gap: 4px;
+    background: var(--gray-100); padding: 4px; border-radius: 10px;
+    width: fit-content; margin-bottom: 18px;
+  }
+  .tab-btn {
+    padding: 7px 16px; border-radius: 7px; font-size: 12px; font-weight: 700;
+    cursor: pointer; border: none; font-family: inherit;
+    background: transparent; color: var(--gray-400); transition: all 0.15s;
+  }
+  .tab-btn.active { background: white; color: var(--gray-900); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+  .subtab-bar {
+    display: flex; gap: 4px; margin-bottom: 16px;
+  }
+  .subtab-btn {
+    padding: 5px 14px; border-radius: 6px; font-size: 11px; font-weight: 800;
+    cursor: pointer; border: none; font-family: inherit; letter-spacing: 0.3px;
+    background: var(--gray-100); color: var(--gray-400); transition: all 0.15s;
+  }
+  .subtab-btn.active { background: var(--navy); color: white; }
+  .subtab-btn.active.red { background: var(--red); }
+
+  .subpanel { display: none; }
+  .subpanel.active { display: block; }
+
+  /* ── TABLES ── */
+  .table-wrap { border-radius: 12px; overflow: hidden; border: 1px solid var(--gray-100); }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { background: var(--gray-50); }
+  th { padding: 10px 16px; text-align: left; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: var(--gray-400); }
+  td { padding: 12px 16px; font-size: 13px; border-top: 1px solid var(--gray-100); }
+  tr:hover td { background: var(--gray-50); }
+  .td-name { font-weight: 700; }
+  .td-meta { font-size: 11px; color: var(--gray-400); font-weight: 500; }
+
+  /* ── BADGES ── */
+  .badge {
+    display: inline-flex; align-items: center;
+    padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 800;
+    letter-spacing: 0.3px; text-transform: uppercase;
+  }
+  .badge-green { background: #DCFCE7; color: var(--green); }
+  .badge-blue { background: #DBEAFE; color: #1D4ED8; }
+  .badge-amber { background: #FEF3C7; color: #92400E; }
+  .badge-red { background: #FEE2E2; color: var(--red); }
+  .badge-navy { background: #DBEAFE; color: var(--navy); }
+  .badge-gray { background: var(--gray-100); color: var(--gray-600); }
+
+  /* ── PROGRESS STEP ── */
+  .step-bar { display: flex; align-items: center; gap: 0; }
+  .step { display: flex; align-items: center; }
+  .step-dot {
+    width: 28px; height: 28px; border-radius: 50%; font-size: 11px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    background: var(--gray-100); color: var(--gray-400);
+    position: relative; z-index: 1;
+  }
+  .step-dot.done { background: var(--navy); color: white; }
+  .step-dot.current { background: var(--gold); color: white; }
+  .step-line { width: 32px; height: 2px; background: var(--gray-100); }
+  .step-line.done { background: var(--navy); }
+  .step-label { font-size: 9px; font-weight: 700; text-align: center; margin-top: 4px; color: var(--gray-400); }
+  .step-label.done { color: var(--navy); }
+  .step-label.current { color: var(--gold); }
+  .step-wrap { display: flex; flex-direction: column; align-items: center; }
+
+  /* ── CALENDAR ── */
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .cal-header { text-align: center; font-size: 10px; font-weight: 800; color: var(--gray-400); padding: 6px 0; text-transform: uppercase; }
+  .cal-day {
+    aspect-ratio: 1; border-radius: 8px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; color: var(--gray-600);
+    cursor: pointer; position: relative; transition: background 0.1s;
+    padding: 2px;
+  }
+  .cal-day:hover { background: var(--gray-50); }
+  .cal-day.empty { color: var(--gray-200); cursor: default; }
+  .cal-day.today { background: var(--navy); color: white; font-weight: 800; }
+  .cal-day.has-event { }
+  .cal-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--gold); margin-top: 2px; }
+  .cal-event-label { font-size: 8px; color: var(--gold); font-weight: 800; line-height: 1.2; text-align: center; }
+
+  /* ── MEMBER PROFILE ── */
+  .profile-header {
+    display: flex; align-items: center; gap: 16px;
+    padding: 20px 22px; background: white;
+    border-radius: 16px; border: 1px solid var(--gray-100); margin-bottom: 14px;
+  }
+  .profile-avatar {
+    width: 56px; height: 56px; border-radius: 14px;
+    background: var(--navy); color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 900; flex-shrink: 0;
+  }
+  .profile-name { font-size: 20px; font-weight: 900; letter-spacing: -0.5px; }
+  .profile-role { font-size: 12px; color: var(--gray-400); font-weight: 500; margin-top: 2px; }
+  .profile-id { font-size: 10px; color: var(--gray-400); font-weight: 700; letter-spacing: 0.5px; margin-top: 4px; }
+
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .info-item label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray-400); }
+  .info-item p { font-size: 13px; font-weight: 600; margin-top: 2px; }
+
+  .history-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--gray-100); }
+  .history-item:last-child { border: none; }
+  .history-date { font-size: 11px; font-weight: 700; color: var(--gray-400); flex-shrink: 0; width: 84px; }
+  .history-text { font-size: 13px; font-weight: 500; }
+
+  /* ── ORG CHART ── */
+  .org-tree { text-align: center; }
+  .org-node {
+    display: inline-flex; flex-direction: column; align-items: center;
+    background: white; border: 1.5px solid var(--gray-200);
+    border-radius: 12px; padding: 12px 20px; margin: 4px;
+    min-width: 140px;
+  }
+  .org-node.top { border-color: var(--navy); background: var(--navy); color: white; }
+  .org-node.mid { border-color: var(--blue); }
+  .org-name { font-size: 13px; font-weight: 800; }
+  .org-title { font-size: 10px; color: var(--gray-400); font-weight: 600; margin-top: 2px; }
+  .org-node.top .org-title { color: rgba(255,255,255,0.6); }
+  .org-line { width: 2px; height: 28px; background: var(--gray-200); margin: 0 auto; }
+  .org-row { display: flex; justify-content: center; align-items: flex-start; flex-wrap: wrap; }
+
+  /* ── ORDER / GOI MON ── */
+  .order-card {
+    background: white; border-radius: 14px; border: 1px solid var(--gray-100);
+    padding: 16px 18px; display: flex; align-items: center; gap: 14px;
+    margin-bottom: 8px; transition: box-shadow 0.15s;
+  }
+  .order-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+  .order-num { font-size: 11px; font-weight: 800; color: var(--gray-400); min-width: 60px; }
+  .order-info { flex: 1; }
+  .order-name { font-size: 13px; font-weight: 700; }
+  .order-meta { font-size: 11px; color: var(--gray-400); margin-top: 2px; }
+
+  /* ── MESSAGES ── */
+  .msg-item {
+    display: flex; gap: 10px; padding: 10px;
+    border-radius: 10px; cursor: pointer; transition: background 0.1s;
+  }
+  .msg-item:hover { background: var(--gray-50); }
+  .msg-avatar {
+    width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+    background: var(--blue); color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800;
+  }
+  .msg-name { font-size: 13px; font-weight: 700; }
+  .msg-preview { font-size: 11px; color: var(--gray-400); margin-top: 1px; }
+  .msg-status { font-size: 9px; font-weight: 800; padding: 2px 7px; border-radius: 10px; margin-left: auto; white-space: nowrap; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.35); backdrop-filter: blur(4px);
+    z-index: 100; align-items: center; justify-content: center; padding: 24px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: white; border-radius: 20px; padding: 28px;
+    width: 100%; max-width: 520px; max-height: 80vh; overflow-y: auto;
+  }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .modal-title { font-size: 18px; font-weight: 900; letter-spacing: -0.5px; }
+  .modal-close {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--gray-100); border: none; cursor: pointer;
+    font-size: 14px; display: flex; align-items: center; justify-content: center;
+  }
+  .menu-item {
+    background: var(--gray-50); border-radius: 12px; padding: 16px;
+    margin-bottom: 8px; cursor: pointer; transition: all 0.15s;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .menu-item:hover { background: var(--gray-100); }
+  .menu-tag { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--blue); margin-bottom: 4px; }
+  .menu-name { font-size: 14px; font-weight: 800; }
+  .menu-desc { font-size: 11px; color: var(--gray-400); margin-top: 2px; }
+
+  /* ── ASSESS 360 ── */
+  .assess-member {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 0; border-bottom: 1px solid var(--gray-100);
+  }
+  .assess-avatar {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: var(--teal); color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 12px; flex-shrink: 0;
+  }
+  .assess-score {
+    margin-left: auto; text-align: right;
+  }
+  .assess-score .score-num { font-size: 20px; font-weight: 900; letter-spacing: -1px; }
+  .assess-score .score-label { font-size: 9px; color: var(--gray-400); font-weight: 700; }
+  .score-bar { height: 4px; background: var(--gray-100); border-radius: 2px; margin-top: 4px; overflow: hidden; }
+  .score-fill { height: 100%; border-radius: 2px; background: var(--navy); }
+
+  .section-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 16px;
+  }
+
+  /* ── DON YEU CAU ── */
+  .req-item {
+    padding: 14px 18px; background: white;
+    border-radius: 12px; border: 1px solid var(--gray-100);
+    margin-bottom: 8px; display: flex; align-items: center; gap: 12px;
+  }
+  .req-icon { font-size: 20px; }
+  .req-name { font-size: 13px; font-weight: 700; }
+  .req-meta { font-size: 11px; color: var(--gray-400); margin-top: 2px; }
+
+  /* UTILS */
+  .flex { display: flex; }
+  .flex-between { display: flex; justify-content: space-between; align-items: center; }
+  .gap-2 { gap: 8px; }
+  .gap-3 { gap: 12px; }
+  .mt-1 { margin-top: 4px; }
+  .mt-2 { margin-top: 8px; }
+  .mb-3 { margin-bottom: 12px; }
+  .mb-4 { margin-bottom: 16px; }
+  .text-xs { font-size: 11px; }
+  .text-sm { font-size: 12px; }
+  .text-gray { color: var(--gray-400); }
+  .font-bold { font-weight: 700; }
+  .font-black { font-weight: 900; }
+  .tag-team {
+    display: inline-flex; align-items: center;
+    padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 800;
+    cursor: pointer; transition: all 0.15s; text-transform: uppercase; letter-spacing: 0.3px;
+  }
+  .tag-team:hover { opacity: 0.8; }
+
+  /* Team filter tags */
+  .team-filters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+
+  /* NDA checklist */
+  .checklist-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--gray-100); }
+  .checklist-item:last-child { border: none; }
+  .check-box {
+    width: 20px; height: 20px; border-radius: 5px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 11px;
+  }
+  .check-box.done { background: var(--navy); color: white; }
+  .check-box.todo { background: var(--gray-100); color: var(--gray-400); }
+  .check-box.warn { background: #FEF3C7; color: #D97706; }
+
+  /* Link buttons */
+  .link-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px; background: var(--gray-50);
+    border-radius: 10px; text-decoration: none;
+    color: var(--gray-900); font-size: 12px; font-weight: 700;
+    transition: background 0.1s; margin-bottom: 6px;
+    border: 1px solid var(--gray-100);
+  }
+  .link-btn:hover { background: var(--gray-100); }
+  .link-icon { font-size: 16px; }
+</style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="brand">
+      <div class="brand-icon">NL</div>
+      <div class="brand-text">
+        <div class="brand-name">NhiLe Holding</div>
+        <div class="brand-sub">HR Admin System</div>
+      </div>
+    </div>
+    <div class="role-badge"><span class="role-dot"></span>HR Admin</div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Tổng quan</div>
+    <div class="nav-item active" data-view="dashboard">
+      <span class="nav-icon">📊</span> Dashboard
+    </div>
+
+    <div class="nav-section-label">Tuyển dụng</div>
+    <div class="nav-item" data-view="candidates">
+      <span class="nav-icon">📋</span> Nhật ký hồ sơ
+      <span class="nav-badge">2</span>
+    </div>
+    <div class="nav-item" data-view="calendar">
+      <span class="nav-icon">📅</span> Lịch phỏng vấn
+    </div>
+
+    <div class="nav-section-label">Nhân sự</div>
+    <div class="nav-item" data-view="members">
+      <span class="nav-icon">👥</span> Quản lý thành viên
+    </div>
+    <div class="nav-item" data-view="org">
+      <span class="nav-icon">🏢</span> Sơ đồ tổ chức
+    </div>
+
+    <div class="nav-section-label">Vận hành</div>
+    <div class="nav-item" data-view="requests">
+      <span class="nav-icon">📨</span> Đơn yêu cầu
+      <span class="nav-badge red">3</span>
+    </div>
+    <div class="nav-item" data-view="orders">
+      <span class="nav-icon">🎨</span> Gọi món Design
+      <span class="nav-badge">1</span>
+    </div>
+    <div class="nav-item" data-view="assess">
+      <span class="nav-icon">⭐</span> Đánh giá 360°
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    v1.1 · Singapore Way · Q1/2026
+  </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<div class="main">
+  <header class="topbar">
+    <div class="topbar-left">
+      <h1 id="page-title">Dashboard</h1>
+      <p id="page-desc">Hệ thống quản trị NhiLe Team.</p>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-time" id="clock">--:--</span>
+      <div class="topbar-avatar">HR</div>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- ══ DASHBOARD ══ -->
+    <div class="panel active" id="view-dashboard">
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Sĩ số hiện tại</div>
+          <div class="stat-value green">48</div>
+          <div class="stat-sub">↑ +2 so với tháng trước</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Đang hoạt động</div>
+          <div class="stat-value blue">45</div>
+          <div class="stat-sub">94% attendance rate</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Đang xin off</div>
+          <div class="stat-value amber">03</div>
+          <div class="stat-sub">Cần duyệt: 2 đơn</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Cảnh báo</div>
+          <div class="stat-value red">02</div>
+          <div class="stat-sub">Cần xử lý trong hôm nay</div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:14px">
+        <!-- Calendar -->
+        <div class="card">
+          <div class="flex-between mb-4">
+            <div class="card-title lg" style="margin-bottom:0">Lịch phỏng vấn — Tháng 3/2026</div>
+            <button class="btn btn-ghost btn-sm" onclick="navigate('calendar')">Xem đầy đủ →</button>
+          </div>
+          <div class="cal-grid">
+            <div class="cal-header">CN</div><div class="cal-header">T2</div><div class="cal-header">T3</div>
+            <div class="cal-header">T4</div><div class="cal-header">T5</div><div class="cal-header">T6</div><div class="cal-header">T7</div>
+            <!-- Row 1 -->
+            <div class="cal-day empty">26</div><div class="cal-day empty">27</div><div class="cal-day empty">28</div>
+            <div class="cal-day">1</div><div class="cal-day">2</div><div class="cal-day">3</div><div class="cal-day">4</div>
+            <!-- Row 2 -->
+            <div class="cal-day">5</div><div class="cal-day">6</div><div class="cal-day">7</div>
+            <div class="cal-day">8</div><div class="cal-day">9</div>
+            <div class="cal-day has-event">10<div class="cal-dot"></div><div class="cal-event-label">09:00</div></div>
+            <div class="cal-day">11</div>
+            <!-- Row 3 -->
+            <div class="cal-day">12</div><div class="cal-day">13</div><div class="cal-day">14</div>
+            <div class="cal-day">15</div><div class="cal-day">16</div><div class="cal-day">17</div><div class="cal-day">18</div>
+            <!-- Row 4 -->
+            <div class="cal-day">19</div><div class="cal-day">20</div>
+            <div class="cal-day has-event">21<div class="cal-dot"></div><div class="cal-event-label">14:30</div></div>
+            <div class="cal-day">22</div><div class="cal-day">23</div><div class="cal-day">24</div><div class="cal-day">25</div>
+            <!-- Row 5 -->
+            <div class="cal-day has-event">26<div class="cal-dot"></div></div>
+            <div class="cal-day today">27</div>
+            <div class="cal-day has-event">28<div class="cal-dot"></div><div class="cal-event-label">11:00</div></div>
+            <div class="cal-day">29</div><div class="cal-day">30</div><div class="cal-day">31</div>
+            <div class="cal-day empty">1</div>
+          </div>
+        </div>
+
+        <!-- Messages -->
+        <div class="card">
+          <div class="card-title lg">Tin nhắn hỗ trợ</div>
+          <div class="msg-item">
+            <div class="msg-avatar" style="background:var(--navy)">PL</div>
+            <div style="flex:1;min-width:0">
+              <div class="msg-name">Phạm Thị Lan</div>
+              <div class="msg-preview">Bước 1 · Chào admin, em muốn...</div>
+            </div>
+            <span class="msg-status badge badge-blue">Lần đầu</span>
+          </div>
+          <div class="msg-item">
+            <div class="msg-avatar" style="background:var(--green)">NA</div>
+            <div style="flex:1;min-width:0">
+              <div class="msg-name">Nguyễn Văn An</div>
+              <div class="msg-preview">Bước 5 · Cập nhật hồ sơ...</div>
+            </div>
+            <span class="msg-status badge badge-green">Đang làm</span>
+          </div>
+          <div class="msg-item">
+            <div class="msg-avatar" style="background:var(--gold)">LC</div>
+            <div style="flex:1;min-width:0">
+              <div class="msg-name">Lê Thị Châu</div>
+              <div class="msg-preview">Bước 3 · Mình muốn ứng tuyển...</div>
+            </div>
+            <span class="msg-status badge badge-amber">Quay lại</span>
+          </div>
+          <div class="msg-item">
+            <div class="msg-avatar" style="background:var(--red)">TH</div>
+            <div style="flex:1;min-width:0">
+              <div class="msg-name">Trần Văn Hùng</div>
+              <div class="msg-preview">Bước 2 · Cho em hỏi về lịch...</div>
+            </div>
+            <span class="msg-status badge badge-navy">Mới</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Checklist HR -->
+      <div class="card">
+        <div class="card-title lg">✅ Checklist chuẩn HR — Hôm nay (27/03/2026)</div>
+        <div class="checklist-item">
+          <div class="check-box done">✓</div>
+          <span class="font-bold" style="font-size:13px">Phạm Thị Lan đã ký NDA</span>
+          <span class="badge badge-green" style="margin-left:auto">Hoàn tất</span>
+        </div>
+        <div class="checklist-item">
+          <div class="check-box warn">!</div>
+          <div>
+            <div class="font-bold" style="font-size:13px">Nguyễn Văn An (Out team) — chưa gửi lời cảm ơn</div>
+            <div class="text-xs text-gray mt-1">Quan trọng để giữ tình cảm với thành viên rời team</div>
+          </div>
+          <span class="badge badge-amber" style="margin-left:auto">Chờ làm</span>
+        </div>
+        <div class="checklist-item">
+          <div class="check-box done">✓</div>
+          <span class="font-bold" style="font-size:13px">Master Sheet đã khớp với kết quả phỏng vấn tuần này</span>
+          <span class="badge badge-green" style="margin-left:auto">OK</span>
+        </div>
+        <div class="checklist-item">
+          <div class="check-box todo">○</div>
+          <div>
+            <div class="font-bold" style="font-size:13px">Trần Văn Hùng — chưa điền form thông tin cá nhân</div>
+            <div class="text-xs text-gray mt-1">Cần nhắc qua Telegram</div>
+          </div>
+          <span class="badge badge-gray" style="margin-left:auto">Chưa làm</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ NHẬT KÝ HỒ SƠ ══ -->
+    <div class="panel" id="view-candidates">
+      <div class="subtab-bar">
+        <button class="subtab-btn active red" data-sub="on" id="sub-on">ON-boarding</button>
+        <button class="subtab-btn" data-sub="off" id="sub-off">OUT Team</button>
+        <button class="subtab-btn" data-sub="cross" id="sub-cross">Chuyển Team</button>
+      </div>
+
+      <!-- ON-boarding -->
+      <div class="subpanel active" id="subpanel-on">
+        <div class="section-header">
+          <div class="card-title lg" style="margin-bottom:0">Danh sách ứng viên đang tiếp nhận</div>
+          <button class="btn btn-primary btn-sm">+ Thêm hồ sơ</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Ứng viên</th><th>Liên hệ</th><th>Lịch PV</th>
+              <th>Tiến độ (5 bước)</th><th>Trạng thái</th><th></th>
+            </tr></thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="td-name">Phạm Thị Lan</div>
+                  <div class="td-meta">Design Team · Volunteer</div>
+                </td>
+                <td>
+                  <div class="td-meta">lan.pham@gmail.com</div>
+                  <div class="td-meta">@lanpham_hr</div>
+                </td>
+                <td>
+                  <div class="font-bold">18/03/2026</div>
+                  <div class="td-meta">19:00 · Zoom</div>
+                </td>
+                <td>
+                  <div class="step-bar">
+                    <div class="step-wrap"><div class="step-dot done">✓</div><div class="step-label done">Sàng lọc</div></div>
+                    <div class="step-line done"></div>
+                    <div class="step-wrap"><div class="step-dot done">✓</div><div class="step-label done">Form</div></div>
+                    <div class="step-line done"></div>
+                    <div class="step-wrap"><div class="step-dot current">3</div><div class="step-label current">Lịch PV</div></div>
+                    <div class="step-line"></div>
+                    <div class="step-wrap"><div class="step-dot">4</div><div class="step-label">Kết quả</div></div>
+                    <div class="step-line"></div>
+                    <div class="step-wrap"><div class="step-dot">5</div><div class="step-label">Data</div></div>
+                  </div>
+                </td>
+                <td><span class="badge badge-amber">Bước 3</span></td>
+                <td><button class="btn btn-ghost btn-sm" onclick="openCandidateModal('Phạm Thị Lan', 3)">Chi tiết</button></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="td-name">Trần Văn Hùng</div>
+                  <div class="td-meta">IT Team · Volunteer</div>
+                </td>
+                <td>
+                  <div class="td-meta">hung.tran@tech.vn</div>
+                  <div class="td-meta">@hung_dev</div>
+                </td>
+                <td>
+                  <div class="font-bold">19/03/2026</div>
+                  <div class="td-meta">14:30 · Zoom</div>
+                </td>
+                <td>
+                  <div class="step-bar">
+                    <div class="step-wrap"><div class="step-dot done">✓</div><div class="step-label done">Sàng lọc</div></div>
+                    <div class="step-line done"></div>
+                    <div class="step-wrap"><div class="step-dot current">2</div><div class="step-label current">Form</div></div>
+                    <div class="step-line"></div>
+                    <div class="step-wrap"><div class="step-dot">3</div><div class="step-label">Lịch PV</div></div>
+                    <div class="step-line"></div>
+                    <div class="step-wrap"><div class="step-dot">4</div><div class="step-label">Kết quả</div></div>
+                    <div class="step-line"></div>
+                    <div class="step-wrap"><div class="step-dot">5</div><div class="step-label">Data</div></div>
+                  </div>
+                </td>
+                <td><span class="badge badge-blue">Bước 2</span></td>
+                <td><button class="btn btn-ghost btn-sm" onclick="openCandidateModal('Trần Văn Hùng', 2)">Chi tiết</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- SOP Links -->
+        <div class="card" style="margin-top:14px">
+          <div class="card-title">🔗 Link công cụ SOP</div>
+          <a href="https://nlt.nhi.sg" class="link-btn" target="_blank">
+            <span class="link-icon">🌐</span>
+            <div><div class="font-bold">Website NhiLe</div><div class="td-meta">nlt.nhi.sg</div></div>
+          </a>
+          <a href="#" class="link-btn">
+            <span class="link-icon">📅</span>
+            <div><div class="font-bold">Calendly — Đặt lịch phỏng vấn</div><div class="td-meta">Ứng viên tự chọn khung giờ</div></div>
+          </a>
+          <a href="#" class="link-btn">
+            <span class="link-icon">📝</span>
+            <div><div class="font-bold">Form đăng ký ứng viên mới</div><div class="td-meta">Google Form · Bước 2</div></div>
+          </a>
+          <a href="#" class="link-btn">
+            <span class="link-icon">🔄</span>
+            <div><div class="font-bold">Form thành viên quay lại</div><div class="td-meta">Google Form · Cross-boarding</div></div>
+          </a>
+          <a href="#" class="link-btn">
+            <span class="link-icon">👤</span>
+            <div><div class="font-bold">Form thông tin cá nhân</div><div class="td-meta">Google Form · Sau PASS</div></div>
+          </a>
+          <a href="#" class="link-btn">
+            <span class="link-icon">📊</span>
+            <div><div class="font-bold">Leader Report Form</div><div class="td-meta">Google Form · Bước 5</div></div>
+          </a>
+        </div>
+      </div>
+
+      <!-- OUT Team -->
+      <div class="subpanel" id="subpanel-off">
+        <div class="section-header">
+          <div class="card-title lg" style="margin-bottom:0">Thành viên đang rời team</div>
+        </div>
+        <div class="req-item">
+          <div class="req-icon">👋</div>
+          <div style="flex:1">
+            <div class="req-name">Nguyễn Văn An</div>
+            <div class="req-meta">Admin Team · Leader · Bước 5 — Hoàn tất bàn giao</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-direction:column;align-items:flex-end">
+            <span class="badge badge-amber">Chờ: Gửi lời cảm ơn</span>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-ghost btn-sm">Tháo Frame</button>
+              <button class="btn btn-primary btn-sm">Gửi tri ân</button>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:14px">
+          <div class="card-title">Quy trình Out Team — 4 hành động bắt buộc</div>
+          <div class="checklist-item">
+            <div class="check-box done">✓</div>
+            <span style="font-size:13px">Thu hồi quyền truy cập hệ thống</span>
+          </div>
+          <div class="checklist-item">
+            <div class="check-box done">✓</div>
+            <span style="font-size:13px">Bàn giao công việc với team</span>
+          </div>
+          <div class="checklist-item">
+            <div class="check-box warn">!</div>
+            <span style="font-size:13px">Hỗ trợ tháo Frame & chỉnh mạng xã hội</span>
+          </div>
+          <div class="checklist-item">
+            <div class="check-box todo">○</div>
+            <span style="font-size:13px">Gửi lời tri ân chính thức</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chuyển Team -->
+      <div class="subpanel" id="subpanel-cross">
+        <div class="section-header">
+          <div class="card-title lg" style="margin-bottom:0">Thành viên đang chuyển team</div>
+        </div>
+        <div class="req-item">
+          <div class="req-icon">🔄</div>
+          <div style="flex:1">
+            <div class="req-name">Lê Thị Bảo</div>
+            <div class="req-meta">Design → IT Team · Bước 1 — Email xác nhận đã gửi</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-direction:column;align-items:flex-end">
+            <span class="badge badge-blue">Đang xử lý</span>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-ghost btn-sm">Bàn giao</button>
+              <button class="btn btn-primary btn-sm">Nhận team mới</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ LỊCH PHỎNG VẤN ══ -->
+    <div class="panel" id="view-calendar">
+      <div class="grid-2col" style="margin-bottom:14px">
+        <div class="card">
+          <div class="card-title lg">Lịch tháng 3/2026</div>
+          <div class="cal-grid">
+            <div class="cal-header">CN</div><div class="cal-header">T2</div><div class="cal-header">T3</div>
+            <div class="cal-header">T4</div><div class="cal-header">T5</div><div class="cal-header">T6</div><div class="cal-header">T7</div>
+            <div class="cal-day empty">26</div><div class="cal-day empty">27</div><div class="cal-day empty">28</div>
+            <div class="cal-day">1</div><div class="cal-day">2</div><div class="cal-day">3</div><div class="cal-day">4</div>
+            <div class="cal-day">5</div><div class="cal-day">6</div><div class="cal-day">7</div>
+            <div class="cal-day">8</div><div class="cal-day">9</div>
+            <div class="cal-day has-event">10<div class="cal-dot"></div></div>
+            <div class="cal-day">11</div>
+            <div class="cal-day">12</div><div class="cal-day">13</div><div class="cal-day">14</div>
+            <div class="cal-day">15</div><div class="cal-day">16</div><div class="cal-day">17</div><div class="cal-day">18</div>
+            <div class="cal-day">19</div><div class="cal-day">20</div>
+            <div class="cal-day has-event">21<div class="cal-dot"></div></div>
+            <div class="cal-day">22</div><div class="cal-day">23</div><div class="cal-day">24</div><div class="cal-day">25</div>
+            <div class="cal-day has-event">26<div class="cal-dot"></div></div>
+            <div class="cal-day today">27</div>
+            <div class="cal-day has-event">28<div class="cal-dot"></div></div>
+            <div class="cal-day">29</div><div class="cal-day">30</div><div class="cal-day">31</div>
+            <div class="cal-day empty">1</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title lg">Sự kiện trong tháng</div>
+          <div class="history-item">
+            <div class="history-date">10/03 · 09:00</div>
+            <div><div class="history-text font-bold">Nguyễn Minh Tuấn</div><div class="text-xs text-gray">Design · Zoom · Phỏng vấn lần đầu</div></div>
+          </div>
+          <div class="history-item">
+            <div class="history-date">21/03 · 14:30</div>
+            <div><div class="history-text font-bold">Phạm Thị Lan</div><div class="text-xs text-gray">HR · Zoom · Phỏng vấn vòng 1</div></div>
+          </div>
+          <div class="history-item">
+            <div class="history-date">26/03 · 10:30</div>
+            <div><div class="history-text font-bold">Trần Bảo Châu</div><div class="text-xs text-gray">Academy · Zoom · PV lại</div></div>
+          </div>
+          <div class="history-item">
+            <div class="history-date">27/03 · Hôm nay</div>
+            <div><div class="history-text font-bold" style="color:var(--gold)">Trần Văn Hùng</div><div class="text-xs text-gray">IT · Zoom · 14:00</div></div>
+          </div>
+          <div class="history-item">
+            <div class="history-date">28/03 · 11:00</div>
+            <div><div class="history-text font-bold">Lê Gia Bảo</div><div class="text-xs text-gray">Editor · Zoom · Vòng cuối</div></div>
+          </div>
+          <div style="margin-top:14px">
+            <a href="#" class="btn btn-primary" style="width:100%;justify-content:center">Mở Calendly đặt lịch →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ QUẢN LÝ THÀNH VIÊN ══ -->
+    <div class="panel" id="view-members">
+      <div class="tab-bar mb-4" id="member-tabs">
+        <button class="tab-btn active" data-mtab="list">Danh sách</button>
+        <button class="tab-btn" data-mtab="profile">Hồ sơ chi tiết</button>
+      </div>
+
+      <!-- List -->
+      <div id="mtab-list">
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Thành viên</th><th>Team</th><th>Vai trò</th><th>Trạng thái</th><th>Từ ngày</th><th></th>
+            </tr></thead>
+            <tbody>
+              <tr onclick="switchToProfile('Nguyễn Linh Tâm','HR Team','Leader','MEM-2026-001','18/01/2025')" style="cursor:pointer">
+                <td>
+                  <div style="display:flex;align-items:center;gap:10px">
+                    <div class="assess-avatar" style="width:32px;height:32px;font-size:11px">NT</div>
+                    <div>
+                      <div class="td-name">Nguyễn Linh Tâm</div>
+                      <div class="td-meta">MEM-2026-001</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="badge badge-navy">HR</span></td>
+                <td class="font-bold" style="font-size:12px">Leader</td>
+                <td><span class="badge badge-green">Đang làm</span></td>
+                <td class="td-meta">18/01/2025</td>
+                <td><button class="btn btn-ghost btn-sm">Xem hồ sơ →</button></td>
+              </tr>
+              <tr onclick="switchToProfile('Lê Gia Hào','Design Team','Co-Leader','MEM-2026-002','05/03/2025')" style="cursor:pointer">
+                <td>
+                  <div style="display:flex;align-items:center;gap:10px">
+                    <div class="assess-avatar" style="background:var(--blue);width:32px;height:32px;font-size:11px">LH</div>
+                    <div>
+                      <div class="td-name">Lê Gia Hào</div>
+                      <div class="td-meta">MEM-2026-002</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="badge badge-blue">Design</span></td>
+                <td class="font-bold" style="font-size:12px">Co-Leader</td>
+                <td><span class="badge badge-green">Đang làm</span></td>
+                <td class="td-meta">05/03/2025</td>
+                <td><button class="btn btn-ghost btn-sm">Xem hồ sơ →</button></td>
+              </tr>
+              <tr onclick="switchToProfile('Trần Nguyên Đoan Trang','HR Team','Manager Leader','MEM-2025-003','10/06/2024')" style="cursor:pointer">
+                <td>
+                  <div style="display:flex;align-items:center;gap:10px">
+                    <div class="assess-avatar" style="background:var(--gold);width:32px;height:32px;font-size:11px">DT</div>
+                    <div>
+                      <div class="td-name">Trần Nguyên Đoan Trang</div>
+                      <div class="td-meta">MEM-2025-003</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="badge badge-navy">HR</span></td>
+                <td class="font-bold" style="font-size:12px">Manager Leader</td>
+                <td><span class="badge badge-green">Đang làm</span></td>
+                <td class="td-meta">10/06/2024</td>
+                <td><button class="btn btn-ghost btn-sm">Xem hồ sơ →</button></td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="display:flex;align-items:center;gap:10px">
+                    <div class="assess-avatar" style="background:var(--red);width:32px;height:32px;font-size:11px">VA</div>
+                    <div>
+                      <div class="td-name">Nguyễn Văn An</div>
+                      <div class="td-meta">MEM-2025-012</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="badge badge-gray">Admin</span></td>
+                <td class="font-bold" style="font-size:12px">Leader</td>
+                <td><span class="badge badge-red">Out Team</span></td>
+                <td class="td-meta">22/09/2024</td>
+                <td><button class="btn btn-ghost btn-sm">Xem hồ sơ →</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Profile -->
+      <div id="mtab-profile" style="display:none">
+        <div class="profile-header">
+          <div class="profile-avatar" id="prof-avatar">NT</div>
+          <div>
+            <div class="profile-id" id="prof-id">MEM-2026-001</div>
+            <div class="profile-name" id="prof-name">Nguyễn Linh Tâm</div>
+            <div class="profile-role" id="prof-role">HR Team · Leader</div>
+          </div>
+          <div style="margin-left:auto;display:flex;gap:8px">
+            <button class="btn btn-danger btn-sm">Out Team</button>
+            <button class="btn btn-ghost btn-sm">Chuyển Team</button>
+          </div>
+        </div>
+        <div class="grid-2col">
+          <div class="card">
+            <div class="card-title">Thông tin định danh</div>
+            <div class="info-grid">
+              <div class="info-item"><label>Telegram</label><p>@linhntam_hr</p></div>
+              <div class="info-item"><label>Email làm việc</label><p>linhntam@nhile.sg</p></div>
+              <div class="info-item"><label>Ngày sinh</label><p>15/08/1999</p></div>
+              <div class="info-item"><label>Điện thoại</label><p>+84 901 234 567</p></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Lịch sử thành viên</div>
+            <div class="history-item">
+              <div class="history-date">18/01/2025</div>
+              <div class="history-text">Gia nhập NhiLe · HR Team · Volunteer</div>
+            </div>
+            <div class="history-item">
+              <div class="history-date">05/04/2025</div>
+              <div class="history-text">Thăng Co-Leader sau đánh giá 4.3/5</div>
+            </div>
+            <div class="history-item">
+              <div class="history-date">10/07/2025</div>
+              <div class="history-text">Thăng Leader · KPI đạt 100% Q2</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SƠ ĐỒ TỔ CHỨC ══ -->
+    <div class="panel" id="view-org">
+      <div class="team-filters">
+        <span style="font-size:11px;font-weight:700;color:var(--gray-400);align-self:center">Lọc team:</span>
+        <span class="tag-team" style="background:#DCFCE7;color:#166534" onclick="filterOrg('all')">Tất cả</span>
+        <span class="tag-team" style="background:#EDE9FE;color:#5B21B6" onclick="filterOrg('design')">Design</span>
+        <span class="tag-team" style="background:#FEE2E2;color:#991B1B" onclick="filterOrg('hr')">HR</span>
+        <span class="tag-team" style="background:#DBEAFE;color:#1E40AF" onclick="filterOrg('it')">IT</span>
+        <span class="tag-team" style="background:#FEF3C7;color:#92400E" onclick="filterOrg('academy')">Academy</span>
+        <span class="tag-team" style="background:#FCE7F3;color:#831843" onclick="filterOrg('social')">Social Content</span>
+        <span class="tag-team" style="background:#D1FAE5;color:#065F46" onclick="filterOrg('nedu')">N-EDU</span>
+        <span class="tag-team" style="background:#E0E7FF;color:#3730A3" onclick="filterOrg('admin')">Admin</span>
+        <span class="tag-team" style="background:#F3F4F6;color:#374151" onclick="filterOrg('editor')">Editor</span>
+      </div>
+      <div class="card">
+        <div class="org-tree">
+          <div><div class="org-node top"><div class="org-name">Phạm Đình Huê</div><div class="org-title">CEO · NhiLe Holding</div></div></div>
+          <div class="org-line"></div>
+          <div><div class="org-node mid"><div class="org-name">Trần Nguyên Đoan Trang</div><div class="org-title">Manager Leader</div></div></div>
+          <div class="org-line"></div>
+          <div class="org-row">
+            <div>
+              <div class="org-node"><div class="org-name">Nguyễn Linh Tâm</div><div class="org-title">HR · Leader</div></div>
+            </div>
+            <div>
+              <div class="org-node"><div class="org-name">Lê Gia Hào</div><div class="org-title">Design · Leader</div></div>
+            </div>
+            <div>
+              <div class="org-node"><div class="org-name">Nguyễn Văn Bình</div><div class="org-title">IT · Leader</div></div>
+            </div>
+            <div>
+              <div class="org-node"><div class="org-name">Đỗ Thị Hồng</div><div class="org-title">N-EDU · Leader</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ĐƠN YÊU CẦU ══ -->
+    <div class="panel" id="view-requests">
+      <div class="tab-bar mb-4">
+        <button class="tab-btn active" data-rtab="pending">Chờ duyệt (3)</button>
+        <button class="tab-btn" data-rtab="done">Đã xử lý</button>
+      </div>
+      <div id="rtab-pending">
+        <div class="req-item">
+          <div class="req-icon">🏖️</div>
+          <div style="flex:1">
+            <div class="req-name">Xin Off — Nguyễn Linh Tâm</div>
+            <div class="req-meta">HR Team · Leader · 28/03 – 30/03 · 3 ngày · Lý do: việc gia đình</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-danger btn-sm">Từ chối</button>
+            <button class="btn btn-primary btn-sm">Duyệt</button>
+          </div>
+        </div>
+        <div class="req-item">
+          <div class="req-icon">🔄</div>
+          <div style="flex:1">
+            <div class="req-name">Chuyển Team — Lê Thị Bảo</div>
+            <div class="req-meta">Design Team → IT Team · Volunteer · Lý do: phù hợp hơn với kỹ năng</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-danger btn-sm">Từ chối</button>
+            <button class="btn btn-primary btn-sm">Duyệt</button>
+          </div>
+        </div>
+        <div class="req-item">
+          <div class="req-icon">➕</div>
+          <div style="flex:1">
+            <div class="req-name">Làm thêm team — Phạm Quốc Tuấn</div>
+            <div class="req-meta">IT Team → muốn tham gia thêm Academy · Volunteer</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-danger btn-sm">Từ chối</button>
+            <button class="btn btn-primary btn-sm">Duyệt</button>
+          </div>
+        </div>
+      </div>
+      <div id="rtab-done" style="display:none">
+        <div class="req-item">
+          <div class="req-icon">✅</div>
+          <div style="flex:1">
+            <div class="req-name">Xin Off — Trần Văn Hùng</div>
+            <div class="req-meta">IT Team · 20/03 – 21/03 · Đã duyệt bởi: HR Admin</div>
+          </div>
+          <span class="badge badge-green">Đã duyệt</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ GỌI MÓN DESIGN ══ -->
+    <div class="panel" id="view-orders">
+      <div class="grid-2col" style="margin-bottom:14px">
+        <div class="stat-card">
+          <div class="stat-label">Đang chế biến</div>
+          <div class="stat-value amber">1</div>
+          <div class="stat-sub">Dự kiến xong hôm nay</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Hoàn thành tháng này</div>
+          <div class="stat-value green">8</div>
+          <div class="stat-sub">↑ +3 so với tháng trước</div>
+        </div>
+      </div>
+
+      <div class="flex-between mb-4">
+        <div class="card-title lg" style="margin-bottom:0">Đơn hàng đang xử lý</div>
+        <button class="btn btn-gold" onclick="document.getElementById('order-modal').classList.add('show')">+ Gọi món mới</button>
+      </div>
+
+      <div class="order-card">
+        <div class="order-num">#HR-027</div>
+        <div class="order-info">
+          <div class="order-name">Video TikTok — Recruitment campaign</div>
+          <div class="order-meta">Editing · Giao bởi: HR Admin · 15 phút trước · Deadline: 28/03</div>
+        </div>
+        <span class="badge badge-amber">Đang làm</span>
+      </div>
+      <div class="order-card">
+        <div class="order-num">#HR-026</div>
+        <div class="order-info">
+          <div class="order-name">Hình ảnh Fanpage — Thông báo tuyển dụng</div>
+          <div class="order-meta">Design · Giao bởi: HR Admin · 2 giờ trước · Deadline: 27/03</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost btn-sm">Xem trước</button>
+          <button class="btn btn-primary btn-sm">Tải về ✓</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px">
+        <div class="card-title">📋 Hướng dẫn — HR đặt Design</div>
+        <div class="history-item">
+          <div class="history-date" style="width:60px;color:var(--navy);font-weight:800">Bước 1</div>
+          <div class="history-text">HR Admin nhấn "Gọi món mới" → chọn loại sản phẩm</div>
+        </div>
+        <div class="history-item">
+          <div class="history-date" style="width:60px;color:var(--navy);font-weight:800">Bước 2</div>
+          <div class="history-text">Điền brief: nội dung, tone, deadline</div>
+        </div>
+        <div class="history-item">
+          <div class="history-date" style="width:60px;color:var(--navy);font-weight:800">Bước 3</div>
+          <div class="history-text">Design team nhận đơn → chế biến → upload file</div>
+        </div>
+        <div class="history-item">
+          <div class="history-date" style="width:60px;color:var(--navy);font-weight:800">Bước 4</div>
+          <div class="history-text">HR Admin xem trước → tải về → đánh dấu hoàn thành</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ĐÁNH GIÁ 360° ══ -->
+    <div class="panel" id="view-assess">
+      <div class="tab-bar mb-4">
+        <button class="tab-btn active" data-atab="hr">Team HR</button>
+        <button class="tab-btn" data-atab="org">Toàn tổ chức</button>
+        <button class="tab-btn" data-atab="history">Lịch sử kỳ</button>
+      </div>
+
+      <div id="atab-hr">
+        <div class="grid-2col" style="margin-bottom:14px">
+          <div class="stat-card">
+            <div class="stat-label">Điểm TB toàn HR team</div>
+            <div class="stat-value blue">4.2</div>
+            <div class="stat-sub">/ 5.0 · Kỳ Q1/2026</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Xét thăng chức</div>
+            <div class="stat-value green">2</div>
+            <div class="stat-sub">Điểm ≥ 4.0 · Đủ điều kiện</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="flex-between mb-4">
+            <div class="card-title lg" style="margin-bottom:0">Kết quả đánh giá — HR Team · Q1/2026</div>
+            <button class="btn btn-primary btn-sm">Xuất báo cáo</button>
+          </div>
+          <div class="assess-member">
+            <div class="assess-avatar">DT</div>
+            <div style="flex:1">
+              <div class="font-bold">Trần Nguyên Đoan Trang</div>
+              <div class="text-xs text-gray">Manager Leader</div>
+              <div class="score-bar" style="margin-top:6px;width:160px">
+                <div class="score-fill" style="width:90%"></div>
+              </div>
+            </div>
+            <div class="assess-score">
+              <div class="score-num" style="color:var(--green)">4.5</div>
+              <div class="score-label">⭐ Xuất sắc</div>
+              <span class="badge badge-green" style="margin-top:4px">Xét thăng chức</span>
+            </div>
+          </div>
+          <div class="assess-member">
+            <div class="assess-avatar" style="background:var(--blue)">NT</div>
+            <div style="flex:1">
+              <div class="font-bold">Nguyễn Linh Tâm</div>
+              <div class="text-xs text-gray">Leader</div>
+              <div class="score-bar" style="margin-top:6px;width:160px">
+                <div class="score-fill" style="width:82%"></div>
+              </div>
+            </div>
+            <div class="assess-score">
+              <div class="score-num" style="color:var(--blue)">4.1</div>
+              <div class="score-label">✨ Tốt</div>
+              <span class="badge badge-green" style="margin-top:4px">Xét thăng chức</span>
+            </div>
+          </div>
+          <div class="assess-member">
+            <div class="assess-avatar" style="background:var(--gold)">MT</div>
+            <div style="flex:1">
+              <div class="font-bold">Nguyễn Minh Thư</div>
+              <div class="text-xs text-gray">Co-Leader</div>
+              <div class="score-bar" style="margin-top:6px;width:160px">
+                <div class="score-fill" style="width:72%"></div>
+              </div>
+            </div>
+            <div class="assess-score">
+              <div class="score-num" style="color:#D97706">3.6</div>
+              <div class="score-label">✅ Đạt</div>
+              <span class="badge badge-gray" style="margin-top:4px">Giữ nguyên</span>
+            </div>
+          </div>
+          <div class="assess-member">
+            <div class="assess-avatar" style="background:var(--teal)">HP</div>
+            <div style="flex:1">
+              <div class="font-bold">Hoàng Anh Phú</div>
+              <div class="text-xs text-gray">Volunteer</div>
+              <div class="score-bar" style="margin-top:6px;width:160px">
+                <div class="score-fill" style="width:82%"></div>
+              </div>
+            </div>
+            <div class="assess-score">
+              <div class="score-num" style="color:var(--blue)">4.1</div>
+              <div class="score-label">✨ Tốt</div>
+              <span class="badge badge-green" style="margin-top:4px">Xét Co-Leader</span>
+            </div>
+          </div>
+          <div style="margin-top:14px;padding:12px;background:var(--gray-50);border-radius:10px;font-size:11px;color:var(--gray-600)">
+            📌 Trọng số: Tự ĐG 30% · Top-down 30% · Peer 20% · Bottom-up 20% · Ngưỡng thăng chức ≥ 4.0/5.0
+          </div>
+        </div>
+      </div>
+
+      <div id="atab-org" style="display:none">
+        <div class="card">
+          <div class="card-title lg">Toàn tổ chức — Điểm trung bình theo team</div>
+          <div class="assess-member">
+            <div class="assess-avatar" style="background:var(--green)">NE</div>
+            <div style="flex:1"><div class="font-bold">N-EDU Team</div><div class="score-bar" style="margin-top:6px;width:200px"><div class="score-fill" style="width:88%"></div></div></div>
+            <div class="assess-score"><div class="score-num" style="color:var(--green)">4.4</div><div class="score-label">⭐ Xuất sắc</div></div>
+          </div>
+          <div class="assess-member">
+            <div class="assess-avatar">HR</div>
+            <div style="flex:1"><div class="font-bold">HR Team</div><div class="score-bar" style="margin-top:6px;width:200px"><div class="score-fill" style="width:84%"></div></div></div>
+            <div class="assess-score"><div class="score-num" style="color:var(--blue)">4.2</div><div class="score-label">✨ Tốt</div></div>
+          </div>
+          <div class="assess-member">
+            <div class="assess-avatar" style="background:var(--blue)">DS</div>
+            <div style="flex:1"><div class="font-bold">Design Team</div><div class="score-bar" style="margin-top:6px;width:200px"><div class="score-fill" style="width:78%"></div></div></div>
+            <div class="assess-score"><div class="score-num" style="color:var(--blue)">3.9</div><div class="score-label">⚠️ Cần cải thiện</div></div>
+          </div>
+          <div class="assess-member">
+            <div class="assess-avatar" style="background:var(--teal)">IT</div>
+            <div style="flex:1"><div class="font-bold">IT Team</div><div class="score-bar" style="margin-top:6px;width:200px"><div class="score-fill" style="width:76%"></div></div></div>
+            <div class="assess-score"><div class="score-num" style="color:#D97706">3.8</div><div class="score-label">✅ Đạt</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="atab-history" style="display:none">
+        <div class="card">
+          <div class="card-title lg">Lịch sử đánh giá — HR Team</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Kỳ</th><th>Điểm TB</th><th>Xếp loại</th><th>Ghi chú</th></tr></thead>
+              <tbody>
+                <tr><td class="font-bold">Q1/2026</td><td>4.2</td><td><span class="badge badge-blue">✨ Tốt</span></td><td class="td-meta">2 người xét thăng chức</td></tr>
+                <tr><td class="font-bold">Q4/2025</td><td>3.9</td><td><span class="badge badge-amber">✅ Đạt</span></td><td class="td-meta">1 PIP 30 ngày</td></tr>
+                <tr><td class="font-bold">Q3/2025</td><td>4.0</td><td><span class="badge badge-blue">✨ Tốt</span></td><td class="td-meta">Kỳ đầu tiên team mới</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end content -->
+</div><!-- end main -->
+
+<!-- ── MODAL: Chi tiết ứng viên ── -->
+<div class="modal-overlay" id="candidate-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-cand-name">Phạm Thị Lan</div>
+      <button class="modal-close" onclick="document.getElementById('candidate-modal').classList.remove('show')">✕</button>
+    </div>
+    <div class="tab-bar mb-4" style="width:100%">
+      <button class="tab-btn active" id="modtab-stage-btn">Hiring Stage</button>
+      <button class="tab-btn" id="modtab-notes-btn">Notes</button>
+    </div>
+    <div id="modtab-stage">
+      <div style="margin-bottom:20px">
+        <div class="step-bar" style="justify-content:center">
+          <div class="step-wrap"><div class="step-dot done" id="ms1">✓</div><div class="step-label done">Sàng lọc</div></div>
+          <div class="step-line done" id="ml1"></div>
+          <div class="step-wrap"><div class="step-dot done" id="ms2">✓</div><div class="step-label done">Điền Form</div></div>
+          <div class="step-line" id="ml2"></div>
+          <div class="step-wrap"><div class="step-dot current" id="ms3">3</div><div class="step-label current">Phỏng vấn</div></div>
+          <div class="step-line" id="ml3"></div>
+          <div class="step-wrap"><div class="step-dot" id="ms4">4</div><div class="step-label">Kết quả</div></div>
+          <div class="step-line" id="ml4"></div>
+          <div class="step-wrap"><div class="step-dot" id="ms5">5</div><div class="step-label">Cập nhật</div></div>
+        </div>
+      </div>
+      <div style="background:var(--gray-50);border-radius:12px;padding:14px;margin-bottom:14px">
+        <div style="font-size:11px;font-weight:800;color:var(--gray-400);text-transform:uppercase;margin-bottom:8px">Bước hiện tại</div>
+        <div id="modal-step-desc" style="font-size:13px;font-weight:600">Bước 3 — Đặt lịch phỏng vấn. Ứng viên đã chọn khung giờ qua Calendly. Zoom đã được tạo.</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-danger">❌ FAIL — Gửi cảm ơn</button>
+        <button class="btn btn-primary">✅ PASS — Tiến bước 4</button>
+        <button class="btn btn-ghost">🔄 Reschedule</button>
+      </div>
+    </div>
+    <div id="modtab-notes" style="display:none">
+      <div style="background:var(--gray-50);border-radius:10px;padding:12px;margin-bottom:12px;font-size:13px">
+        <div style="font-size:10px;font-weight:800;color:var(--gray-400);margin-bottom:6px">22/03 · HR Admin</div>
+        Ứng viên hỏi về thời gian cam kết. Đã giải thích 10h/tuần. Vẻ phù hợp.
+      </div>
+      <textarea placeholder="Thêm ghi chú..." style="width:100%;padding:12px;border:1px solid var(--gray-200);border-radius:10px;font-family:inherit;font-size:13px;resize:none;height:80px;outline:none"></textarea>
+      <button class="btn btn-primary btn-sm" style="margin-top:8px">Lưu ghi chú</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: Gọi món ── -->
+<div class="modal-overlay" id="order-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">🎨 Thực đơn sản xuất</div>
+      <button class="modal-close" onclick="document.getElementById('order-modal').classList.remove('show')">✕</button>
+    </div>
+    <p style="font-size:12px;color:var(--gray-400);margin-bottom:16px">Chọn loại sản phẩm cần Design team thực hiện</p>
+    <div class="menu-item">
+      <div><div class="menu-tag">Design</div><div class="menu-name">Hình ảnh Fanpage</div><div class="menu-desc">1 ảnh chuẩn 1:1 hoặc 4:5 · ~4h</div></div>
+      <button class="btn btn-primary btn-sm">Chọn</button>
+    </div>
+    <div class="menu-item">
+      <div><div class="menu-tag">Design</div><div class="menu-name">Bộ Banner Ads</div><div class="menu-desc">Combo 3 kích thước chạy quảng cáo · ~1 ngày</div></div>
+      <button class="btn btn-primary btn-sm">Chọn</button>
+    </div>
+    <div class="menu-item">
+      <div><div class="menu-tag" style="color:var(--teal)">Editing</div><div class="menu-name">Video TikTok</div><div class="menu-desc">Dưới 60s, bao gồm sub & hiệu ứng · ~6h</div></div>
+      <button class="btn btn-primary btn-sm">Chọn</button>
+    </div>
+    <div class="menu-item">
+      <div><div class="menu-tag" style="color:var(--teal)">Editing</div><div class="menu-name">Video YouTube / Rec</div><div class="menu-desc">Cắt ghép podcast hoặc bài giảng · ~2 ngày</div></div>
+      <button class="btn btn-primary btn-sm">Chọn</button>
+    </div>
+    <div class="menu-item">
+      <div><div class="menu-tag" style="color:var(--gold)">Design</div><div class="menu-name">Story / Reel Cover</div><div class="menu-desc">Template story hoặc thumbnail · ~2h</div></div>
+      <button class="btn btn-primary btn-sm">Chọn</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── PAGE TITLES ──
+const titles = {
+  dashboard:  { title: 'Dashboard',              desc: 'Hệ thống quản trị HR — NhiLe Team.' },
+  candidates: { title: 'Nhật ký hồ sơ',          desc: 'Theo dõi quy trình ON / OUT / Chuyển team.' },
+  calendar:   { title: 'Lịch phỏng vấn',          desc: 'Calendly + lịch tháng.' },
+  members:    { title: 'Quản lý thành viên',       desc: 'Danh sách & hồ sơ cá nhân.' },
+  org:        { title: 'Sơ đồ tổ chức',            desc: 'Cơ cấu nhân sự NhiLe Holding.' },
+  requests:   { title: 'Đơn yêu cầu',             desc: 'Xin off · Chuyển team · Làm thêm · Out team.' },
+  orders:     { title: 'Gọi món Design',           desc: 'HR đặt hình/video → Design thực hiện.' },
+  assess:     { title: 'Đánh giá 360°',            desc: 'Hệ thống đánh giá toàn tổ chức — Singapore Way.' },
+};
+
+// ── NAVIGATION ──
+function navigate(view) {
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.nav-item[data-view="${view}"]`).classList.add('active');
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(`view-${view}`).classList.add('active');
+  document.getElementById('page-title').textContent = titles[view].title;
+  document.getElementById('page-desc').textContent = titles[view].desc;
+}
+
+document.querySelectorAll('.nav-item').forEach(btn => {
+  btn.addEventListener('click', () => navigate(btn.getAttribute('data-view')));
+});
+
+// ── SUB-TABS: Candidates ──
+document.querySelectorAll('[data-sub]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const parent = btn.closest('.panel') || document.getElementById('view-candidates');
+    parent.querySelectorAll('[data-sub]').forEach(b => {
+      b.className = b.className.replace('active red','').replace('bg-black text-white','bg-gray-100 text-gray-600');
+      b.classList.remove('active');
+    });
+    btn.classList.add('active');
+    if (btn.dataset.sub === 'on') btn.classList.add('red');
+    document.querySelectorAll('.subpanel').forEach(p => p.classList.remove('active'));
+    document.getElementById(`subpanel-${btn.dataset.sub}`).classList.add('active');
+  });
+});
+
+// ── TAB-BARS generic (data-mtab, data-rtab, data-atab) ──
+function setupTabGroup(attr, prefix) {
+  document.querySelectorAll(`[${attr}]`).forEach(btn => {
+    btn.addEventListener('click', () => {
+      const group = btn.closest('.panel') || document.body;
+      group.querySelectorAll(`[${attr}]`).forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      // hide all related divs
+      const key = btn.getAttribute(attr);
+      // find all possible ids
+      document.querySelectorAll(`[id^="${prefix}"]`).forEach(el => el.style.display = 'none');
+      const target = document.getElementById(`${prefix}${key}`);
+      if (target) target.style.display = 'block';
+    });
+  });
+}
+setupTabGroup('data-mtab', 'mtab-');
+setupTabGroup('data-rtab', 'rtab-');
+setupTabGroup('data-atab', 'atab-');
+
+// Member tab bar click
+document.querySelectorAll('[data-mtab]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-mtab]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('mtab-list').style.display = btn.dataset.mtab === 'list' ? 'block' : 'none';
+    document.getElementById('mtab-profile').style.display = btn.dataset.mtab === 'profile' ? 'block' : 'none';
+  });
+});
+
+// Request tab
+document.querySelectorAll('[data-rtab]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-rtab]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('rtab-pending').style.display = btn.dataset.rtab === 'pending' ? 'block' : 'none';
+    document.getElementById('rtab-done').style.display = btn.dataset.rtab === 'done' ? 'block' : 'none';
+  });
+});
+
+// Assess tabs
+document.querySelectorAll('[data-atab]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-atab]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    ['hr','org','history'].forEach(k => {
+      document.getElementById(`atab-${k}`).style.display = btn.dataset.atab === k ? 'block' : 'none';
+    });
+  });
+});
+
+// Modal tab: candidate
+document.getElementById('modtab-stage-btn').addEventListener('click', () => {
+  document.getElementById('modtab-stage').style.display = 'block';
+  document.getElementById('modtab-notes').style.display = 'none';
+  document.getElementById('modtab-stage-btn').classList.add('active');
+  document.getElementById('modtab-notes-btn').classList.remove('active');
+});
+document.getElementById('modtab-notes-btn').addEventListener('click', () => {
+  document.getElementById('modtab-stage').style.display = 'none';
+  document.getElementById('modtab-notes').style.display = 'block';
+  document.getElementById('modtab-notes-btn').classList.add('active');
+  document.getElementById('modtab-stage-btn').classList.remove('active');
+});
+
+// ── OPEN CANDIDATE MODAL ──
+const stepDescs = {
+  1: 'Bước 1 — Sàng lọc & Phân loại. Tiếp nhận thông tin từ Website/Form. HR Admin phân loại ứng viên.',
+  2: 'Bước 2 — Điền Form thông tin. Ứng viên đang điền Google Form chi tiết để lưu hồ sơ hệ thống.',
+  3: 'Bước 3 — Đặt lịch phỏng vấn. Ứng viên đã chọn khung giờ qua Calendly. Zoom đã được tạo.',
+  4: 'Bước 4 — Nhận kết quả phỏng vấn. Interviewer đang đánh giá. Chờ kết quả PASS / FAIL.',
+  5: 'Bước 5 — Kiểm tra & Cập nhật Data. HR Member rà soát thông tin trên Master Sheet.',
+};
+
+function openCandidateModal(name, step) {
+  document.getElementById('modal-cand-name').textContent = name;
+  document.getElementById('modal-step-desc').textContent = stepDescs[step] || '';
+  // reset steps
+  [1,2,3,4,5].forEach(i => {
+    const dot = document.getElementById(`ms${i}`);
+    const line = document.getElementById(`ml${i}`);
+    dot.className = 'step-dot';
+    dot.textContent = i;
+    if (line) line.className = 'step-line';
+    dot.nextElementSibling && (dot.nextElementSibling.className = 'step-label');
+  });
+  for (let i = 1; i < step; i++) {
+    const dot = document.getElementById(`ms${i}`);
+    dot.className = 'step-dot done'; dot.textContent = '✓';
+    dot.nextElementSibling.className = 'step-label done';
+    const line = document.getElementById(`ml${i}`);
+    if (line) line.className = 'step-line done';
+  }
+  const cur = document.getElementById(`ms${step}`);
+  cur.className = 'step-dot current'; cur.textContent = step;
+  cur.nextElementSibling.className = 'step-label current';
+  document.getElementById('candidate-modal').classList.add('show');
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('show'); });
+});
+
+// ── SWITCH TO PROFILE ──
+function switchToProfile(name, team, role, id, since) {
+  navigate('members');
+  document.querySelectorAll('[data-mtab]').forEach(b => b.classList.remove('active'));
+  document.querySelector('[data-mtab="profile"]').classList.add('active');
+  document.getElementById('mtab-list').style.display = 'none';
+  document.getElementById('mtab-profile').style.display = 'block';
+  document.getElementById('prof-name').textContent = name;
+  document.getElementById('prof-role').textContent = `${team} · ${role}`;
+  document.getElementById('prof-id').textContent = id;
+  document.getElementById('prof-avatar').textContent = name.split(' ').slice(-2).map(w => w[0]).join('');
+}
+
+// ── CLOCK ──
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent =
+    now.toLocaleTimeString('vi-VN', { hour:'2-digit', minute:'2-digit' });
+}
+updateClock(); setInterval(updateClock, 1000);
+
+// ── ORG FILTER (placeholder) ──
+function filterOrg(team) { /* future: filter nodes */ }
+</script>
+</body>
+</html>

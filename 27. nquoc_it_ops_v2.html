@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>NQuoc · IT Ops</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07090F;--s1:#0D1117;--s2:#111827;--s3:#1C2333;
+  --bd:#1F2937;--bd2:#2D3748;--bd3:#374151;
+  --t1:#F9FAFB;--t2:#9CA3AF;--t3:#6B7280;--t4:#374151;
+  --p:#7C3AED;--pl:#A78BFA;--pp:#EDE9FE;
+  --red:#EF4444;--redbg:#1a0808;--redbd:#EF444444;
+  --ora:#F97316;--orabg:#1a0e06;--orabd:#F9731644;
+  --yel:#EAB308;--yelbg:#1a1606;--yelbd:#EAB30844;
+  --grn:#16A34A;--grnbg:#06160a;--grnbd:#16A34A44;
+  --blu:#3B82F6;--blubg:#061322;--blubd:#3B82F644;
+}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--t1);font-family:-apple-system,'Segoe UI',system-ui,sans-serif;display:flex;flex-direction:column;font-size:13px}
+
+/* ── HEADER ── */
+.hdr{background:var(--s1);border-bottom:1px solid var(--bd);height:48px;display:flex;align-items:center;padding:0 16px;gap:0;flex-shrink:0;z-index:50}
+.hdr-logo{width:28px;height:28px;border-radius:6px;background:var(--p);display:flex;align-items:center;justify-content:center;font-size:14px;margin-right:10px;flex-shrink:0}
+.hdr-brand{font-weight:700;font-size:13px;margin-right:4px}
+.hdr-divider{width:1px;height:20px;background:var(--bd);margin:0 12px}
+.hdr-nav{display:flex;gap:2px}
+.hdr-nav-btn{padding:4px 10px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;color:var(--t3);background:none;border:none;font-family:inherit;transition:all .15s}
+.hdr-nav-btn:hover{color:var(--t1);background:var(--s2)}
+.hdr-nav-btn.active{color:var(--t1);background:var(--s2)}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.kbd-hint{font-size:10px;color:var(--t4);background:var(--s2);border:1px solid var(--bd);border-radius:5px;padding:2px 6px;font-family:'Courier New',monospace}
+.hdr-avatar{width:26px;height:26px;border-radius:50%;background:var(--p);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;cursor:pointer}
+.hdr-role{font-size:10px;font-weight:700;color:var(--pl);background:var(--p)/20;border:1px solid var(--p)/40;border-radius:20px;padding:2px 8px;background:#7C3AED22;border-color:#7C3AED44}
+
+/* ── P0 ALERT BANNER ── */
+.alert-banner{background:#1a0808;border-bottom:1px solid #EF444455;padding:7px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;animation:pulse-red 2s infinite}
+@keyframes pulse-red{0%,100%{background:#1a0808}50%{background:#200a0a}}
+.alert-banner-icon{font-size:14px}
+.alert-banner-text{font-size:12px;color:#F87171;font-weight:600;flex:1}
+.alert-banner-action{font-size:11px;font-weight:700;color:#F87171;background:#EF444422;border:1px solid #EF444444;border-radius:6px;padding:3px 10px;cursor:pointer;font-family:inherit;transition:all .15s}
+.alert-banner-action:hover{background:#EF444433}
+
+/* ── METRICS BAR ── */
+.metrics-bar{background:var(--s1);border-bottom:1px solid var(--bd);padding:8px 16px;display:flex;gap:8px;flex-shrink:0;align-items:center}
+.metric{display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:7px 12px;cursor:pointer;transition:all .15s;min-width:120px}
+.metric:hover{border-color:var(--bd2)}
+.metric.active{border-color:var(--p);background:#7C3AED11}
+.metric-icon{font-size:16px;flex-shrink:0}
+.metric-val{font-size:18px;font-weight:800;line-height:1}
+.metric-lbl{font-size:10px;color:var(--t3);margin-top:1px}
+.metric-delta{font-size:9px;padding:1px 5px;border-radius:10px;font-weight:700}
+.delta-up{background:#EF444422;color:#F87171}
+.delta-ok{background:#16A34A22;color:#4ADE80}
+.metrics-spacer{flex:1}
+.sort-btn{background:var(--s2);border:1px solid var(--bd);border-radius:7px;padding:5px 11px;font-size:11px;color:var(--t3);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;transition:all .15s}
+.sort-btn:hover{border-color:var(--bd2);color:var(--t2)}
+.group-btn{background:var(--s2);border:1px solid var(--bd);border-radius:7px;padding:5px 11px;font-size:11px;color:var(--t3);cursor:pointer;font-family:inherit;transition:all .15s}
+.group-btn:hover{border-color:var(--bd2);color:var(--t2)}
+
+/* ── BODY LAYOUT ── */
+.body-wrap{display:flex;flex:1;overflow:hidden;min-height:0}
+
+/* ── LIST PANEL ── */
+.list-panel{width:420px;min-width:320px;flex-shrink:0;border-right:1px solid var(--bd);display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+
+/* Toolbar */
+.list-toolbar{padding:8px 12px;border-bottom:1px solid var(--bd);background:var(--s1);flex-shrink:0}
+.search-wrap{position:relative;margin-bottom:7px}
+.search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--t4);font-size:12px;pointer-events:none}
+.search-input{width:100%;background:var(--s2);border:1px solid var(--bd);border-radius:7px;padding:6px 11px 6px 28px;color:var(--t1);font-size:12px;outline:none;font-family:inherit;transition:border-color .15s}
+.search-input:focus{border-color:var(--p)}
+.search-input::placeholder{color:var(--t4)}
+.filter-chips{display:flex;gap:5px;flex-wrap:wrap}
+.chip{background:var(--s2);border:1px solid var(--bd);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:600;color:var(--t3);cursor:pointer;transition:all .15s;user-select:none}
+.chip:hover{border-color:var(--bd2);color:var(--t2)}
+.chip.on{background:#7C3AED22;border-color:#7C3AED;color:var(--pl)}
+.chip.sev-on-P0{background:#EF444422;border-color:#EF4444;color:#F87171}
+.chip.sev-on-P1{background:#F9731622;border-color:#F97316;color:#FB923C}
+
+/* List header */
+.list-header{padding:6px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid var(--bd)}
+.list-count{font-size:10px;color:var(--t4);font-weight:600}
+.bulk-actions{display:none;gap:5px}
+.bulk-actions.show{display:flex}
+.bulk-btn{font-size:10px;padding:2px 8px;border-radius:6px;cursor:pointer;font-family:inherit;border:1px solid var(--bd);background:var(--s2);color:var(--t3);transition:all .15s}
+.bulk-btn:hover{color:var(--t1);border-color:var(--bd2)}
+
+/* Ticket items */
+.tk-scroll{overflow-y:auto;flex:1}
+.tk-scroll::-webkit-scrollbar{width:4px}.tk-scroll::-webkit-scrollbar-track{background:var(--bg)}.tk-scroll::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+
+/* Priority section headers */
+.sev-group-hdr{padding:5px 12px 3px;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t4);background:var(--bg);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:7px}
+.sev-group-hdr.red{color:#F87171;border-bottom-color:#EF444422}
+.sev-group-hdr.ora{color:#FB923C;border-bottom-color:#F9731622}
+.sev-group-hdr.yel{color:#FCD34D;border-bottom-color:#EAB30822}
+.sev-group-hdr.grn{color:#4ADE80;border-bottom-color:#16A34A22}
+.sev-group-count{font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px}
+.sev-group-hdr.red .sev-group-count{background:#EF444422}
+.sev-group-hdr.ora .sev-group-count{background:#F9731622}
+.sev-group-hdr.yel .sev-group-count{background:#EAB30822}
+.sev-group-hdr.grn .sev-group-count{background:#16A34A22}
+
+/* Individual ticket row */
+.tk{border-bottom:1px solid var(--bd);cursor:pointer;transition:background .12s;position:relative;border-left:3px solid transparent;padding:10px 12px 10px 10px}
+.tk:hover{background:var(--s2)}
+.tk:hover .tk-quick{opacity:1}
+.tk.sel{background:#1C1535;border-left-color:var(--p)}
+.tk.sev-P0{border-left-color:var(--red)}
+.tk.sev-P1{border-left-color:var(--ora)}
+.tk.sev-P2{border-left-color:var(--yel)}
+.tk.sev-P3{border-left-color:var(--grn)}
+.tk.sel.sev-P0,.tk.sel.sev-P1,.tk.sel.sev-P2,.tk.sel.sev-P3{border-left-color:var(--p)}
+.tk-top{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.tk-check{width:14px;height:14px;border-radius:3px;border:1px solid var(--bd2);background:transparent;cursor:pointer;flex-shrink:0;accent-color:var(--p)}
+.sev-badge{font-size:9px;font-weight:800;padding:2px 6px;border-radius:10px;flex-shrink:0;letter-spacing:.3px}
+.sev-P0{background:#EF444420;color:#F87171;border:1px solid #EF444440}
+.sev-P1{background:#F9731620;color:#FB923C;border:1px solid #F9731640}
+.sev-P2{background:#EAB30820;color:#FCD34D;border:1px solid #EAB30840}
+.sev-P3{background:#16A34A20;color:#4ADE80;border:1px solid #16A34A40}
+.tk-title{font-size:12px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--t1)}
+.tk-quick{opacity:0;display:flex;gap:3px;transition:opacity .15s;flex-shrink:0}
+.tk-q-btn{font-size:9px;padding:2px 7px;border-radius:5px;cursor:pointer;font-family:inherit;border:1px solid var(--bd2);background:var(--s3);color:var(--t3);transition:all .12s;white-space:nowrap}
+.tk-q-btn:hover{border-color:var(--p);color:var(--pl)}
+.tk-q-btn.green:hover{border-color:var(--grn);color:var(--grn)}
+.tk-mid{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.tk-team{font-size:11px;color:var(--t2);display:flex;align-items:center;gap:4px}
+.tk-comp{font-size:10px;color:var(--t4);background:var(--s2);border:1px solid var(--bd);border-radius:5px;padding:1px 6px;font-family:'Courier New',monospace;flex-shrink:0}
+.tk-assignee{font-size:9px;color:var(--t4);margin-left:auto;display:flex;align-items:center;gap:3px}
+.av-mini{width:16px;height:16px;border-radius:50%;background:var(--bd2);display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:var(--t3)}
+.av-mini.assigned{background:#7C3AED33;color:var(--pl)}
+.tk-bot{display:flex;align-items:center;gap:6px}
+.tk-id{font-size:9px;color:var(--t4);font-family:'Courier New',monospace}
+.tk-age{font-size:9px;color:var(--t4)}
+.sla-bar-wrap{flex:1;height:3px;background:var(--bd);border-radius:2px;overflow:hidden}
+.sla-bar{height:100%;border-radius:2px;transition:width .3s}
+.sla-bar.urgent{background:var(--red)}
+.sla-bar.warn{background:var(--yel)}
+.sla-bar.ok{background:var(--grn)}
+.sla-bar.done{background:var(--t4)}
+.sla-text{font-size:9px;font-weight:700;white-space:nowrap}
+.sla-text.urgent{color:#F87171}
+.sla-text.warn{color:#FCD34D}
+.sla-text.ok{color:#4ADE80}
+.sla-text.done{color:var(--t4)}
+.status-pill{font-size:9px;font-weight:700;padding:1px 7px;border-radius:10px}
+.st-new{background:#3B82F622;color:#60A5FA;border:1px solid #3B82F633}
+.st-assigned{background:#8B5CF622;color:#A78BFA;border:1px solid #8B5CF633}
+.st-in_progress{background:#F9731622;color:#FB923C;border:1px solid #F9731633}
+.st-done{background:#16A34A22;color:#4ADE80;border:1px solid #16A34A33}
+.st-cancelled{background:#37414122;color:var(--t4);border:1px solid var(--bd)}
+.score-chip{font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px}
+.sc-hi{background:#16A34A22;color:#4ADE80}
+.sc-mid{background:#EAB30822;color:#FCD34D}
+.sc-lo{background:#EF444422;color:#F87171}
+
+/* ── DETAIL PANEL ── */
+.detail-panel{flex:1;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.detail-empty{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+.detail-empty-icon{font-size:40px;opacity:.15}
+.d-wrap{flex:1;overflow:hidden;display:flex;flex-direction:column}
+
+/* Detail header */
+.d-hdr{padding:14px 20px 0;border-bottom:1px solid var(--bd);flex-shrink:0;background:var(--s1)}
+.d-breadcrumb{font-size:10px;color:var(--t4);margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.d-title-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
+.d-title{font-size:17px;font-weight:800;letter-spacing:-.3px;flex:1;line-height:1.3}
+.d-title-actions{display:flex;gap:5px;flex-shrink:0;padding-top:2px}
+.d-ta-btn{background:var(--s2);border:1px solid var(--bd);border-radius:6px;padding:5px 11px;font-size:11px;font-weight:600;color:var(--t3);cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;gap:4px}
+.d-ta-btn:hover{border-color:var(--bd2);color:var(--t1)}
+.d-ta-btn.primary{background:var(--p);border-color:var(--p);color:#fff}
+.d-ta-btn.primary:hover{background:#6D28D9}
+.d-meta-row{display:flex;flex-wrap:wrap;gap:6px;padding-bottom:12px}
+.meta-pill{font-size:10px;padding:3px 9px;border-radius:20px;border:1px solid var(--bd);color:var(--t3);display:flex;align-items:center;gap:4px;white-space:nowrap}
+.meta-pill.purple{border-color:#7C3AED44;color:var(--pl);background:#7C3AED11}
+.meta-pill.green{border-color:#16A34A44;color:#4ADE80;background:#16A34A11}
+.meta-pill.blue{border-color:#3B82F644;color:#60A5FA;background:#3B82F611}
+.meta-pill.orange{border-color:#F9731644;color:#FB923C;background:#F9731611}
+
+/* Workflow bar */
+.workflow-bar{display:flex;align-items:center;gap:0;padding:10px 20px;border-bottom:1px solid var(--bd);background:var(--bg);flex-shrink:0;overflow-x:auto}
+.wf-step{display:flex;align-items:center;gap:0;flex-shrink:0}
+.wf-node{padding:5px 14px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;transition:all .17s;font-family:inherit;border:1px solid var(--bd);background:var(--s2);color:var(--t4)}
+.wf-node:hover{border-color:var(--bd2);color:var(--t2)}
+.wf-node.past{background:var(--grnbg);border-color:var(--grnbd);color:#4ADE80}
+.wf-node.current-new{background:var(--blubg);border-color:var(--blubd);color:#60A5FA}
+.wf-node.current-assigned{background:#7C3AED22;border-color:#7C3AED44;color:var(--pl)}
+.wf-node.current-in_progress{background:var(--orabg);border-color:var(--orabd);color:#FB923C}
+.wf-node.current-done{background:var(--grnbg);border-color:var(--grnbd);color:#4ADE80}
+.wf-node.current-cancelled{background:#37414122;border-color:var(--bd);color:var(--t4)}
+.wf-arrow{color:var(--t4);padding:0 5px;font-size:10px;flex-shrink:0}
+
+/* SLA urgency strip */
+.sla-strip{padding:8px 20px;display:flex;align-items:center;gap:10px;flex-shrink:0;border-bottom:1px solid var(--bd)}
+.sla-strip.urgent{background:#EF444410}
+.sla-strip.warn{background:#EAB30810}
+.sla-strip.ok{background:#16A34A08}
+.sla-strip.done{background:transparent}
+.sla-strip-icon{font-size:13px}
+.sla-strip-text{font-size:11px;font-weight:700;flex:1}
+.sla-strip.urgent .sla-strip-text{color:#F87171}
+.sla-strip.warn .sla-strip-text{color:#FCD34D}
+.sla-strip.ok .sla-strip-text{color:#4ADE80}
+.sla-strip.done .sla-strip-text{color:var(--t4)}
+.sla-full-bar{flex:1;height:4px;background:var(--bd);border-radius:2px;overflow:hidden;max-width:200px}
+.sla-full-fill{height:100%;border-radius:2px;transition:width .4s}
+
+/* Detail tabs */
+.d-tabs{display:flex;gap:0;border-bottom:1px solid var(--bd);padding:0 20px;flex-shrink:0;background:var(--s1)}
+.d-tab{padding:9px 14px;font-size:12px;font-weight:500;color:var(--t4);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;white-space:nowrap}
+.d-tab:hover{color:var(--t2)}
+.d-tab.on{color:var(--pl);border-bottom-color:var(--p)}
+
+/* Tab content */
+.d-body{flex:1;overflow-y:auto;padding:18px 20px}
+.d-body::-webkit-scrollbar{width:5px}.d-body::-webkit-scrollbar-track{background:var(--bg)}.d-body::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
+
+/* Sections */
+.d-section{margin-bottom:20px}
+.d-section-title{font-size:10px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.d-copy-btn{font-size:9px;padding:2px 8px;border-radius:5px;border:1px solid var(--bd);background:var(--s2);color:var(--t4);cursor:pointer;font-family:inherit;transition:all .15s}
+.d-copy-btn:hover{border-color:var(--p);color:var(--pl)}
+.ea-wrap{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ea-card{background:var(--s2);border-radius:10px;overflow:hidden}
+.ea-card-hdr{padding:7px 12px;font-size:10px;font-weight:700}
+.ea-card-hdr.exp{background:#16A34A18;color:#4ADE80;border-bottom:1px solid #16A34A33}
+.ea-card-hdr.act{background:#EF444418;color:#F87171;border-bottom:1px solid #EF444433}
+.ea-card-body{padding:10px 12px;font-size:12px;color:var(--t2);line-height:1.6}
+.env-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.env-card{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:8px 11px}
+.env-label{font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px}
+.env-val{font-size:12px;font-weight:600;color:var(--t1)}
+.env-val.code{font-family:'Courier New',monospace;color:var(--pl);font-size:11px}
+.qa-item{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:9px 12px;margin-bottom:6px}
+.qa-q{font-size:10px;color:var(--t4);margin-bottom:4px}
+.qa-a{font-size:12px;color:var(--t2);line-height:1.55}
+.file-item{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:9px 12px;display:flex;align-items:center;gap:10px;margin-bottom:6px;transition:border-color .15s}
+.file-item:hover{border-color:var(--bd2)}
+.file-icon{width:34px;height:34px;background:var(--s3);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.file-name{font-size:12px;font-weight:600;color:var(--t1);margin-bottom:2px}
+.file-meta{font-size:10px;color:var(--t4)}
+.file-req{font-size:9px;background:#7C3AED22;color:var(--pl);padding:1px 6px;border-radius:10px;font-weight:700;margin-left:5px}
+.file-dl{font-size:10px;padding:4px 10px;border-radius:6px;border:1px solid var(--bd);background:var(--s3);color:var(--t3);cursor:pointer;font-family:inherit;transition:all .15s}
+.file-dl:hover{border-color:var(--p);color:var(--pl)}
+
+/* Assignment panel */
+.assign-card{background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:16px}
+.assign-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.assign-item{display:flex;flex-direction:column;gap:3px}
+.assign-lbl{font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:.8px}
+.assign-select{background:var(--s3);border:1px solid var(--bd);border-radius:7px;padding:6px 10px;color:var(--t1);font-size:12px;outline:none;cursor:pointer;font-family:inherit;transition:border-color .15s}
+.assign-select:focus{border-color:var(--p)}
+.assign-btns{display:flex;gap:6px;flex-wrap:wrap}
+.a-btn{padding:6px 13px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;border:1px solid var(--bd);background:var(--s3);color:var(--t3);transition:all .15s;display:flex;align-items:center;gap:4px}
+.a-btn:hover{border-color:var(--bd2);color:var(--t1)}
+.a-btn.primary{background:var(--p);border-color:var(--p);color:#fff}
+.a-btn.primary:hover{background:#6D28D9}
+.a-btn.green{border-color:var(--grnbd);color:#4ADE80;background:var(--grnbg)}
+.a-btn.green:hover{background:#0a2010}
+.a-btn.danger{border-color:#EF444433;color:#F87171;background:#EF444411}
+.a-btn.danger:hover{background:#EF444422}
+.a-btn.yellow{border-color:var(--yelbd);color:#FCD34D;background:var(--yelbg)}
+
+/* Activity & Notes (tab 2) */
+.activity-wrap{display:flex;flex-direction:column;gap:0}
+.activity-item{display:flex;gap:10px;padding:10px 0;position:relative}
+.activity-item:not(:last-child)::after{content:'';position:absolute;left:10px;top:26px;bottom:0;width:1px;background:var(--bd)}
+.act-node{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;z-index:1}
+.act-create{background:#3B82F622;border:1px solid #3B82F633}
+.act-assign{background:#8B5CF622;border:1px solid #8B5CF633}
+.act-status{background:#F9731622;border:1px solid #F9731633}
+.act-note{background:#EAB30822;border:1px solid #EAB30833}
+.act-done{background:#16A34A22;border:1px solid #16A34A33}
+.act-content{flex:1}
+.act-text{font-size:12px;color:var(--t2);line-height:1.5}
+.act-text strong{color:var(--t1)}
+.act-time{font-size:10px;color:var(--t4);margin-top:2px}
+.act-note-body{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:9px 11px;margin-top:5px;font-size:12px;color:var(--t2);line-height:1.55;font-style:italic}
+.notes-compose{background:var(--s2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-top:16px}
+.notes-ta{width:100%;background:transparent;border:none;outline:none;color:var(--t1);font-size:12px;padding:11px 13px;font-family:inherit;resize:none;line-height:1.55;min-height:80px}
+.notes-ta::placeholder{color:var(--t4)}
+.notes-footer{display:flex;justify-content:space-between;align-items:center;padding:7px 11px;border-top:1px solid var(--bd);background:var(--s1)}
+.notes-hint{font-size:10px;color:var(--t4)}
+.notes-save{background:var(--p);border:none;border-radius:6px;padding:5px 13px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
+.notes-save:hover{background:#6D28D9}
+
+/* Templates (quick replies) */
+.templates-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.tmpl-card{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:9px 12px;cursor:pointer;transition:all .15s}
+.tmpl-card:hover{border-color:var(--p);background:#7C3AED0A}
+.tmpl-title{font-size:11px;font-weight:700;color:var(--t1);margin-bottom:3px}
+.tmpl-preview{font-size:10px;color:var(--t4);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tmpl-label{font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px;margin-bottom:5px;display:inline-block}
+.tmpl-blue{background:#3B82F622;color:#60A5FA}
+.tmpl-green{background:#16A34A22;color:#4ADE80}
+.tmpl-yellow{background:#EAB30822;color:#FCD34D}
+
+/* Command palette */
+.cmd-overlay{position:fixed;inset:0;background:#00000088;z-index:200;display:flex;align-items:flex-start;justify-content:center;padding-top:15vh}
+.cmd-box{background:var(--s1);border:1px solid var(--bd2);border-radius:12px;width:560px;max-height:400px;overflow:hidden;box-shadow:0 20px 60px #000000cc}
+.cmd-input-wrap{padding:12px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:9px}
+.cmd-prefix{font-size:14px;color:var(--t4)}
+.cmd-input{flex:1;background:transparent;border:none;outline:none;color:var(--t1);font-size:14px;font-family:inherit}
+.cmd-input::placeholder{color:var(--t4)}
+.cmd-results{overflow-y:auto;max-height:300px;padding:6px}
+.cmd-item{padding:8px 10px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:9px;transition:background .1s}
+.cmd-item:hover,.cmd-item.focus{background:var(--s2)}
+.cmd-item-icon{font-size:14px;width:22px;text-align:center;flex-shrink:0}
+.cmd-item-label{font-size:13px;font-weight:500;flex:1}
+.cmd-item-kbd{font-size:10px;color:var(--t4);background:var(--s2);border:1px solid var(--bd);border-radius:4px;padding:1px 5px;font-family:'Courier New',monospace}
+.cmd-section{padding:6px 10px 3px;font-size:9px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:1px}
+
+/* Kbd shortcuts overlay */
+.kbd-overlay{position:fixed;inset:0;background:#000000aa;z-index:150;display:flex;align-items:center;justify-content:center}
+.kbd-box{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:20px;width:380px;max-height:80vh;overflow-y:auto}
+.kbd-title{font-size:14px;font-weight:800;margin-bottom:14px;color:var(--t1)}
+.kbd-grid{display:flex;flex-direction:column;gap:6px}
+.kbd-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--bd)}
+.kbd-row:last-child{border:none}
+.kbd-action{font-size:12px;color:var(--t2)}
+.kbd-keys{display:flex;gap:4px}
+.kbd-key{background:var(--s2);border:1px solid var(--bd);border-radius:4px;padding:2px 7px;font-size:10px;font-family:'Courier New',monospace;color:var(--t3)}
+
+/* Toast */
+#toast{position:fixed;bottom:20px;right:20px;background:var(--s1);border:1px solid var(--p);border-radius:10px;padding:10px 16px;font-size:12px;color:var(--t1);z-index:500;box-shadow:0 4px 24px #00000088;transition:all .3s;opacity:0;transform:translateY(4px);display:flex;align-items:center;gap:8px;pointer-events:none}
+#toast.show{opacity:1;transform:translateY(0)}
+#toast-undo{color:var(--pl);font-weight:700;cursor:pointer;pointer-events:all;background:none;border:none;font-family:inherit;font-size:12px}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-logo">⚙️</div>
+  <span class="hdr-brand">NQuoc</span>
+  <span style="font-size:12px;color:var(--t4)">IT Ops</span>
+  <div class="hdr-divider"></div>
+  <div class="hdr-nav">
+    <button class="hdr-nav-btn active">🎫 Inbox</button>
+    <button class="hdr-nav-btn">📊 Analytics</button>
+    <button class="hdr-nav-btn">👥 Team</button>
+  </div>
+  <div class="hdr-right">
+    <button class="kbd-hint" onclick="toggleKbd()" title="Keyboard shortcuts">?</button>
+    <button class="kbd-hint" onclick="openCmd()" style="cursor:pointer">⌘K</button>
+    <span class="hdr-role">IT TEAM</span>
+    <div class="hdr-avatar" title="Nguyen Van IT">IT</div>
+  </div>
+</div>
+
+<!-- P0 ALERT (shown when P0 exists) -->
+<div class="alert-banner" id="p0Banner" style="display:none">
+  <span class="alert-banner-icon">🚨</span>
+  <span class="alert-banner-text" id="p0BannerText">P0 BLOCKER — Hệ thống không dùng được — cần xử lý NGAY</span>
+  <button class="alert-banner-action" onclick="jumpToP0()">Xem ngay →</button>
+</div>
+
+<!-- METRICS BAR -->
+<div class="metrics-bar">
+  <div class="metric" id="m0" onclick="applyMetricFilter('urgent')">
+    <span class="metric-icon">🔴</span>
+    <div><div class="metric-val" id="mv0">2</div><div class="metric-lbl">P0/P1 cần xử lý</div></div>
+    <span class="metric-delta delta-up" id="md0">↑ urgent</span>
+  </div>
+  <div class="metric" id="m1" onclick="applyMetricFilter('open')">
+    <span class="metric-icon">📋</span>
+    <div><div class="metric-val" id="mv1">5</div><div class="metric-lbl">Tổng đang mở</div></div>
+  </div>
+  <div class="metric" id="m2" onclick="applyMetricFilter('done')">
+    <span class="metric-icon">✅</span>
+    <div><div class="metric-val" id="mv2">3</div><div class="metric-lbl">Xử lý hôm nay</div></div>
+    <span class="metric-delta delta-ok" id="md2">↑ 3</span>
+  </div>
+  <div class="metric" id="m3" onclick="applyMetricFilter('sla')">
+    <span class="metric-icon">⏳</span>
+    <div><div class="metric-val" id="mv3">1</div><div class="metric-lbl">SLA sắp breach</div></div>
+    <span class="metric-delta delta-up" id="md3">⚠</span>
+  </div>
+  <div class="metrics-spacer"></div>
+  <button class="sort-btn" onclick="toggleSort()">
+    <span>↕</span><span id="sortLabel">SLA urgency</span>
+  </button>
+  <button class="group-btn" onclick="toggleGroup()" id="groupBtn">⊞ Group by severity</button>
+  <button class="sort-btn" onclick="clearAllFilters()">✕ Clear filter</button>
+</div>
+
+<!-- BODY -->
+<div class="body-wrap">
+
+  <!-- LIST PANEL -->
+  <div class="list-panel">
+    <div class="list-toolbar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="search-input" id="searchBox" placeholder="Search tickets... (press / to focus)" oninput="renderList()">
+      </div>
+      <div class="filter-chips" id="filterChips">
+        <span class="chip on" data-f="all" onclick="setChip('all',this)">All</span>
+        <span class="chip" data-f="new" onclick="setChip('new',this)">New</span>
+        <span class="chip" data-f="mine" onclick="setChip('mine',this)">Assigned to me</span>
+        <span class="chip" data-f="in_progress" onclick="setChip('in_progress',this)">In Progress</span>
+        <span class="chip" data-f="done" onclick="setChip('done',this)">Done</span>
+        <span class="chip" data-f="P0" onclick="setChip('P0',this)">P0</span>
+        <span class="chip" data-f="P1" onclick="setChip('P1',this)">P1</span>
+      </div>
+    </div>
+    <div class="list-header">
+      <span class="list-count" id="listCount">5 tickets</span>
+      <div class="bulk-actions" id="bulkActions">
+        <button class="bulk-btn" onclick="bulkAssign()">Assign</button>
+        <button class="bulk-btn" onclick="bulkDone()">✓ Done</button>
+      </div>
+    </div>
+    <div class="tk-scroll" id="ticketScroll"></div>
+  </div>
+
+  <!-- DETAIL PANEL -->
+  <div class="detail-panel" id="detailPanel">
+    <div class="detail-empty">
+      <div class="detail-empty-icon">🎫</div>
+      <div style="font-size:13px;font-weight:600;color:var(--t4)">Chọn ticket để xem chi tiết</div>
+      <div style="font-size:11px;color:var(--bd2)">↑↓ để navigate · Enter để mở · ? để xem shortcuts</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- COMMAND PALETTE -->
+<div class="cmd-overlay" id="cmdOverlay" style="display:none" onclick="closeCmd()">
+  <div class="cmd-box" onclick="event.stopPropagation()">
+    <div class="cmd-input-wrap">
+      <span class="cmd-prefix">⌘</span>
+      <input class="cmd-input" id="cmdInput" placeholder="Tìm ticket, action, team..." oninput="renderCmd()" onkeydown="handleCmdKey(event)">
+    </div>
+    <div class="cmd-results" id="cmdResults"></div>
+  </div>
+</div>
+
+<!-- KEYBOARD SHORTCUTS -->
+<div class="kbd-overlay" id="kbdOverlay" style="display:none" onclick="toggleKbd()">
+  <div class="kbd-box" onclick="event.stopPropagation()">
+    <div class="kbd-title">⌨️ Keyboard Shortcuts</div>
+    <div class="kbd-grid">
+      <div class="kbd-row"><span class="kbd-action">Navigate tickets</span><div class="kbd-keys"><span class="kbd-key">J</span><span class="kbd-key">K</span></div></div>
+      <div class="kbd-row"><span class="kbd-action">Open ticket</span><div class="kbd-keys"><span class="kbd-key">Enter</span></div></div>
+      <div class="kbd-row"><span class="kbd-action">Focus search</span><div class="kbd-keys"><span class="kbd-key">/</span></div></div>
+      <div class="kbd-row"><span class="kbd-action">Command palette</span><div class="kbd-keys"><span class="kbd-key">⌘</span><span class="kbd-key">K</span></div></div>
+      <div class="kbd-row"><span class="kbd-action">Assign to me</span><div class="kbd-keys"><span class="kbd-key">E</span></div></div>
+      <div class="kbd-row"><span class="kbd-action">Mark In Progress</span><div class="kbd-keys"><span class="kbd-key">P</span></div></div>
+      <div class="kbd-row"><span class="kbd-action">Mark Done</span><div class="kbd-keys"><span class="kbd-key">D</span></div></div>
+      <div class="kbd-row"><span class="kbd-action">Cancel ticket</span><div class="kbd-keys"><span class="kbd-key">C</span></div></div>
+      <div class="kbd-row"><span class="kbd-action">Copy Telegram msg</span><div class="kbd-keys"><span class="kbd-key">T</span></div></div>
+      <div class="kbd-row"><span class="kbd-action">Close / Escape</span><div class="kbd-keys"><span class="kbd-key">Esc</span></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"><span id="toastMsg"></span><button id="toast-undo" onclick="undoLast()" style="display:none">Undo</button></div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const ME = 'Nguyen Van IT';
+const IT_MEMBERS = ['Chưa assign','Nguyen Van IT','Tran Thi Dev','Le Van Backend','Pham Thi Full'];
+const INITIALS = {'Nguyen Van IT':'NV','Tran Thi Dev':'TD','Le Van Backend':'LV','Pham Thi Full':'PF','Chưa assign':'?'};
+const statusLabel = {new:'New',assigned:'Assigned',in_progress:'In Progress',done:'Done',cancelled:'Cancelled'};
+const statusIcon  = {new:'🔵',assigned:'🟣',in_progress:'🟠',done:'✅',cancelled:'⛔'};
+
+let tickets = [
+  { id:'TK-0042', created:'2026-04-05T06:30:00', team:'design', teamName:'Design', teamEmoji:'🎨',
+    reqType:'upload', reqLabel:'Upload file bị lỗi',
+    severity:'P1', archComp:'api.nquoc.vn',
+    reproduced:'✅ Reproduce 100%',
+    expected:'Upload ảnh JPG 5MB lên task attachment → hiện "Upload thành công", file xuất hiện trong list.',
+    actual:'Click upload → loading 3s → "Network error". File không được lưu. List vẫn trống.',
+    status:'new', assignedTo:'Chưa assign', score:88,
+    env:{browser:'Chrome',os:'macOS',screen:'1920×1080'}, submittedBy:'Nguyen Thi Hoa',
+    sla:'8 giờ', slaHours:8, slaHoursLeft:2.5,
+    answers:[{q:'Loại file đang upload?',a:'Hình ảnh (JPG/PNG/GIF)'},{q:'File nặng bao nhiêu?',a:'5–20MB'},{q:'Chuyện gì xảy ra?',a:'"Network error" sau 3 giây, file không được lưu'}],
+    files:[{name:'screenshot_error.png',type:'image/png',size:245000,slot:'screenshot',req:true},{name:'user_story_claude.docx',type:'application/docx',size:45000,slot:'userstory',req:true}],
+    activity:[{type:'create',text:'Ticket tạo bởi <strong>Nguyen Thi Hoa</strong> · Team Design',time:'06:30 hôm nay'},{type:'note',text:'System: Ticket 88% complete — đủ thông tin để debug',time:'06:30 hôm nay'}],
+    notes:'' },
+
+  { id:'TK-0041', created:'2026-04-05T05:15:00', team:'ndata', teamName:'N-Data', teamEmoji:'📊',
+    reqType:'bug_data', reqLabel:'Data báo cáo bị sai',
+    severity:'P0', archComp:'Supabase DB',
+    reproduced:'✅ Reproduce 100%',
+    expected:'Dashboard tuần này hiện 847 responses khớp với Google Sheets.',
+    actual:'Dashboard hiện 0 responses cho tuần 01/04–05/04. Google Sheets vẫn có 847 entries.',
+    status:'in_progress', assignedTo:'Le Van Backend', score:92,
+    env:{browser:'Chrome',os:'Windows',screen:'1920×1080'}, submittedBy:'Tran Thi Data',
+    sla:'2 giờ', slaHours:2, slaHoursLeft:-0.5,
+    answers:[{q:'Data nào bị sai?',a:'Responses Google Form tuần 01/04–05/04'},{q:'Giá trị đúng?',a:'847 responses — confirmed Google Sheets'},{q:'Bao nhiêu record ảnh hưởng?',a:'Toàn bộ báo cáo'}],
+    files:[{name:'screenshot_0_responses.png',type:'image/png',size:189000,slot:'screenshot',req:true},{name:'google_sheets_847.xlsx',type:'application/xlsx',size:67000,slot:'datafile',req:false}],
+    activity:[
+      {type:'create',text:'Ticket tạo bởi <strong>Tran Thi Data</strong> · Team N-Data',time:'05:15 hôm nay'},
+      {type:'assign',text:'<strong>Le Van Backend</strong> nhận ticket → investigate Supabase sync job',time:'05:45 hôm nay'},
+      {type:'status',text:'Status → <strong>In Progress</strong>',time:'05:45 hôm nay'},
+      {type:'note',text:'<strong>Le Van Backend:</strong> Tìm ra vấn đề — Google Sheets webhook timeout từ 31/03. Đang fix cron job.',time:'06:10 hôm nay'}],
+    notes:'Root cause: webhook sync bị ngắt sau deploy 31/03.\nFix: restart cron + backfill 5 ngày data.\nETA: 30 phút.' },
+
+  { id:'TK-0040', created:'2026-04-04T14:00:00', team:'hr', teamName:'HR', teamEmoji:'👥',
+    reqType:'notification', reqLabel:'Thông báo Telegram không gửi',
+    severity:'P2', archComp:'tbot.nquoc.vn',
+    reproduced:'⚠️ Reproduce ~50%',
+    expected:'Member mới onboard → HR nhận Telegram notification trong 5 phút.',
+    actual:'HR không nhận notification cho 3 member mới ngày 04/04. Bot hoạt động với trigger khác.',
+    status:'assigned', assignedTo:'Tran Thi Dev', score:75,
+    env:{browser:'Safari',os:'iOS',screen:'390×844'}, submittedBy:'Pham Thi HR',
+    sla:'72 giờ', slaHours:72, slaHoursLeft:46,
+    answers:[{q:'Loại thông báo lỗi?',a:'Không nhận được thông báo quan trọng'},{q:'Sự kiện trigger?',a:'Member mới onboard qua team.nquoc.vn'},{q:'Ai bị ảnh hưởng?',a:'Cả team HR'}],
+    files:[{name:'screenshot_telegram.png',type:'image/png',size:112000,slot:'screenshot',req:false},{name:'user_story_claude.docx',type:'application/docx',size:38000,slot:'userstory',req:true}],
+    activity:[{type:'create',text:'Ticket tạo bởi <strong>Pham Thi HR</strong>',time:'14:00 hôm qua'},{type:'assign',text:'<strong>Tran Thi Dev</strong> assigned',time:'14:30 hôm qua'}],
+    notes:'' },
+
+  { id:'TK-0039', created:'2026-04-04T09:30:00', team:'editor', teamName:'Editor', teamEmoji:'✍️',
+    reqType:'feature', reqLabel:'Import từ Google Docs',
+    severity:'P3', archComp:'nquoc.vn',
+    reproduced:null, expected:'', actual:'',
+    status:'new', assignedTo:'Chưa assign', score:65,
+    env:{browser:'Firefox',os:'Windows',screen:'1440×900'}, submittedBy:'Le Thi Editor',
+    sla:'Sprint tiếp', slaHours:9999, slaHoursLeft:999,
+    answers:[{q:'Đang gặp khó khăn gì?',a:'Mỗi tuần copy-paste từ Google Docs vào NQuoc task thủ công. ~30 phút/lần.'},{q:'Xử lý bằng cách nào?',a:'Copy thủ công từng đoạn, format lại trong NQuoc editor'},{q:'Muốn NQuoc hoạt động thế nào?',a:'Paste link Google Docs → tự import nội dung, giữ formatting'},{q:'Tính năng giúp ai?',a:'Cả team Editor (8 người)'}],
+    files:[{name:'recording_workflow.mp4',type:'video/mp4',size:8400000,slot:'recording',req:true},{name:'user_story_claude.docx',type:'application/docx',size:52000,slot:'userstory',req:true}],
+    activity:[{type:'create',text:'Ticket tạo bởi <strong>Le Thi Editor</strong>',time:'09:30 hôm qua'}],
+    notes:'' },
+
+  { id:'TK-0038', created:'2026-04-04T08:00:00', team:'nedu', teamName:'N-EDU Academy', teamEmoji:'🎓',
+    reqType:'performance', reqLabel:'Video bài học load chậm',
+    severity:'P1', archComp:'nquoc.vn',
+    reproduced:'✅ Reproduce 100%',
+    expected:'Video load trong 3–5 giây và play mượt.',
+    actual:'Mất 15–20 giây, thỉnh thoảng timeout. Xảy ra từ 03/04.',
+    status:'done', assignedTo:'Nguyen Van IT', score:82,
+    env:{browser:'Chrome',os:'Windows',screen:'1366×768'}, submittedBy:'Nguyen Van Trainee',
+    sla:'8 giờ', slaHours:8, slaHoursLeft:999,
+    answers:[{q:'Phần nào chậm?',a:'Trang học NLead — video bài học'},{q:'Chậm bao lâu?',a:'15–20 giây'},{q:'Chậm lúc nào?',a:'Mọi lúc đều chậm'}],
+    files:[{name:'screen_recording_slow.mp4',type:'video/mp4',size:12500000,slot:'recording',req:true},{name:'network.har',type:'application/har',size:340000,slot:'network',req:false}],
+    activity:[
+      {type:'create',text:'Ticket tạo bởi <strong>Nguyen Van Trainee</strong>',time:'08:00 hôm qua'},
+      {type:'assign',text:'<strong>Nguyen Van IT</strong> assigned',time:'08:30 hôm qua'},
+      {type:'note',text:'Vimeo CDN config sai region. Update sang Singapore endpoint.',time:'10:00 hôm qua'},
+      {type:'done',text:'✅ <strong>Done</strong> — Vimeo CDN SG region fix, video load 2s',time:'11:30 hôm qua'}],
+    notes:'Root cause: Vimeo CDN region US. Fix: update to SG. Video load <2s after fix.' },
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let currentFilter='all', selectedId=null, selectedTab=0, groupBySev=true, sortBySLA=true;
+let undoStack=[];
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+const fmtSize=b=>b<1024?b+'B':b<1048576?(b/1024).toFixed(1)+'KB':(b/1048576).toFixed(1)+'MB';
+const fileIcon=n=>{const e=(n.split('.').pop()||'').toLowerCase();return['jpg','jpeg','png','gif','webp'].includes(e)?'🖼️':['mp4','mov'].includes(e)?'🎬':['pdf'].includes(e)?'📕':['docx','doc'].includes(e)?'📝':['xlsx','csv'].includes(e)?'📊':['har','json'].includes(e)?'💾':'📎';};
+const timeAgo=s=>{const d=Math.floor((Date.now()-new Date(s))/60000);return d<1?'just now':d<60?d+'m':d<1440?Math.floor(d/60)+'h':Math.floor(d/1440)+'d';};
+const scClass=s=>s>=80?'sc-hi':s>=60?'sc-mid':'sc-lo';
+const slaState=t=>{if(t.status==='done'||t.status==='cancelled')return'done';if(t.slaHoursLeft<0)return'urgent';if(t.slaHoursLeft<4)return'warn';return'ok';};
+const slaFill=t=>{if(t.status==='done'||t.status==='cancelled')return 100;const pct=((t.slaHours-t.slaHoursLeft)/t.slaHours)*100;return Math.min(Math.max(pct,3),100);};
+const slaStr=t=>{const s=slaState(t);if(s==='done')return t.status==='done'?'✓ Done':'Cancelled';if(t.slaHoursLeft<0)return'⚠ Breach '+Math.abs(t.slaHoursLeft).toFixed(1)+'h';if(t.slaHoursLeft<1)return'🔴 '+Math.round(t.slaHoursLeft*60)+'m left';if(t.slaHoursLeft>500)return t.sla;return(s==='warn'?'⚠ ':'⏱ ')+t.slaHoursLeft.toFixed(1)+'h left';};
+const now=()=>new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
+
+// ── FILTERING ─────────────────────────────────────────────────────────────────
+function getFiltered(){
+  const q=(document.getElementById('searchBox').value||'').toLowerCase();
+  const sevOrder={P0:0,P1:1,P2:2,P3:3};
+  let list=tickets.filter(t=>{
+    if(q&&!(t.id+t.teamName+t.reqLabel+t.archComp+t.submittedBy).toLowerCase().includes(q))return false;
+    if(currentFilter==='urgent')return(t.severity==='P0'||t.severity==='P1')&&t.status!=='done'&&t.status!=='cancelled';
+    if(currentFilter==='open')return t.status!=='done'&&t.status!=='cancelled';
+    if(currentFilter==='done')return t.status==='done';
+    if(currentFilter==='sla')return t.slaHoursLeft<4&&t.status!=='done'&&t.status!=='cancelled';
+    if(currentFilter==='mine')return t.assignedTo===ME&&t.status!=='done';
+    if(['P0','P1','P2','P3'].includes(currentFilter))return t.severity===currentFilter;
+    if(['new','assigned','in_progress','done','cancelled'].includes(currentFilter))return t.status===currentFilter;
+    return true;
+  });
+  if(sortBySLA){list.sort((a,b)=>{if(a.status==='done'&&b.status!=='done')return 1;if(b.status==='done'&&a.status!=='done')return -1;return sevOrder[a.severity]-sevOrder[b.severity]||a.slaHoursLeft-b.slaHoursLeft;});}
+  return list;
+}
+
+// ── RENDER LIST ───────────────────────────────────────────────────────────────
+function renderList(){
+  const filtered=getFiltered();
+  document.getElementById('listCount').textContent=filtered.length+' tickets';
+  const el=document.getElementById('ticketScroll');
+
+  if(groupBySev){
+    const groups={P0:[],P1:[],P2:[],P3:[]};
+    filtered.forEach(t=>groups[t.severity]&&groups[t.severity].push(t));
+    const gColors={P0:'red',P1:'ora',P2:'yel',P3:'grn'};
+    const gLabels={P0:'P0 — Blocker',P1:'P1 — Critical',P2:'P2 — Medium',P3:'P3 — Low / Feature'};
+    el.innerHTML=['P0','P1','P2','P3'].map(sev=>{
+      if(!groups[sev].length)return'';
+      return`<div class="sev-group-hdr ${gColors[sev]}">${gLabels[sev]}<span class="sev-group-count">${groups[sev].length}</span></div>`
+        +groups[sev].map(t=>tkHtml(t)).join('');
+    }).join('');
+  } else {
+    el.innerHTML=filtered.map(t=>tkHtml(t)).join('');
+  }
+  updateMetrics();
+  checkP0Alert();
+}
+
+function tkHtml(t){
+  const st=slaState(t);
+  const fill=slaFill(t);
+  const initials=INITIALS[t.assignedTo]||'?';
+  const isAssigned=t.assignedTo!=='Chưa assign';
+  return`<div class="tk ${selectedId===t.id?'sel':''} sev-${t.severity}" onclick="selectTk('${t.id}')" id="tk_${t.id}">
+    <div class="tk-top">
+      <input type="checkbox" class="tk-check" onclick="event.stopPropagation();toggleSelect('${t.id}')">
+      <span class="sev-badge sev-${t.severity}">${t.severity}</span>
+      <span class="tk-title">${t.reqLabel}</span>
+      <div class="tk-quick">
+        ${t.status!=='done'&&t.status!=='in_progress'?`<button class="tk-q-btn" onclick="event.stopPropagation();quickAction('${t.id}','in_progress')">▶ Start</button>`:''}
+        ${t.status!=='done'?`<button class="tk-q-btn green" onclick="event.stopPropagation();quickAction('${t.id}','done')">✓ Done</button>`:''}
+      </div>
+    </div>
+    <div class="tk-mid">
+      <span class="tk-team">${t.teamEmoji} ${t.teamName}</span>
+      <span class="tk-comp">${t.archComp}</span>
+      <div class="tk-assignee" style="margin-left:auto">
+        <div class="av-mini ${isAssigned?'assigned':''}" title="${t.assignedTo}">${initials}</div>
+        <span style="font-size:9px;color:var(--t4)">${t.assignedTo==='Chưa assign'?'Unassigned':t.assignedTo.split(' ')[0]}</span>
+      </div>
+    </div>
+    <div class="tk-bot">
+      <span class="tk-id">${t.id}</span>
+      <span class="tk-age">${timeAgo(t.created)}</span>
+      <div class="sla-bar-wrap"><div class="sla-bar ${st}" style="width:${fill}%"></div></div>
+      <span class="sla-text ${st}">${slaStr(t)}</span>
+      <span class="status-pill st-${t.status}">${statusLabel[t.status]}</span>
+    </div>
+  </div>`;
+}
+
+// ── METRICS ───────────────────────────────────────────────────────────────────
+function updateMetrics(){
+  const open=tickets.filter(t=>t.status!=='done'&&t.status!=='cancelled');
+  document.getElementById('mv0').textContent=open.filter(t=>t.severity==='P0'||t.severity==='P1').length;
+  document.getElementById('mv1').textContent=open.length;
+  document.getElementById('mv2').textContent=tickets.filter(t=>t.status==='done').length;
+  document.getElementById('mv3').textContent=open.filter(t=>t.slaHoursLeft<4&&t.slaHoursLeft>-99).length;
+}
+
+function checkP0Alert(){
+  const p0=tickets.find(t=>t.severity==='P0'&&t.status!=='done'&&t.status!=='cancelled');
+  const banner=document.getElementById('p0Banner');
+  if(p0){banner.style.display='flex';document.getElementById('p0BannerText').textContent='🚨 P0 BLOCKER: '+p0.reqLabel+' ('+p0.teamEmoji+' '+p0.teamName+') — '+p0.id;}
+  else banner.style.display='none';
+}
+
+// ── SELECT TICKET ─────────────────────────────────────────────────────────────
+function selectTk(id){
+  selectedId=id;selectedTab=0;
+  renderList();renderDetail();
+}
+
+// ── RENDER DETAIL ─────────────────────────────────────────────────────────────
+function renderDetail(){
+  const t=tickets.find(x=>x.id===selectedId);
+  const dp=document.getElementById('detailPanel');
+  if(!t){dp.innerHTML='<div class="detail-empty"><div class="detail-empty-icon">🎫</div><div style="font-size:13px;font-weight:600;color:var(--t4)">Chọn ticket để xem chi tiết</div><div style="font-size:11px;color:var(--bd2)">↑↓ navigate · Enter mở · ? shortcuts</div></div>';return;}
+  const isBug=!t.reqType.includes('feature');
+  const st=slaState(t);
+  const fill=slaFill(t);
+  const wfSteps=['new','assigned','in_progress','done'];
+  const wfLabels={new:'New',assigned:'Assigned',in_progress:'In Progress',done:'Done',cancelled:'Cancelled'};
+  const wfIdx=wfSteps.indexOf(t.status);
+
+  dp.innerHTML=`<div class="d-wrap">
+    <!-- DETAIL HEADER -->
+    <div class="d-hdr">
+      <div class="d-breadcrumb">
+        <span>${t.teamEmoji} ${t.teamName}</span>
+        <span>›</span><span>${t.reqType}</span>
+        <span>›</span><span style="color:var(--t3)">${t.id}</span>
+      </div>
+      <div class="d-title-row">
+        <div class="d-title">${t.reqLabel}</div>
+        <div class="d-title-actions">
+          <button class="d-ta-btn" onclick="copyTelegram('${t.id}')">📱 Telegram</button>
+          <button class="d-ta-btn" onclick="requestInfo('${t.id}')">💬 Hỏi thêm</button>
+          ${t.status!=='done'?`<button class="d-ta-btn primary" onclick="quickAction('${t.id}','done')">✓ Mark Done</button>`:`<span style="font-size:11px;color:#4ADE80;font-weight:700">✅ Resolved</span>`}
+        </div>
+      </div>
+      <div class="d-meta-row">
+        <span class="sev-badge sev-${t.severity}">${t.severity}</span>
+        <span class="meta-pill">${t.teamEmoji} ${t.teamName}</span>
+        <span class="meta-pill purple">📍 ${t.archComp}</span>
+        <span class="meta-pill blue">👤 ${t.submittedBy}</span>
+        <span class="meta-pill">${t.env.browser} / ${t.env.os}</span>
+        <span class="meta-pill ${scClass(t.score)==='sc-hi'?'green':''}">✅ ${t.score}%</span>
+        <span class="meta-pill">${timeAgo(t.created)}</span>
+      </div>
+    </div>
+
+    <!-- WORKFLOW BAR -->
+    <div class="workflow-bar">
+      ${t.status==='cancelled'?`<span class="wf-node current-cancelled">⛔ Cancelled</span>`
+      :wfSteps.map((s,i)=>`<div class="wf-step">
+        <button class="wf-node ${i<wfIdx?'past':t.status===s?'current-'+s:''}" onclick="quickAction('${t.id}','${s}')">${statusIcon[s]} ${wfLabels[s]}</button>
+        ${i<wfSteps.length-1?'<span class="wf-arrow">→</span>':''}
+      </div>`).join('')}
+      <div style="margin-left:auto;display:flex;gap:6px">
+        <button class="d-ta-btn" onclick="assignToMe('${t.id}')">👤 Assign to me</button>
+        ${t.status!=='cancelled'?`<button class="d-ta-btn" style="color:#F87171;border-color:#EF444433" onclick="quickAction('${t.id}','cancelled')">⛔ Cancel</button>`:''}
+      </div>
+    </div>
+
+    <!-- SLA STRIP -->
+    <div class="sla-strip ${st}">
+      <span class="sla-strip-icon">${st==='urgent'?'🚨':st==='warn'?'⚠️':st==='done'?'✅':'⏱'}</span>
+      <span class="sla-strip-text">${slaStr(t)} — SLA: ${t.sla}</span>
+      <div class="sla-full-bar"><div class="sla-full-fill ${st}" style="width:${fill}%"></div></div>
+      <span style="font-size:10px;color:var(--t4);margin-left:8px">${fill.toFixed(0)}% thời gian đã dùng</span>
+    </div>
+
+    <!-- TABS -->
+    <div class="d-tabs">
+      ${['Overview','Files','Activity & Notes','Quick Reply'].map((tab,i)=>`<div class="d-tab ${selectedTab===i?'on':''}" onclick="setTab(${i})">${tab}</div>`).join('')}
+    </div>
+
+    <!-- TAB BODY -->
+    <div class="d-body" id="dBody">
+      ${renderTab(t, isBug)}
+    </div>
+  </div>`;
+}
+
+function renderTab(t, isBug){
+  if(selectedTab===0){
+    // OVERVIEW
+    return`
+    <!-- Assignment -->
+    <div class="assign-card">
+      <div class="assign-grid">
+        <div class="assign-item">
+          <span class="assign-lbl">Assign cho</span>
+          <select class="assign-select" onchange="doAssign('${t.id}',this.value)">
+            ${IT_MEMBERS.map(m=>`<option ${t.assignedTo===m?'selected':''}>${m}</option>`).join('')}
+          </select>
+        </div>
+        <div class="assign-item">
+          <span class="assign-lbl">Status</span>
+          <select class="assign-select" onchange="quickAction('${t.id}',this.value)">
+            ${['new','assigned','in_progress','done','cancelled'].map(s=>`<option value="${s}" ${t.status===s?'selected':''}>${statusLabel[s]}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="assign-btns">
+        <button class="a-btn primary" onclick="assignToMe('${t.id}')">👤 Assign to me</button>
+        <button class="a-btn" onclick="quickAction('${t.id}','in_progress')">▶ Start working</button>
+        <button class="a-btn green" onclick="quickAction('${t.id}','done')">✓ Mark Done</button>
+        <button class="a-btn yellow" onclick="requestInfo('${t.id}')">💬 Request info</button>
+        <button class="a-btn danger" onclick="quickAction('${t.id}','cancelled')">⛔ Cancel</button>
+      </div>
+    </div>
+
+    ${isBug&&t.expected?`<div class="d-section">
+      <div class="d-section-title">Expected vs Actual <button class="d-copy-btn" onclick="copyEA('${t.id}')">Copy</button></div>
+      <div class="ea-wrap">
+        <div class="ea-card"><div class="ea-card-hdr exp">✅ EXPECTED</div><div class="ea-card-body">${t.expected}</div></div>
+        <div class="ea-card"><div class="ea-card-hdr act">❌ ACTUAL</div><div class="ea-card-body">${t.actual}</div></div>
+      </div>
+      ${t.reproduced?`<div style="font-size:11px;color:var(--t3);margin-top:8px">🔁 Reproducibility: <strong style="color:var(--t2)">${t.reproduced}</strong></div>`:''}
+    </div>`:''}
+
+    <div class="d-section">
+      <div class="d-section-title">Environment</div>
+      <div class="env-grid">
+        ${[['Browser',t.env.browser,false],['OS',t.env.os,false],['Screen',t.env.screen,false],['Component',t.archComp,true]].map(([l,v,c])=>`<div class="env-card"><div class="env-label">${l}</div><div class="env-val ${c?'code':''}">${v}</div></div>`).join('')}
+      </div>
+    </div>
+
+    <div class="d-section">
+      <div class="d-section-title">Interview Answers</div>
+      ${t.answers.map(a=>`<div class="qa-item"><div class="qa-q">${a.q}</div><div class="qa-a">${a.a}</div></div>`).join('')}
+    </div>`;
+  }
+
+  if(selectedTab===1){
+    // FILES
+    return`<div class="d-section">
+      <div class="d-section-title">Files đính kèm (${t.files.length})</div>
+      ${t.files.map(f=>`<div class="file-item">
+        <div class="file-icon">${fileIcon(f.name)}</div>
+        <div style="flex:1"><div class="file-name">${f.name} ${f.req?'<span class="file-req">Bắt buộc</span>':''}</div><div class="file-meta">${fmtSize(f.size)} · Slot: ${f.slot}</div></div>
+        <button class="file-dl" onclick="toast('📎 Mở: '+arguments[0],'','','',false)" onclick="toast('📎 Phase 2: link Supabase Storage')">Xem / Tải</button>
+      </div>`).join('')}
+    </div>
+    <div style="background:var(--s2);border:1px solid var(--yelbd);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--t3)">
+      ℹ️ <strong style="color:#FCD34D">Phase 2</strong>: Files sẽ được lưu trên Wasabi / Supabase Storage với signed URLs. Click "Xem" để preview trực tiếp trong dashboard.
+    </div>`;
+  }
+
+  if(selectedTab===2){
+    // ACTIVITY & NOTES
+    const actIcon2={create:'📥',assign:'👤',status:'🔄',note:'💬',done:'✅'};
+    const actCls={create:'act-create',assign:'act-assign',status:'act-status',note:'act-note',done:'act-done'};
+    return`<div class="d-section">
+      <div class="d-section-title">Ghi chú IT (nội bộ)</div>
+      <div class="notes-compose">
+        <textarea class="notes-ta" id="notesTa_${t.id}" placeholder="Root cause, debug steps, fix plan... (chỉ IT team thấy)">${t.notes}</textarea>
+        <div class="notes-footer">
+          <span class="notes-hint">Ctrl+Enter để lưu</span>
+          <button class="notes-save" onclick="saveNotes('${t.id}')">💾 Save note</button>
+        </div>
+      </div>
+    </div>
+    <div class="d-section">
+      <div class="d-section-title">Activity log</div>
+      <div class="activity-wrap">
+        ${t.activity.map(a=>`<div class="activity-item">
+          <div class="act-node ${actCls[a.type]||'act-note'}">${actIcon2[a.type]||'💬'}</div>
+          <div class="act-content">
+            <div class="act-text">${a.text}</div>
+            ${a.note?`<div class="act-note-body">${a.note}</div>`:''}
+            <div class="act-time">${a.time}</div>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  if(selectedTab===3){
+    // QUICK REPLY TEMPLATES
+    const templates=[
+      {label:'tmpl-blue',title:'Đang xử lý',desc:'Thông báo đang investigate',body:`Xin chào ${t.submittedBy}!\nIT team đã nhận ticket ${t.id} (${t.reqLabel}).\nChúng tôi đang investigate. SLA: ${t.sla}.\nSẽ cập nhật khi có tiến triển.`},
+      {label:'tmpl-yellow',title:'Cần thêm thông tin',desc:'Yêu cầu user bổ sung info',body:`Xin chào ${t.submittedBy}!\nTicket ${t.id} đang được xử lý.\nCần thêm thông tin: [điền yêu cầu]\nVui lòng reply trong Telegram. Cảm ơn!`},
+      {label:'tmpl-green',title:'Đã fix - cần test',desc:'Yêu cầu user verify',body:`Xin chào ${t.submittedBy}!\nTicket ${t.id} đã được fix.\nVui lòng test lại: [URL/steps]\nNếu còn lỗi, reply ngay để IT check thêm.`},
+      {label:'tmpl-blue',title:'Lên lịch fix',desc:'Fix trong sprint tiếp',body:`Xin chào ${t.submittedBy}!\nTicket ${t.id} đã được logged.\nSẽ được xử lý trong sprint tiếp (${t.sla}).\nCảm ơn đã báo cáo!`},
+    ];
+    return`<div class="d-section">
+      <div class="d-section-title">Quick Reply Templates — copy & paste vào Telegram</div>
+      <div class="templates-grid">
+        ${templates.map(tmpl=>`<div class="tmpl-card" onclick="copyTemplate('${t.id}','${escQ(tmpl.body)}')">
+          <div class="tmpl-label ${tmpl.label}">${tmpl.title}</div>
+          <div class="tmpl-title">${tmpl.title}</div>
+          <div class="tmpl-preview">${tmpl.desc}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div class="d-section">
+      <div class="d-section-title">Custom Telegram Message</div>
+      <div class="notes-compose">
+        <textarea class="notes-ta" id="telegramTa" placeholder="Soạn message gửi Telegram..." style="min-height:100px">${buildTelegramMsg(t)}</textarea>
+        <div class="notes-footer">
+          <span class="notes-hint">${t.id} · ${t.teamEmoji} ${t.teamName}</span>
+          <button class="notes-save" onclick="copyCustomTelegram()">📱 Copy message</button>
+        </div>
+      </div>
+    </div>`;
+  }
+  return '';
+}
+
+function setTab(i){selectedTab=i;renderDetail();}
+function escQ(s){return s.replace(/'/g,"\\'").replace(/\n/g,'\\n');}
+
+function buildTelegramMsg(t){
+  return `[${t.severity}] ${t.teamEmoji} ${t.teamName} — ${t.reqLabel}\nTicket: ${t.id} | Assigned: ${t.assignedTo}\nStatus: ${statusLabel[t.status]} | SLA: ${t.sla}\nComponent: ${t.archComp}`;
+}
+
+// ── ACTIONS ───────────────────────────────────────────────────────────────────
+function quickAction(id,status){
+  const t=tickets.find(x=>x.id===id);if(!t)return;
+  const old=t.status;
+  undoStack.push({id,field:'status',was:old});
+  t.status=status;
+  t.activity.push({type:status==='done'?'done':'status',text:`Status → <strong>${statusLabel[status]}</strong>`,time:now()+' hôm nay'});
+  if(status==='in_progress'&&t.assignedTo==='Chưa assign'){t.assignedTo=ME;t.activity.push({type:'assign',text:`Auto-assign: <strong>${ME}</strong>`,time:now()+' hôm nay'});}
+  renderList();renderDetail();
+  toast(statusIcon[status]+' Status: '+statusLabel[status],true);
+}
+
+function doAssign(id,member){
+  const t=tickets.find(x=>x.id===id);if(!t)return;
+  undoStack.push({id,field:'assignedTo',was:t.assignedTo});
+  t.assignedTo=member;
+  if(member!=='Chưa assign'&&t.status==='new'){t.status='assigned';}
+  t.activity.push({type:'assign',text:`Assigned → <strong>${member}</strong>`,time:now()+' hôm nay'});
+  renderList();renderDetail();toast('👤 Assigned: '+member,true);
+}
+
+function assignToMe(id){doAssign(id,ME);}
+
+function saveNotes(id){
+  const t=tickets.find(x=>x.id===id);
+  const el=document.getElementById('notesTa_'+id);
+  if(!t||!el)return;
+  t.notes=el.value;
+  t.activity.push({type:'note',text:`IT Note cập nhật`,note:el.value.substring(0,100)+(el.value.length>100?'…':''),time:now()+' hôm nay'});
+  toast('💾 Note saved');renderDetail();
+}
+
+function copyTelegram(id){
+  const t=tickets.find(x=>x.id===id);if(!t)return;
+  if(navigator.clipboard)navigator.clipboard.writeText(buildTelegramMsg(t));
+  toast('📱 Telegram message copied');
+}
+function copyCustomTelegram(){
+  const el=document.getElementById('telegramTa');
+  if(el&&navigator.clipboard)navigator.clipboard.writeText(el.value);
+  toast('📱 Custom message copied');
+}
+function copyEA(id){
+  const t=tickets.find(x=>x.id===id);if(!t)return;
+  const txt=`Expected: ${t.expected}\n\nActual: ${t.actual}\n\nRepro: ${t.reproduced||'N/A'}`;
+  if(navigator.clipboard)navigator.clipboard.writeText(txt);
+  toast('📋 E/A copied');
+}
+function copyTemplate(id,body){
+  const real=body.replace(/\\n/g,'\n').replace(/\\'/g,"'");
+  if(navigator.clipboard)navigator.clipboard.writeText(real);
+  toast('📱 Template copied — paste vào Telegram');
+}
+function requestInfo(id){
+  const t=tickets.find(x=>x.id===id);if(!t)return;
+  const q=prompt('Cần thêm thông tin gì? (sẽ được copy vào clipboard)');
+  if(!q)return;
+  const msg=`Xin chào ${t.submittedBy}!\nIT team cần thêm thông tin cho ticket ${t.id}:\n${q}\nVui lòng reply trong Telegram. Cảm ơn!`;
+  if(navigator.clipboard)navigator.clipboard.writeText(msg);
+  t.activity.push({type:'note',text:`Request thêm info: <strong>${q}</strong>`,time:now()+' hôm nay'});
+  renderDetail();toast('💬 Request copied — paste vào Telegram');
+}
+function jumpToP0(){const t=tickets.find(x=>x.severity==='P0'&&x.status!=='done');if(t)selectTk(t.id);}
+
+// ── UNDO ──────────────────────────────────────────────────────────────────────
+function undoLast(){
+  const op=undoStack.pop();if(!op)return;
+  const t=tickets.find(x=>x.id===op.id);if(!t)return;
+  t[op.field]=op.was;
+  t.activity.push({type:'note',text:`↩ Undo: ${op.field} revert to ${op.was}`,time:now()+' hôm nay'});
+  renderList();renderDetail();toast('↩ Undone');
+}
+
+// ── FILTER / SORT ─────────────────────────────────────────────────────────────
+function setChip(f,el){
+  currentFilter=f;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on','sev-on-P0','sev-on-P1'));
+  el.classList.add('on');
+  if(f==='P0')el.classList.add('sev-on-P0');
+  if(f==='P1')el.classList.add('sev-on-P1');
+  renderList();
+}
+function applyMetricFilter(f){currentFilter=f;document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));renderList();}
+function clearAllFilters(){currentFilter='all';document.getElementById('searchBox').value='';document.querySelectorAll('.chip').forEach((c,i)=>i===0?c.classList.add('on'):c.classList.remove('on'));renderList();}
+function toggleSort(){sortBySLA=!sortBySLA;document.getElementById('sortLabel').textContent=sortBySLA?'SLA urgency':'Newest first';renderList();}
+function toggleGroup(){groupBySev=!groupBySev;document.getElementById('groupBtn').textContent=groupBySev?'⊞ Group by severity':'⊟ Ungrouped';renderList();}
+function toggleSelect(){document.getElementById('bulkActions').classList.toggle('show');}
+function bulkAssign(){alert('Phase 2: bulk assign via backend API');}
+function bulkDone(){alert('Phase 2: bulk status update');}
+
+// ── KEYBOARD NAVIGATION ───────────────────────────────────────────────────────
+let listIdx=-1;
+document.addEventListener('keydown',e=>{
+  const tag=e.target.tagName;
+  if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'){
+    if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){const ta=document.getElementById('notesTa_'+selectedId);if(ta)saveNotes(selectedId);}
+    if(e.key==='Escape'){e.target.blur();}
+    return;
+  }
+  if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();openCmd();return;}
+  if(e.key==='/'){e.preventDefault();document.getElementById('searchBox').focus();return;}
+  if(e.key==='?'){toggleKbd();return;}
+  if(e.key==='Escape'){if(document.getElementById('cmdOverlay').style.display!=='none'){closeCmd();return;}if(document.getElementById('kbdOverlay').style.display!=='none'){toggleKbd();return;}}
+  const filtered=getFiltered();
+  if(e.key==='j'||e.key==='ArrowDown'){e.preventDefault();listIdx=Math.min(listIdx+1,filtered.length-1);if(filtered[listIdx])selectTk(filtered[listIdx].id);}
+  if(e.key==='k'||e.key==='ArrowUp'){e.preventDefault();listIdx=Math.max(listIdx-1,0);if(filtered[listIdx])selectTk(filtered[listIdx].id);}
+  if(!selectedId)return;
+  const t=tickets.find(x=>x.id===selectedId);if(!t)return;
+  if(e.key==='e'||e.key==='E'){assignToMe(selectedId);}
+  if(e.key==='p'||e.key==='P'){quickAction(selectedId,'in_progress');}
+  if(e.key==='d'||e.key==='D'){quickAction(selectedId,'done');}
+  if(e.key==='c'&&!e.ctrlKey&&!e.metaKey){quickAction(selectedId,'cancelled');}
+  if(e.key==='t'||e.key==='T'){copyTelegram(selectedId);}
+  if((e.ctrlKey||e.metaKey)&&e.key==='z'){undoLast();}
+});
+
+// ── COMMAND PALETTE ────────────────────────────────────────────────────────────
+const CMD_ITEMS=[
+  {icon:'🔴',label:'Filter: P0 tickets',action:()=>{setChip('P0',document.querySelector('[data-f="P0"]'));closeCmd();}},
+  {icon:'🟠',label:'Filter: P1 tickets',action:()=>{setChip('P1',document.querySelector('[data-f="P1"]'));closeCmd();}},
+  {icon:'👤',label:'Filter: Assigned to me',action:()=>{setChip('mine',document.querySelector('[data-f="mine"]'));closeCmd();}},
+  {icon:'✅',label:'Filter: Done today',action:()=>{applyMetricFilter('done');closeCmd();}},
+  {icon:'⚠️',label:'Filter: SLA at risk',action:()=>{applyMetricFilter('sla');closeCmd();}},
+  {icon:'↕',label:'Toggle sort (SLA / newest)',action:()=>{toggleSort();closeCmd();}},
+  {icon:'⊞',label:'Toggle group by severity',action:()=>{toggleGroup();closeCmd();}},
+  {icon:'✕',label:'Clear all filters',action:()=>{clearAllFilters();closeCmd();}},
+];
+function openCmd(){document.getElementById('cmdOverlay').style.display='flex';setTimeout(()=>document.getElementById('cmdInput').focus(),50);renderCmd();}
+function closeCmd(){document.getElementById('cmdOverlay').style.display='none';document.getElementById('cmdInput').value='';}
+function renderCmd(){
+  const q=document.getElementById('cmdInput').value.toLowerCase();
+  const el=document.getElementById('cmdResults');
+  const items=CMD_ITEMS.filter(i=>!q||i.label.toLowerCase().includes(q));
+  const tkItems=getFiltered().filter(t=>!q||(t.id+t.reqLabel+t.teamName).toLowerCase().includes(q)).slice(0,4);
+  el.innerHTML=(tkItems.length?`<div class="cmd-section">Tickets</div>${tkItems.map((t,i)=>`<div class="cmd-item" onclick="selectTk('${t.id}');closeCmd()"><span class="cmd-item-icon"><span class="sev-badge sev-${t.severity}" style="font-size:8px">${t.severity}</span></span><span class="cmd-item-label">${t.reqLabel} <span style="color:var(--t4);font-size:10px">${t.id}</span></span></div>`).join('')}`:'')+
+  (items.length?`<div class="cmd-section">Actions</div>${items.map(i=>`<div class="cmd-item" onclick="(${i.action.toString()})()"><span class="cmd-item-icon">${i.icon}</span><span class="cmd-item-label">${i.label}</span></div>`).join('')}`:'');
+}
+function handleCmdKey(e){
+  if(e.key==='Escape')closeCmd();
+  if(e.key==='Enter'){const first=document.querySelector('.cmd-item');if(first)first.click();}
+}
+function toggleKbd(){const el=document.getElementById('kbdOverlay');el.style.display=el.style.display==='none'?'flex':'none';}
+
+// ── TOAST ──────────────────────────────────────────────────────────────────────
+let toastT;
+function toast(msg,showUndo=false){
+  const el=document.getElementById('toast');
+  document.getElementById('toastMsg').textContent=msg;
+  document.getElementById('toast-undo').style.display=showUndo&&undoStack.length?'block':'none';
+  el.classList.add('show');clearTimeout(toastT);
+  toastT=setTimeout(()=>el.classList.remove('show'),2500);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+renderList();
+</script>
+</body>
+</html>

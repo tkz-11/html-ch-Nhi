@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NQuoc — Trang chủ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #F7F8FA;
+      --white:    #FFFFFF;
+      --ink:      #0F172A;
+      --ink2:     #1E293B;
+      --muted:    #64748B;
+      --muted2:   #94A3B8;
+      --border:   #E2E8F0;
+      --border2:  #CBD5E1;
+      --r:        16px;
+      --r-sm:     11px;
+    }
+
+    body {
+      font-family: 'Be Vietnam Pro', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeUp   { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes fadeIn   { from{opacity:0} to{opacity:1} }
+    @keyframes scaleIn  { from{opacity:0;transform:scale(.94)} to{opacity:1;transform:scale(1)} }
+    @keyframes pulse    { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(.7);opacity:.5} }
+    @keyframes slideQ   { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes streakIn { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:translateX(0)} }
+    @keyframes shimmer  { from{left:-60%} to{left:120%} }
+    @keyframes float    { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+
+    .au  { animation: fadeUp  .5s cubic-bezier(.22,.68,0,1.2) forwards; opacity:0; }
+    .ai  { animation: fadeIn  .4s ease forwards; opacity:0; }
+    .asi { animation: scaleIn .45s cubic-bezier(.22,.68,0,1.2) forwards; opacity:0; }
+    .d1{animation-delay:.05s} .d2{animation-delay:.1s}  .d3{animation-delay:.15s}
+    .d4{animation-delay:.2s}  .d5{animation-delay:.25s} .d6{animation-delay:.3s}
+    .d7{animation-delay:.38s} .d8{animation-delay:.46s} .d9{animation-delay:.54s}
+
+    /* ── Layout ── */
+    .shell {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ════════ TOPBAR ════════ */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 20px 0 0;
+      margin-bottom: 0;
+    }
+    .notif-btn {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--white);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; position: relative;
+      transition: background .15s;
+      color: var(--muted);
+    }
+    .notif-btn:hover { background: var(--bg); }
+    .notif-dot {
+      position: absolute; top: 7px; right: 7px;
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #EF4444; border: 1.5px solid var(--white);
+    }
+
+    /* ════════ GREETING SECTION ════════ */
+    .greeting-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 0 36px;
+      text-align: center;
+    }
+
+    /* Avatar + name row */
+    .avatar-wrap {
+      position: relative;
+      margin-bottom: 14px;
+    }
+    .avatar-img {
+      width: 68px; height: 68px; border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--white);
+      box-shadow: 0 4px 16px rgba(0,0,0,.12);
+      background: linear-gradient(135deg, #E0E7FF, #DBEAFE);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; font-weight: 700; color: #3B82F6;
+      overflow: hidden;
+    }
+    .avatar-online {
+      position: absolute; bottom: 3px; right: 3px;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: #22C55E; border: 2.5px solid var(--white);
+    }
+
+    .greeting-eyebrow {
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 400;
+      margin-bottom: 4px;
+      letter-spacing: -.01em;
+    }
+    .greeting-name {
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: -.025em;
+      color: var(--ink);
+      margin-bottom: 12px;
+      line-height: 1.15;
+    }
+
+    /* Streak chip */
+    .streak-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: linear-gradient(135deg, #FFF7ED, #FEF3C7);
+      border: 1px solid #FDE68A;
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #92400E;
+      margin-bottom: 20px;
+      animation: streakIn .5s .3s ease both;
+    }
+    .streak-fire { font-size: 14px; animation: float 2.5s ease-in-out infinite; }
+
+    /* Quote card */
+    .quote-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 24px;
+      max-width: 540px;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,.04);
+    }
+    .quote-card::before {
+      content: '"';
+      position: absolute;
+      top: -8px; left: 14px;
+      font-size: 64px;
+      font-family: Georgia, serif;
+      color: rgba(0,0,0,.06);
+      line-height: 1;
+    }
+    .quote-text {
+      font-size: 14px;
+      font-style: italic;
+      color: var(--ink2);
+      line-height: 1.65;
+      position: relative;
+      z-index: 1;
+      animation: slideQ .4s ease both;
+    }
+    .quote-text strong { color: #F97316; font-style: normal; font-weight: 700; }
+    .quote-author {
+      font-size: 12px;
+      color: var(--muted2);
+      margin-top: 6px;
+      font-style: normal;
+    }
+    .quote-dots {
+      display: flex;
+      gap: 5px;
+      justify-content: center;
+      margin-top: 10px;
+    }
+    .q-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--border2); cursor: pointer;
+      transition: background .2s, transform .2s;
+    }
+    .q-dot.active { background: var(--ink); transform: scale(1.2); }
+
+    /* ════════ MENU CARDS ════════ */
+    .menu-section { width: 100%; }
+
+    /* ── PRIMARY (2 cards, large, full data) ── */
+    .primary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .card-primary {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 18px 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,.04);
+      transition: box-shadow .2s, transform .18s, border-color .2s;
+    }
+    .card-primary:hover {
+      box-shadow: 0 6px 24px rgba(0,0,0,.09);
+      transform: translateY(-2px);
+      border-color: var(--border2);
+    }
+    /* Shimmer on primary hover */
+    .card-primary::after {
+      content: '';
+      position: absolute;
+      top: 0; width: 40%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent);
+      left: -60%;
+      pointer-events: none;
+    }
+    .card-primary:hover::after { animation: shimmer .55s ease; }
+
+    .p-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+    .p-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+    .badge {
+      font-size: 11px; font-weight: 700;
+      padding: 3px 9px; border-radius: 999px;
+      display: flex; align-items: center; gap: 3px;
+    }
+    .badge-red   { background: #FEE2E2; color: #B91C1C; }
+    .badge-amber { background: #FEF3C7; color: #92400E; }
+    .badge-blue  { background: #DBEAFE; color: #1D4ED8; }
+    .badge-green { background: #D1FAE5; color: #065F46; }
+
+    .p-bottom { }
+    .p-name {
+      font-size: 15px; font-weight: 700;
+      color: var(--ink); letter-spacing: -.02em;
+      margin-bottom: 3px;
+    }
+    .p-sub {
+      font-size: 12px; color: var(--muted);
+      line-height: 1.4;
+    }
+
+    /* Progress bar (for học tập) */
+    .prog-bar {
+      height: 4px;
+      background: #F1F5F9;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+    .prog-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 1.2s cubic-bezier(.22,.68,0,1);
+    }
+
+    .chevron-right {
+      position: absolute;
+      right: 16px; bottom: 16px;
+      color: var(--muted2);
+      font-size: 16px;
+      transition: transform .2s, color .2s;
+    }
+    .card-primary:hover .chevron-right { transform: translateX(3px); color: var(--muted); }
+
+    /* ── SECONDARY (2 cards, medium, border) ── */
+    .secondary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .card-secondary {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: box-shadow .18s, transform .18s, border-color .18s;
+    }
+    .card-secondary:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,.07);
+      transform: translateY(-1px);
+      border-color: var(--border2);
+    }
+    .s-icon {
+      width: 38px; height: 38px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+    .s-info { flex: 1; min-width: 0; }
+    .s-name {
+      font-size: 13px; font-weight: 600;
+      color: var(--ink); letter-spacing: -.01em;
+      margin-bottom: 2px;
+    }
+    .s-sub {
+      font-size: 11px; color: var(--muted);
+    }
+    .s-chevron { color: var(--muted2); font-size: 14px; flex-shrink: 0; transition: transform .2s; }
+    .card-secondary:hover .s-chevron { transform: translateX(2px); }
+
+    /* ── GHOST (2 items, flat, text-link style) ── */
+    .ghost-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .card-ghost {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      background: transparent;
+      font-family: inherit;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+      transition: background .15s, color .15s, border-color .15s;
+    }
+    .card-ghost:hover {
+      background: var(--white);
+      color: var(--ink2);
+      border-color: var(--border2);
+    }
+    .g-icon { font-size: 14px; opacity: .65; }
+    .g-chevron { margin-left: auto; opacity: .35; font-size: 11px; }
+
+    /* ════════ N-CHAT BUBBLE ════════ */
+    .nchat {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--ink);
+      color: var(--white);
+      border-radius: 999px;
+      padding: 10px 18px 10px 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(0,0,0,.2);
+      transition: box-shadow .2s, transform .15s;
+      z-index: 100;
+    }
+    .nchat:hover { box-shadow: 0 8px 28px rgba(0,0,0,.25); transform: translateY(-2px); }
+    .nchat-mascot {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: linear-gradient(135deg, #34D399, #10B981);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .nchat-label { font-size: 13px; font-weight: 500; }
+    .nchat-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #34D399;
+      animation: pulse 2s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- TOPBAR -->
+  <div class="topbar au d1">
+    <button class="notif-btn" title="Thông báo">
+      <div class="notif-dot"></div>
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
+      </svg>
+    </button>
+  </div>
+
+
+  <!-- GREETING SECTION -->
+  <div class="greeting-section">
+
+    <!-- Avatar -->
+    <div class="avatar-wrap au d2">
+      <div class="avatar-img">NL</div>
+      <div class="avatar-online"></div>
+    </div>
+
+    <!-- Greeting text -->
+    <p class="greeting-eyebrow au d3" id="eyebrow-text">Xế chiều rồi, thời gian để 'grind' tiếp đó,</p>
+    <h1 class="greeting-name au d3" id="greeting-name">
+      Nhi Le ơi! ✨
+    </h1>
+
+    <!-- Streak -->
+    <div class="streak-chip d4">
+      <span class="streak-fire">🔥</span>
+      <span id="streak-text">12 ngày online liên tiếp</span>
+    </div>
+
+    <!-- Quote card -->
+    <div class="quote-card asi d5" id="quote-card">
+      <p class="quote-text" id="quote-text">
+        "Xã hội mạnh lên từ những cá nhân biết sống vì <strong>tập thể</strong>."
+      </p>
+      <p class="quote-author" id="quote-author">— NhiLe</p>
+      <div class="quote-dots" id="quote-dots"></div>
+    </div>
+
+  </div><!-- /greeting-section -->
+
+
+  <!-- MENU CARDS -->
+  <div class="menu-section">
+
+    <!-- PRIMARY TIER -->
+    <div class="primary-grid">
+
+      <!-- Lịch làm việc -->
+      <div class="card-primary au d6" onclick="nav('lich')">
+        <div class="p-top">
+          <div class="p-icon" style="background:#EFF6FF">📅</div>
+          <span class="badge badge-blue" id="badge-lich">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            2 hôm nay
+          </span>
+        </div>
+        <div class="p-bottom">
+          <p class="p-name">Lịch làm việc</p>
+          <p class="p-sub" id="sub-lich">Cuộc họp tiếp theo lúc 14:00</p>
+        </div>
+        <span class="chevron-right">›</span>
+      </div>
+
+      <!-- Công việc đang làm -->
+      <div class="card-primary au d6" onclick="nav('congviec')">
+        <div class="p-top">
+          <div class="p-icon" style="background:#F5F3FF">✅</div>
+          <span class="badge badge-red" id="badge-cv">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            3 chờ xử lý
+          </span>
+        </div>
+        <div class="p-bottom">
+          <p class="p-name">Công việc</p>
+          <p class="p-sub" id="sub-cv">1 deadline hôm nay · 2 đang làm</p>
+        </div>
+        <span class="chevron-right">›</span>
+      </div>
+
+    </div><!-- /primary-grid -->
+
+
+    <!-- SECONDARY TIER -->
+    <div class="secondary-grid">
+
+      <!-- Tiến độ học tập -->
+      <div class="card-secondary au d7" onclick="nav('hoctap')">
+        <div class="s-icon" style="background:#F0FDF4">🎓</div>
+        <div class="s-info">
+          <p class="s-name">Tiến độ học tập</p>
+          <p class="s-sub">72% hoàn thành</p>
+          <div class="prog-bar" style="margin-top:5px">
+            <div class="prog-fill" id="prog-hoctap" style="width:0%;background:linear-gradient(90deg,#22C55E,#16A34A)"></div>
+          </div>
+        </div>
+        <span class="s-chevron">›</span>
+      </div>
+
+      <!-- Sự kiện -->
+      <div class="card-secondary au d7" onclick="nav('sukien')">
+        <div class="s-icon" style="background:#FFFBEB">📢</div>
+        <div class="s-info">
+          <p class="s-name">Sự kiện</p>
+          <p class="s-sub">2 sự kiện tuần này</p>
+        </div>
+        <span class="badge badge-amber" style="font-size:11px;padding:2px 8px;flex-shrink:0">2</span>
+      </div>
+
+    </div><!-- /secondary-grid -->
+
+
+    <!-- GHOST TIER -->
+    <div class="ghost-grid au d8">
+      <button class="card-ghost" onclick="nav('feedback')">
+        <span class="g-icon">💬</span>
+        Gửi feedback
+        <span class="g-chevron">›</span>
+      </button>
+      <button class="card-ghost" onclick="nav('quydinhh')">
+        <span class="g-icon">🛡️</span>
+        Quy định · nội quy
+        <span class="g-chevron">›</span>
+      </button>
+    </div>
+
+  </div><!-- /menu-section -->
+
+</div><!-- /shell -->
+
+
+<!-- N-Chat bubble -->
+<div class="nchat" onclick="openChat()">
+  <div class="nchat-mascot">🌿</div>
+  <div class="nchat-dot"></div>
+  <span class="nchat-label">N-Chat nhanh</span>
+</div>
+
+
+<script>
+// ═══════════ Greeting ═══════════
+(function () {
+  const h = new Date().getHours();
+  const phrases = {
+    morning: ['Chào buổi sáng,', 'Bắt đầu ngày mới nào,', 'Sáng sớm đã online rồi,'],
+    afternoon:['Xế chiều rồi, thời gian để \'grind\' tiếp đó,', 'Buổi chiều năng suất nhé,', 'Chiều rồi, còn nhiều việc lắm,'],
+    evening:  ['Buổi tối rồi, wrap up nào,', 'Tối rồi, cảm ơn vì đã cố hết mình,', 'Chào buổi tối,'],
+  };
+  const emojis = ['✨','🚀','💪','🌟','🎯'];
+  const type = h < 12 ? 'morning' : h < 18 ? 'afternoon' : 'evening';
+  const arr  = phrases[type];
+  const eyebrow = arr[Math.floor(Math.random() * arr.length)];
+  const emoji   = emojis[Math.floor(Math.random() * emojis.length)];
+
+  document.getElementById('eyebrow-text').textContent = eyebrow;
+  document.getElementById('greeting-name').textContent = `Nhi Le ơi! ${emoji}`;
+})();
+
+// ═══════════ Quotes rotate ═══════════
+const quotes = [
+  { text: ['Xã hội mạnh lên từ những cá nhân biết sống vì ', 'tập thể', '.'], author: 'NhiLe' },
+  { text: ['Hòa nhập không ', 'hòa tan', ' — đó là bản lĩnh thật sự.'], author: 'NhiLe' },
+  { text: ['Người lãnh đạo không làm tất cả — họ tạo ra môi trường để tất cả ', 'tự làm được', '.'], author: 'NhiLe' },
+  { text: ['Thay đổi bắt đầu từ ', 'nhận thức', ', không phải từ hành động.'], author: 'NhiLe' },
+  { text: ['Mỗi con số kể một câu chuyện — nhiệm vụ của bạn là ', 'lắng nghe', '.'], author: 'NhiLe' },
+];
+
+let currentQ = 0;
+
+function renderQuote(idx) {
+  const q = quotes[idx];
+  const el = document.getElementById('quote-text');
+  el.style.animation = 'none';
+  el.offsetHeight; // reflow
+  el.style.animation = 'slideQ .35s ease both';
+  el.innerHTML = `"${q.text[0]}<strong>${q.text[1]}</strong>${q.text[2]}"`;
+  document.getElementById('quote-author').textContent = `— ${q.author}`;
+
+  // Dots
+  const dots = document.getElementById('quote-dots');
+  dots.innerHTML = quotes.map((_, i) =>
+    `<div class="q-dot ${i===idx?'active':''}" onclick="goQuote(${i})"></div>`
+  ).join('');
+}
+
+function goQuote(idx) {
+  currentQ = idx;
+  renderQuote(idx);
+}
+
+// Auto-rotate every 6s
+renderQuote(0);
+setInterval(() => {
+  currentQ = (currentQ + 1) % quotes.length;
+  renderQuote(currentQ);
+}, 6000);
+
+// ═══════════ Progress bar animate ═══════════
+setTimeout(() => {
+  document.getElementById('prog-hoctap').style.width = '72%';
+}, 600);
+
+// ═══════════ Streak ═══════════
+(function () {
+  const streak = 12;
+  document.getElementById('streak-text').textContent = `${streak} ngày online liên tiếp`;
+})();
+
+// ═══════════ Dynamic time badge ═══════════
+(function updateLich () {
+  const now = new Date();
+  const h = now.getHours(), m = now.getMinutes();
+  const meetings = [
+    { h:8,  m:0,  name:'Training Thu Data Buổi 2' },
+    { h:14, m:0,  name:'Training Thu Thập Data' },
+    { h:16, m:30, name:'Team Sync · IT & Design' },
+  ];
+  const upcoming = meetings.filter(mt => mt.h > h || (mt.h === h && mt.m > m));
+  const el = document.getElementById('sub-lich');
+  if (upcoming.length) {
+    const next = upcoming[0];
+    const hh = String(next.h).padStart(2,'0');
+    const mm = String(next.m).padStart(2,'0');
+    el.textContent = `Tiếp theo lúc ${hh}:${mm} · ${next.name}`;
+  } else {
+    el.textContent = 'Không còn cuộc họp hôm nay';
+    document.getElementById('badge-lich').className = 'badge badge-green';
+    document.getElementById('badge-lich').innerHTML = '✓ Hoàn thành';
+  }
+})();
+
+// ═══════════ Nav + chat ═══════════
+function nav(key) {
+  const labels = {
+    lich:'Lịch làm việc', congviec:'Công việc đang làm',
+    hoctap:'Tiến độ học tập', sukien:'Sự kiện',
+    feedback:'Gửi feedback', quydinhh:'Quy định - nội quy',
+  };
+  alert(`→ Mở: ${labels[key] || key}`);
+}
+function openChat() { alert('💬 N-Chat nhanh đang mở…'); }
+</script>
+
+</body>
+</html>

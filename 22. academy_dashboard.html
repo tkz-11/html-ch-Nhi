@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Academy Dashboard — NhiLe Holding</title>
+<style>
+  :root {
+    --navy: #1B3A6B; --navy-l: #E8EDF5;
+    --blue: #2E86AB; --blue-l: #EBF3F8;
+    --teal: #00838F; --teal-l: #E0F4F5;
+    --gold: #E07B39; --gold-l: #FDF3EC;
+    --green: #2E7D32; --green-l: #E8F5E9;
+    --red: #C62828; --red-l: #FFEBEE;
+    --purple: #6D28D9; --purple-l: #EDE9FE;
+    --white: #FFFFFF; --gray: #F0F4F8;
+    --border: #E5E7EB; --muted: #6B7280;
+    --dark: #111827; --sidebar-w: 240px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: var(--gray); color: #1A1A2E; display: flex; min-height: 100vh; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--sidebar-w); background: var(--dark); display: flex; flex-direction: column;
+    position: fixed; top: 0; left: 0; height: 100vh; z-index: 100;
+    overflow-y: auto; overflow-x: hidden;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+  .sidebar-brand {
+    padding: 18px 16px 14px; border-bottom: 1px solid #222;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .sidebar-logo {
+    width: 34px; height: 34px; background: var(--teal); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 13px; color: white; flex-shrink: 0;
+  }
+  .sidebar-brand-text { flex: 1; min-width: 0; }
+  .sidebar-brand-name { color: white; font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sidebar-brand-sub { color: #555; font-size: 10px; margin-top: 1px; }
+
+  /* Role switcher */
+  .sidebar-role { padding: 12px; border-bottom: 1px solid #222; }
+  .sidebar-role-label { color: #555; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 8px; padding: 0 4px; }
+  .role-btn {
+    display: flex; align-items: center; gap: 10px; width: 100%;
+    padding: 8px 10px; border-radius: 8px; border: none; background: transparent;
+    cursor: pointer; color: #888; font-size: 12px; font-weight: 600;
+    transition: all .15s; text-align: left; margin-bottom: 2px;
+  }
+  .role-btn:hover { background: #1e1e1e; color: #ccc; }
+  .role-btn.active { background: #1e2a3a; color: white; }
+  .role-btn-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .role-btn-arrow { margin-left: auto; font-size: 10px; opacity: .5; }
+
+  /* Nav sections */
+  .sidebar-section { padding: 14px 12px 8px; }
+  .sidebar-section-label { color: #444; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; padding: 0 4px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px; padding: 7px 10px;
+    border-radius: 8px; cursor: pointer; color: #888; font-size: 12px;
+    font-weight: 500; transition: all .15s; margin-bottom: 1px; border: none; background: transparent; width: 100%; text-align: left;
+  }
+  .nav-item:hover { background: #1a1a1a; color: #ccc; }
+  .nav-item.active { background: #1B3A6B; color: white; }
+  .nav-item-icon { width: 18px; text-align: center; font-size: 14px; flex-shrink: 0; }
+  .nav-item-badge {
+    margin-left: auto; background: var(--red); color: white;
+    font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px;
+  }
+  .nav-item-ok { margin-left: auto; color: var(--green); font-size: 11px; }
+
+  /* Sidebar footer */
+  .sidebar-footer { margin-top: auto; padding: 12px; border-top: 1px solid #1a1a1a; }
+  .sidebar-footer-text { color: #333; font-size: 10px; text-align: center; line-height: 1.6; }
+
+  /* ── MAIN CONTENT ── */
+  .main-wrap { margin-left: var(--sidebar-w); flex: 1; min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* Top bar */
+  .topbar {
+    background: white; border-bottom: 1px solid var(--border);
+    padding: 0 24px; height: 52px; display: flex; align-items: center;
+    justify-content: space-between; position: sticky; top: 0; z-index: 50;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 8px; }
+  .topbar-page { font-size: 14px; font-weight: 700; color: var(--navy); }
+  .topbar-crumb { color: var(--muted); font-size: 12px; }
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .topbar-date { color: var(--muted); font-size: 12px; }
+  .topbar-week { background: var(--navy-l); color: var(--navy); font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+
+  /* ── CONTENT ── */
+  .content { padding: 24px; flex: 1; }
+
+  /* ── PAGE SECTIONS ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(135deg, var(--navy) 0%, #2A4F8A 55%, var(--teal) 100%);
+    border-radius: 14px; padding: 24px 28px; margin-bottom: 20px;
+    display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 20px;
+  }
+  .hero-greeting { color: rgba(255,255,255,.65); font-size: 12px; margin-bottom: 4px; }
+  .hero-title { color: white; font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+  .hero-sub { color: rgba(255,255,255,.75); font-size: 12px; }
+  .hero-tags { display: flex; gap: 7px; margin-top: 10px; flex-wrap: wrap; }
+  .hero-tag { background: rgba(255,255,255,.13); color: white; border-radius: 20px; padding: 3px 10px; font-size: 11px; border: 1px solid rgba(255,255,255,.2); }
+  .hero-stats { display: flex; gap: 12px; }
+  .hero-stat { background: rgba(255,255,255,.12); border-radius: 10px; padding: 12px 16px; text-align: center; min-width: 80px; border: 1px solid rgba(255,255,255,.12); }
+  .hero-stat-num { color: white; font-size: 24px; font-weight: 900; line-height: 1; }
+  .hero-stat-label { color: rgba(255,255,255,.65); font-size: 10px; margin-top: 3px; }
+
+  /* ── ALERTS ── */
+  .alert { border-radius: 10px; padding: 11px 14px; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 10px; font-size: 12.5px; }
+  .alert-red { background: var(--red-l); color: var(--red); border-left: 4px solid var(--red); }
+  .alert-gold { background: var(--gold-l); color: #7A4A00; border-left: 4px solid var(--gold); }
+  .alert-green { background: var(--green-l); color: var(--green); border-left: 4px solid var(--green); }
+
+  /* ── SECTION HEADER ── */
+  .sec-hdr { display: flex; align-items: center; gap: 8px; margin: 20px 0 12px; }
+  .sec-icon { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .sec-title { font-size: 14px; font-weight: 800; color: var(--navy); }
+  .sec-sub { font-size: 11px; color: var(--muted); margin-left: auto; }
+  .sec-btn { padding: 5px 14px; border-radius: 8px; border: none; font-size: 12px; font-weight: 700; color: white; cursor: pointer; transition: opacity .2s; }
+  .sec-btn:hover { opacity: .85; }
+
+  /* ── KPI GRID ── */
+  .kpi-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 20px; }
+  .kpi-card { background: white; border-radius: 12px; padding: 16px 14px; box-shadow: 0 1px 6px rgba(0,0,0,.06); border-top: 3px solid transparent; transition: transform .15s, box-shadow .15s; position: relative; }
+  .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,.1); }
+  .kpi-icon { font-size: 20px; margin-bottom: 6px; }
+  .kpi-label { font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .4px; }
+  .kpi-val { font-size: 28px; font-weight: 900; margin: 3px 0; line-height: 1; }
+  .kpi-target { font-size: 10px; color: var(--muted); }
+  .kpi-status { position: absolute; top: 12px; right: 12px; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 8px; }
+  .s-ok { background: var(--green-l); color: var(--green); }
+  .s-warn { background: var(--gold-l); color: #7A4A00; }
+  .s-na { background: #F3F4F6; color: var(--muted); }
+  .kpi-bar { height: 3px; background: #eee; border-radius: 2px; margin-top: 8px; }
+  .kpi-bar-fill { height: 3px; border-radius: 2px; transition: width .8s ease; }
+
+  /* ── 4 MẢNG ── */
+  .marang-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 14px; margin-bottom: 20px; }
+  .marang-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 6px rgba(0,0,0,.06); transition: transform .15s, box-shadow .15s; }
+  .marang-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.1); }
+  .marang-hdr { padding: 14px 16px; display: flex; align-items: center; gap: 10px; }
+  .marang-emoji { font-size: 20px; }
+  .marang-title { font-size: 13px; font-weight: 800; color: white; }
+  .marang-cycle { font-size: 10px; color: rgba(255,255,255,.7); margin-top: 1px; }
+  .marang-body { padding: 14px 16px; }
+  .marang-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+  .marang-row:last-child { border-bottom: none; }
+  .marang-val { font-weight: 700; font-size: 12px; }
+  .task-item { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; border-bottom: 1px dashed var(--border); font-size: 11.5px; }
+  .task-item:last-child { border-bottom: none; }
+  .ts { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; margin-top: 1px; }
+  .ts-done { background: var(--green-l); color: var(--green); }
+  .ts-prog { background: var(--gold-l); color: #7A4A00; }
+  .ts-todo { background: #F3F4F6; color: var(--muted); }
+  .task-who { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  /* ── TIMELINE ── */
+  .timeline-wrap { background: white; border-radius: 12px; padding: 18px; box-shadow: 0 1px 6px rgba(0,0,0,.06); margin-bottom: 20px; overflow-x: auto; }
+  .timeline { display: grid; grid-template-columns: repeat(4,1fr); gap: 0; min-width: 560px; position: relative; }
+  .tl-item { text-align: center; position: relative; padding: 0 6px; }
+  .tl-dot { width: 34px; height: 34px; border-radius: 50%; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: white; position: relative; z-index: 2; }
+  .tl-connector { position: absolute; top: 17px; left: 50%; right: -50%; height: 3px; z-index: 1; }
+  .tl-date { font-size: 11px; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
+  .tl-task { font-size: 11px; color: #444; line-height: 1.4; }
+  .tl-tag { font-size: 10px; margin-top: 4px; padding: 2px 8px; border-radius: 8px; display: inline-block; }
+
+  /* ── TASK LIST ── */
+  .task-list { background: white; border-radius: 12px; box-shadow: 0 1px 6px rgba(0,0,0,.06); overflow: hidden; margin-bottom: 20px; }
+  .task-row { display: flex; align-items: center; gap: 12px; padding: 11px 16px; border-bottom: 1px solid var(--border); transition: background .1s; }
+  .task-row:last-child { border-bottom: none; }
+  .task-row:hover { background: #fafafa; }
+  .t-check { width: 20px; height: 20px; border: 2px solid var(--border); border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .2s; }
+  .t-check.done { background: var(--green); border-color: var(--green); color: white; font-size: 11px; }
+  .t-label { flex: 1; font-size: 12.5px; color: #333; }
+  .t-label.struck { text-decoration: line-through; color: var(--muted); }
+  .t-deadline { font-size: 11px; padding: 2px 8px; border-radius: 8px; font-weight: 700; flex-shrink: 0; }
+  .dl-hot { background: var(--red-l); color: var(--red); }
+  .dl-mid { background: var(--gold-l); color: #7A4A00; }
+  .dl-ok { background: var(--green-l); color: var(--green); }
+  .t-mang { font-size: 10px; color: var(--muted); min-width: 70px; text-align: right; flex-shrink: 0; }
+
+  /* ── IMPROVEMENT LOG ── */
+  .imp-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 6px rgba(0,0,0,.06); }
+  .imp-table th { background: var(--navy); color: white; padding: 10px 12px; font-size: 11px; text-align: left; font-weight: 700; }
+  .imp-table td { padding: 10px 12px; font-size: 11.5px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .imp-table tr:last-child td { border-bottom: none; }
+  .imp-table tr:hover td { background: var(--navy-l); }
+  .d-badge { padding: 2px 8px; border-radius: 8px; font-size: 10px; font-weight: 700; }
+  .d-up { background: var(--teal-l); color: var(--teal); }
+  .d-rm { background: var(--red-l); color: var(--red); }
+  .d-ar { background: var(--navy-l); color: var(--navy); }
+
+  /* ── TEAM CARDS ── */
+  .team-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 20px; }
+  .team-card { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 1px 6px rgba(0,0,0,.06); text-align: center; }
+  .team-avatar { width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: white; }
+  .team-name { font-size: 12px; font-weight: 700; color: var(--navy); }
+  .team-role { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+  .team-tags { display: flex; gap: 5px; justify-content: center; flex-wrap: wrap; }
+  .team-tag { font-size: 10px; padding: 2px 7px; border-radius: 6px; }
+
+  /* ── QUICK ACTIONS ── */
+  .quick-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 20px; }
+  .quick-btn { background: white; border: none; border-radius: 10px; padding: 14px 12px; cursor: pointer; text-align: left; box-shadow: 0 1px 6px rgba(0,0,0,.06); transition: all .15s; display: flex; align-items: center; gap: 10px; border-left: 3px solid transparent; }
+  .quick-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,.1); }
+  .quick-icon { font-size: 20px; }
+  .quick-label { font-size: 12px; font-weight: 700; color: var(--navy); }
+  .quick-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  /* ── SOP STEPS ── */
+  .sop-steps { background: white; border-radius: 12px; padding: 18px; box-shadow: 0 1px 6px rgba(0,0,0,.06); margin-bottom: 20px; }
+  .sop-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; text-align: center; }
+  .sop-step-dot { width: 36px; height: 36px; border-radius: 50%; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; color: white; }
+  .sop-step-label { font-size: 11px; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
+  .sop-step-sub { font-size: 10px; color: var(--muted); line-height: 1.4; }
+
+  /* ── PILL TABS ── */
+  .pill-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+  .pill { padding: 5px 14px; border-radius: 7px; font-size: 11px; font-weight: 700; cursor: pointer; color: var(--muted); border: 1.5px solid var(--border); background: white; transition: all .15s; }
+  .pill.active { color: white; border-color: transparent; }
+
+  /* ── MODAL ── */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 300; align-items: center; justify-content: center; }
+  .modal-overlay.show { display: flex; }
+  .modal { background: white; border-radius: 14px; padding: 24px; max-width: 500px; width: 90%; max-height: 85vh; overflow-y: auto; }
+  .modal-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+  .modal-title { font-size: 16px; font-weight: 800; color: var(--navy); }
+  .modal-close { background: none; border: none; cursor: pointer; font-size: 18px; color: var(--muted); }
+  .modal-field { margin-bottom: 13px; }
+  .modal-label { font-size: 11px; font-weight: 700; color: var(--navy); margin-bottom: 5px; display: block; }
+  .modal-input, .modal-select, .modal-textarea { width: 100%; padding: 9px 11px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 12.5px; font-family: Arial; color: #333; transition: border-color .2s; }
+  .modal-input:focus, .modal-select:focus, .modal-textarea:focus { outline: none; border-color: var(--teal); }
+  .modal-textarea { resize: vertical; min-height: 70px; }
+  .modal-submit { width: 100%; padding: 11px; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; color: white; cursor: pointer; margin-top: 6px; transition: opacity .2s; }
+  .modal-submit:hover { opacity: .85; }
+
+  /* ── TOAST ── */
+  .toast { position: fixed; bottom: 20px; right: 20px; background: var(--dark); color: white; padding: 11px 18px; border-radius: 10px; font-size: 12.5px; z-index: 999; opacity: 0; transform: translateY(8px); transition: all .3s; pointer-events: none; }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  .footer-note { text-align: center; color: #aaa; font-size: 10px; padding: 16px 0 4px; }
+</style>
+</head>
+<body>
+
+<!-- ══ SIDEBAR ══════════════════════════════════════════════════════════════ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-logo">NH</div>
+    <div class="sidebar-brand-text">
+      <div class="sidebar-brand-name">Academy Dashboard</div>
+      <div class="sidebar-brand-sub">NhiLe Holding</div>
+    </div>
+  </div>
+
+  <!-- Role switcher -->
+  <div class="sidebar-role">
+    <div class="sidebar-role-label">Vai trò</div>
+    <button class="role-btn active" id="rbtn-leader" onclick="switchRole('leader')">
+      <div class="role-btn-dot" style="background:#4A90D9"></div>
+      🎯 Leader
+      <span class="role-btn-arrow">›</span>
+    </button>
+    <button class="role-btn" id="rbtn-coleader" onclick="switchRole('coleader')">
+      <div class="role-btn-dot" style="background:var(--teal)"></div>
+      🤝 Co-Leader
+      <span class="role-btn-arrow">›</span>
+    </button>
+    <button class="role-btn" id="rbtn-member" onclick="switchRole('member')">
+      <div class="role-btn-dot" style="background:var(--green)"></div>
+      🌱 Member
+      <span class="role-btn-arrow">›</span>
+    </button>
+  </div>
+
+  <!-- Nav -->
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Tổng quan</div>
+    <button class="nav-item active" onclick="goPage('dashboard', this)">
+      <span class="nav-item-icon">📊</span> KPI Dashboard
+      <span class="nav-item-badge">2</span>
+    </button>
+    <button class="nav-item" onclick="goPage('schedule', this)">
+      <span class="nav-item-icon">📅</span> Lịch vận hành
+    </button>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">4 Mảng</div>
+    <button class="nav-item" onclick="goPage('drive', this)">
+      <span class="nav-item-icon">📁</span> Drive Management
+      <span class="nav-item-badge">2</span>
+    </button>
+    <button class="nav-item" onclick="goPage('backup', this)">
+      <span class="nav-item-icon">📦</span> Asset Backup
+      <span class="nav-item-ok">✓</span>
+    </button>
+    <button class="nav-item" onclick="goPage('training', this)">
+      <span class="nav-item-icon">📚</span> Training
+    </button>
+    <button class="nav-item" onclick="goPage('translate', this)">
+      <span class="nav-item-icon">🌐</span> Translate
+      <span class="nav-item-ok">✓</span>
+    </button>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Hệ thống</div>
+    <button class="nav-item" onclick="goPage('improvement', this)">
+      <span class="nav-item-icon">🔄</span> Improvement Loop
+    </button>
+    <button class="nav-item" onclick="goPage('team', this)">
+      <span class="nav-item-icon">👥</span> Team
+    </button>
+    <button class="nav-item" onclick="goPage('sop', this)">
+      <span class="nav-item-icon">📋</span> SOP Nhanh
+    </button>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-footer-text">NL-DASH-ACADEMY-001 · v1.0<br>Singapore Way · Q3/2025</div>
+  </div>
+</aside>
+
+<!-- ══ MAIN ══════════════════════════════════════════════════════════════════ -->
+<div class="main-wrap">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="topbar-crumb" style="color:#aaa">Academy</span>
+      <span style="color:#ddd;font-size:12px">›</span>
+      <span class="topbar-page" id="topbarPage">KPI Dashboard</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-date" id="topbarDate"></span>
+      <span class="topbar-week" id="topbarWeek">Tuần 08</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ═══ PAGE: DASHBOARD ═══════════════════════════════════════════════ -->
+    <div class="page active" id="page-dashboard">
+
+      <!-- Hero -->
+      <div class="hero">
+        <div>
+          <div class="hero-greeting" id="heroGreeting">Xin chào, Leader 👋</div>
+          <div class="hero-title">Academy Team — Knowledge Asset Management</div>
+          <div class="hero-sub">Quản lý tri thức NhiLe · Drive · Training · Asset Backup · Translate</div>
+          <div class="hero-tags">
+            <span class="hero-tag">📁 Drive: Ngày 1-10</span>
+            <span class="hero-tag">📚 Training: 2 tháng/lần</span>
+            <span class="hero-tag">📦 Backup: ≤ 48h</span>
+            <span class="hero-tag">🌐 Translate: Theo yêu cầu</span>
+          </div>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat"><div class="hero-stat-num">100%</div><div class="hero-stat-label">Asset Backup</div></div>
+          <div class="hero-stat"><div class="hero-stat-num">80%</div><div class="hero-stat-label">Drive OK</div></div>
+          <div class="hero-stat"><div class="hero-stat-num">3</div><div class="hero-stat-label">Thành viên</div></div>
+        </div>
+      </div>
+
+      <!-- Alerts -->
+      <div class="alert alert-gold"><span>⚠️</span> <div><strong>Drive:</strong> HR + Admin chưa phản hồi audit sau 5 ngày. Co-Leader cần escalate lên Leader hôm nay.</div></div>
+      <div class="alert alert-green"><span>✅</span> <div><strong>Asset Backup:</strong> 100% video tuần này backup trong 24h — cải thiện từ 72h tuần trước.</div></div>
+
+      <!-- KPI -->
+      <div class="sec-hdr">
+        <div class="sec-icon" style="background:var(--navy-l)">📊</div>
+        <div class="sec-title">KPI Tổng hợp — 4 Nhóm</div>
+        <div class="sec-sub">Cập nhật thứ Sáu hàng tuần</div>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi-card" style="border-top-color:var(--red)">
+          <div class="kpi-icon">📦</div><div class="kpi-label">Asset Health</div>
+          <div class="kpi-val" style="color:var(--red)">100%</div>
+          <div class="kpi-target">Mục tiêu: 100%</div>
+          <div class="kpi-status s-ok">✅ Đạt</div>
+          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:100%;background:var(--green)"></div></div>
+        </div>
+        <div class="kpi-card" style="border-top-color:var(--navy)">
+          <div class="kpi-icon">📁</div><div class="kpi-label">Drive Compliance</div>
+          <div class="kpi-val" style="color:var(--navy)">80%</div>
+          <div class="kpi-target">Mục tiêu: 100%</div>
+          <div class="kpi-status s-warn">⚠️ Cần cải thiện</div>
+          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:80%;background:var(--gold)"></div></div>
+        </div>
+        <div class="kpi-card" style="border-top-color:var(--teal)">
+          <div class="kpi-icon">📚</div><div class="kpi-label">Training On-time</div>
+          <div class="kpi-val" style="color:var(--muted)">N/A</div>
+          <div class="kpi-target">Chưa đến chu kỳ</div>
+          <div class="kpi-status s-na">— Chưa có</div>
+          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:0%;background:var(--teal)"></div></div>
+        </div>
+        <div class="kpi-card" style="border-top-color:var(--purple)">
+          <div class="kpi-icon">🌐</div><div class="kpi-label">Translate On-time</div>
+          <div class="kpi-val" style="color:var(--purple)">100%</div>
+          <div class="kpi-target">Mục tiêu: ≥ 90%</div>
+          <div class="kpi-status s-ok">✅ Đạt</div>
+          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:100%;background:var(--purple)"></div></div>
+        </div>
+      </div>
+
+      <!-- Role-specific task section -->
+      <div id="dash-leader-view">
+        <div class="sec-hdr"><div class="sec-icon" style="background:var(--navy-l)">🎯</div><div class="sec-title">Leader — Action tuần này</div></div>
+        <div class="task-list">
+          <div class="task-row"><div class="t-check" onclick="chk(this)"></div><div class="t-label">Review kết quả Drive audit tháng 3 — xác nhận action HR + Admin</div><div class="t-deadline dl-hot">🔴 Hôm nay</div><div class="t-mang">📁 Drive</div></div>
+          <div class="task-row"><div class="t-check" onclick="chk(this)"></div><div class="t-label">Nộp kế hoạch tháng 4 cho Operation trước ngày 5/4</div><div class="t-deadline dl-mid">🟡 05/04</div><div class="t-mang">📊 Report</div></div>
+          <div class="task-row"><div class="t-check" onclick="chk(this)"></div><div class="t-label">Weekly Report — review lần cuối và gửi Operation trước 17:00 thứ Sáu</div><div class="t-deadline dl-mid">🟡 Thứ 6</div><div class="t-mang">📊 Report</div></div>
+        </div>
+      </div>
+      <div id="dash-coleader-view" style="display:none">
+        <div class="sec-hdr"><div class="sec-icon" style="background:var(--blue-l)">🤝</div><div class="sec-title">Co-Leader — Việc cần làm hôm nay</div></div>
+        <div class="task-list">
+          <div class="task-row"><div class="t-check" onclick="chk(this)"></div><div class="t-label">Verify THCB EP07 trong Asset Register (1 video chưa verify)</div><div class="t-deadline dl-hot">🔴 Hôm nay</div><div class="t-mang">📦 Backup</div></div>
+          <div class="task-row"><div class="t-check" onclick="chk(this)"></div><div class="t-label">Báo Leader về HR + Admin chưa phản hồi Drive audit</div><div class="t-deadline dl-hot">🔴 Hôm nay</div><div class="t-mang">📁 Drive</div></div>
+          <div class="task-row"><div class="t-check" onclick="chk(this)"></div><div class="t-label">Tổng hợp số liệu 4 mảng → Weekly Report thứ Sáu</div><div class="t-deadline dl-mid">🟡 Thứ 6</div><div class="t-mang">📊 Report</div></div>
+        </div>
+      </div>
+      <div id="dash-member-view" style="display:none">
+        <div class="sec-hdr"><div class="sec-icon" style="background:var(--teal-l)">🌱</div><div class="sec-title">Member — Task của tôi</div></div>
+        <div class="task-list">
+          <div class="task-row"><div class="t-check done" onclick="chk(this)">✓</div><div class="t-label struck">Backup 4 video THCB EP04-07</div><div class="t-deadline dl-ok">✅ Xong</div><div class="t-mang">📦 Backup</div></div>
+          <div class="task-row"><div class="t-check" onclick="chk(this)"></div><div class="t-label">Hoàn thành bản dịch Prompt Library Design → nộp Co-Leader review</div><div class="t-deadline dl-mid">🟡 19/03</div><div class="t-mang">🌐 Translate</div></div>
+          <div class="task-row"><div class="t-check" onclick="chk(this)"></div><div class="t-label">Cập nhật Drive Audit Log sau khi HR + Admin phản hồi</div><div class="t-deadline dl-mid">🟡 10/03</div><div class="t-mang">📁 Drive</div></div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="sec-hdr"><div class="sec-icon" style="background:var(--green-l)">⚡</div><div class="sec-title">Quick Actions</div></div>
+      <div class="quick-grid">
+        <button class="quick-btn" style="border-left-color:var(--red)" onclick="openModal('asset')"><div class="quick-icon">📦</div><div><div class="quick-label">Ghi nhận Asset mới</div><div class="quick-sub">Thêm vào Asset Register</div></div></button>
+        <button class="quick-btn" style="border-left-color:var(--navy)" onclick="openModal('drive')"><div class="quick-icon">📁</div><div><div class="quick-label">Log Drive vấn đề</div><div class="quick-sub">Ghi nhận thư mục phát sinh</div></div></button>
+        <button class="quick-btn" style="border-left-color:var(--purple)" onclick="openModal('translate')"><div class="quick-icon">🌐</div><div><div class="quick-label">Yêu cầu dịch mới</div><div class="quick-sub">Tạo Translate Log entry</div></div></button>
+        <button class="quick-btn" style="border-left-color:var(--teal)" onclick="openModal('training')"><div class="quick-icon">📚</div><div><div class="quick-label">Ghi nhận Training</div><div class="quick-sub">Cập nhật Training Log</div></div></button>
+        <button class="quick-btn" style="border-left-color:var(--gold)" onclick="goPage('improvement', document.querySelector('.nav-item:nth-of-type(7)'))"><div class="quick-icon">🔄</div><div><div class="quick-label">Improvement Log</div><div class="quick-sub">Xem & thêm item</div></div></button>
+        <button class="quick-btn" style="border-left-color:var(--green)" onclick="openModal('report')"><div class="quick-icon">📊</div><div><div class="quick-label">Checklist Report</div><div class="quick-sub">Quy trình thứ Sáu 90 phút</div></div></button>
+      </div>
+      <div class="footer-note">NhiLe Holding · Academy Dashboard · NL-DASH-ACADEMY-001 · v1.0 · Singapore Way</div>
+    </div>
+
+    <!-- ═══ PAGE: SCHEDULE ════════════════════════════════════════════════ -->
+    <div class="page" id="page-schedule">
+      <div class="sec-hdr"><div class="sec-icon" style="background:var(--gold-l)">📅</div><div class="sec-title">Lịch vận hành tháng 3/2025</div></div>
+      <div class="timeline-wrap">
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-dot" style="background:var(--navy)">1-5</div>
+            <div class="tl-connector" style="background:linear-gradient(90deg,var(--navy),var(--teal))"></div>
+            <div class="tl-date">Ngày 1-5/3</div>
+            <div class="tl-task">Audit Drive cấp thư mục — ghi nhận thư mục phát sinh</div>
+            <div class="tl-tag" style="background:var(--navy-l);color:var(--navy)">📁 Drive</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot" style="background:var(--teal)">5-10</div>
+            <div class="tl-connector" style="background:linear-gradient(90deg,var(--teal),var(--gold))"></div>
+            <div class="tl-date">Ngày 5-10/3</div>
+            <div class="tl-task">Xử lý thư mục phát sinh — Drive sạch chuẩn sơ đồ NLT</div>
+            <div class="tl-tag" style="background:var(--teal-l);color:var(--teal)">📁 Drive</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot" style="background:var(--gold)">15</div>
+            <div class="tl-connector" style="background:linear-gradient(90deg,var(--gold),var(--red))"></div>
+            <div class="tl-date">Ngày 15/3</div>
+            <div class="tl-task">Gửi yêu cầu Training update cho tất cả team (chu kỳ T03-04)</div>
+            <div class="tl-tag" style="background:var(--gold-l);color:#7A4A00">📚 Training</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot" style="background:var(--red)">25</div>
+            <div class="tl-date">Ngày 25/3</div>
+            <div class="tl-task">Verify LMS xong — Deadline báo cáo chu kỳ Training</div>
+            <div class="tl-tag" style="background:var(--red-l);color:var(--red)">📚 Training</div>
+          </div>
+        </div>
+      </div>
+      <div class="sec-hdr"><div class="sec-icon" style="background:var(--navy-l)">📋</div><div class="sec-title">Lịch tuần chuẩn</div></div>
+      <div class="task-list">
+        <div class="task-row"><div style="width:80px;font-size:12px;font-weight:700;color:var(--navy);flex-shrink:0">Thứ 2 sáng</div><div class="t-label">Team Sync 15 phút: cập nhật tình trạng 4 mảng, flag vấn đề, đặt action items tuần</div><div class="t-mang">Toàn team</div></div>
+        <div class="task-row"><div style="width:80px;font-size:12px;font-weight:700;color:var(--teal);flex-shrink:0">Liên tục</div><div class="t-label">Asset Backup: theo dõi kênh, backup ≤ 48h, cập nhật Asset Register trong ngày</div><div class="t-mang">📦 Member</div></div>
+        <div class="task-row"><div style="width:80px;font-size:12px;font-weight:700;color:var(--gold);flex-shrink:0">Thứ 5</div><div class="t-label">Co-Leader tổng hợp vấn đề tồn đọng — chuẩn bị data cho Weekly Report</div><div class="t-mang">🤝 Co-Leader</div></div>
+        <div class="task-row"><div style="width:80px;font-size:12px;font-weight:700;color:var(--red);flex-shrink:0">Thứ 6 17h</div><div class="t-label">Leader nộp Weekly Report cho Operation — deadline cứng, không được trễ</div><div class="t-mang">🎯 Leader</div></div>
+        <div class="task-row"><div style="width:80px;font-size:12px;font-weight:700;color:var(--purple);flex-shrink:0">Cuối tháng</div><div class="t-label">Monthly Review: Improvement Loop — review KPI, quyết định Update/Remove/Archive</div><div class="t-mang">🔄 Cả team</div></div>
+      </div>
+      <div class="footer-note">NhiLe Holding · Academy Dashboard · NL-DASH-ACADEMY-001 · v1.0</div>
+    </div>
+
+    <!-- ═══ PAGE: DRIVE ═══════════════════════════════════════════════════ -->
+    <div class="page" id="page-drive">
+      <div class="alert alert-gold"><span>⚠️</span><div><strong>Đang chờ:</strong> HR + Admin chưa phản hồi sau 5 ngày. Cần escalate lên Leader hôm nay.</div></div>
+      <div class="sec-hdr"><div class="sec-icon" style="background:var(--navy-l)">📁</div><div class="sec-title">Drive Management — Tháng 3/2025</div></div>
+      <div class="kpi-grid">
+        <div class="kpi-card" style="border-top-color:var(--navy)"><div class="kpi-icon">🏢</div><div class="kpi-label">Team đúng chuẩn</div><div class="kpi-val" style="color:var(--navy)">8/10</div><div class="kpi-target">Mục tiêu: 10/10</div><div class="kpi-status s-warn">⚠️</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:80%;background:var(--gold)"></div></div></div>
+        <div class="kpi-card" style="border-top-color:var(--green)"><div class="kpi-icon">✅</div><div class="kpi-label">Thư mục xử lý</div><div class="kpi-val" style="color:var(--green)">3/3</div><div class="kpi-target">Tháng này</div><div class="kpi-status s-ok">✅</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:100%;background:var(--green)"></div></div></div>
+        <div class="kpi-card" style="border-top-color:var(--red)"><div class="kpi-icon">⏳</div><div class="kpi-label">Team chưa phản hồi</div><div class="kpi-val" style="color:var(--red)">2</div><div class="kpi-target">Mục tiêu: 0</div><div class="kpi-status" style="background:var(--red-l);color:var(--red)">❌</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:20%;background:var(--red)"></div></div></div>
+        <div class="kpi-card" style="border-top-color:var(--teal)"><div class="kpi-icon">📅</div><div class="kpi-label">Ngày audit</div><div class="kpi-val" style="color:var(--teal)">1-10</div><div class="kpi-target">Hàng tháng</div><div class="kpi-status s-ok">On track</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:70%;background:var(--teal)"></div></div></div>
+      </div>
+      <div class="sec-hdr"><div class="sec-icon" style="background:var(--navy-l)">📝</div><div class="sec-title">Drive Audit Log — Tháng 3</div><button class="sec-btn" style="background:var(--navy)" onclick="openModal('drive')">+ Ghi nhận</button></div>
+      <table class="imp-table" style="margin-bottom:20px">
+        <thead><tr><th>Team</th><th>Vấn đề</th><th>Loại</th><th>Trạng thái</th><th>Người xử lý</th></tr></thead>
+        <tbody>
+          <tr><td>IT</td><td>Thư mục /temp không trong sơ đồ NLT</td><td>Thư mục phát sinh</td><td><span class="d-badge d-up">✅ Đã xử lý</span></td><td>@LamDoan159</td></tr>
+          <tr><td>Design</td><td>Folder 'assets_cũ' không có label version</td><td>Tên sai chuẩn</td><td><span class="d-badge d-up">✅ Đã xử lý</span></td><td>@lethuytien</td></tr>
+          <tr><td>Social</td><td>File nằm ngoài folder đúng</td><td>Sai vị trí</td><td><span class="d-badge d-up">✅ Đã xử lý</span></td><td>@dundun2910</td></tr>
+          <tr><td style="color:var(--red);font-weight:700">HR</td><td>Chưa audit — chưa phản hồi</td><td>—</td><td><span class="d-badge d-rm">⏳ Chờ phản hồi</span></td><td>@Ritachang12</td></tr>
+          <tr><td style="color:var(--red);font-weight:700">Admin</td><td>Chưa audit — chưa phản hồi</td><td>—</td><td><span class="d-badge d-rm">⏳ Chờ phản hồi</span></td><td>@Ritachang12</td></tr>
+        </tbody>
+      </table>
+      <div class="footer-note">NhiLe Holding · Academy Dashboard · NL-DASH-ACADEMY-001 · v1.0</div>
+    </div>
+
+    <!-- ═══ PAGE: BACKUP ══════════════════════════════════════════════════ -->
+    <div class="page" id="page-backup">
+      <div class="alert alert-green"><span>✅</span><div><strong>Tuần này:</strong> 100% video backup trong 24h — vượt mục tiêu ≤48h. Tiếp tục duy trì!</div></div>
+      <div class="sec-hdr"><div class="sec-icon" style="background:var(--red-l)">📦</div><div class="sec-title">Asset Backup — Asset Register</div><button class="sec-btn" style="background:var(--red)" onclick="openModal('asset')">+ Ghi nhận</button></div>
+      <div class="kpi-grid">
+        <div class="kpi-card" style="border-top-color:var(--green)"><div class="kpi-icon">🎬</div><div class="kpi-label">Video backup</div><div class="kpi-val" style="color:var(--green)">100%</div><div class="kpi-status s-ok">✅ Đạt</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:100%;background:var(--green)"></div></div></div>
+        <div class="kpi-card" style="border-top-color:var(--gold)"><div class="kpi-icon">🔍</div><div class="kpi-label">Đã Verified</div><div class="kpi-val" style="color:var(--gold)">90%</div><div class="kpi-status s-warn">1 chờ verify</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:90%;background:var(--gold)"></div></div></div>
+        <div class="kpi-card" style="border-top-color:var(--teal)"><div class="kpi-icon">⏱</div><div class="kpi-label">TB thời gian backup</div><div class="kpi-val" style="color:var(--teal)">24h</div><div class="kpi-target">Mục tiêu: ≤ 48h</div><div class="kpi-status s-ok">✅</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:50%;background:var(--teal)"></div></div></div>
+        <div class="kpi-card" style="border-top-color:var(--navy)"><div class="kpi-icon">📂</div><div class="kpi-label">Asset Register</div><div class="kpi-val" style="color:var(--navy)">100%</div><div class="kpi-target">Cập nhật trong ngày</div><div class="kpi-status s-ok">✅</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:100%;background:var(--navy)"></div></div></div>
+      </div>
+      <table class="imp-table" style="margin-bottom:20px">
+        <thead><tr><th>#</th><th>Tên Asset</th><th>Loại</th><th>Ngày backup</th><th>Đặt tên đúng?</th><th>Verified?</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>2025-03_Video_THCB-EP04-Raw_v1.mp4</td><td>Video YouTube</td><td>18/03</td><td><span class="d-badge d-up">✅ Đúng</span></td><td><span class="d-badge d-up">✅ Verified</span></td></tr>
+          <tr><td>2</td><td>2025-03_Video_THCB-EP05-Raw_v1.mp4</td><td>Video YouTube</td><td>18/03</td><td><span class="d-badge d-up">✅ Đúng</span></td><td><span class="d-badge d-up">✅ Verified</span></td></tr>
+          <tr><td>3</td><td>2025-03_Video_THCB-EP06-Raw_v1.mp4</td><td>Video YouTube</td><td>19/03</td><td><span class="d-badge d-up">✅ Đúng</span></td><td><span class="d-badge d-up">✅ Verified</span></td></tr>
+          <tr><td>4</td><td>2025-03_Video_THCB-EP07-Raw_v1.mp4</td><td>Video YouTube</td><td>20/03</td><td><span class="d-badge d-up">✅ Đúng</span></td><td><span class="d-badge d-rm" style="cursor:pointer" onclick="showToast('✅ Đã verify!')">⏳ Chờ verify</span></td></tr>
+        </tbody>
+      </table>
+      <div class="footer-note">NhiLe Holding · Academy Dashboard · NL-DASH-ACADEMY-001 · v1.0</div>
+    </div>
+
+    <!-- ═══ PAGE: TRAINING ════════════════════════════════════════════════ -->
+    <div class="page" id="page-training">
+      <div class="sec-hdr"><div class="sec-icon" style="background:var(--teal-l)">📚</div><div class="sec-title">Training Management</div><button class="sec-btn" style="background:var(--teal)" onclick="openModal('training')">+ Ghi nhận</button></div>
+      <div class="kpi-grid">
+        <div class="kpi-card" style="border-top-color:var(--teal)"><div class="kpi-icon">📅</div><div class="kpi-label">Chu kỳ tiếp theo</div><div class="kpi-val" style="color:var(--teal)">T03-04</div><div class="kpi-target">Liên hệ: 15/03</div><div class="kpi-status s-warn">Sắp đến</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:0%;background:var(--teal)"></div></div></div>
+        <div class="kpi-card" style="border-top-color:var(--green)"><div class="kpi-icon">📨</div><div class="kpi-label">Team phản hồi (kỳ trước)</div><div class="kpi-val" style="color:var(--green)">90%</div><div class="kpi-target">Mục tiêu: ≥ 90%</div><div class="kpi-status s-ok">✅ Đạt</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:90%;background:var(--green)"></div></div></div>
+        <div class="kpi-card" style="border-top-color:var(--navy)"><div class="kpi-icon">☁️</div><div class="kpi-label">Upload LMS đúng hạn</div><div class="kpi-val" style="color:var(--navy)">100%</div><div class="kpi-target">Kỳ T01-02</div><div class="kpi-status s-ok">✅</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:100%;background:var(--navy)"></div></div></div>
+        <div class="kpi-card" style="border-top-color:var(--blue)"><div class="kpi-icon">✔️</div><div class="kpi-label">Verify LMS lần đầu</div><div class="kpi-val" style="color:var(--blue)">95%</div><div class="kpi-target">Mục tiêu: ≥ 95%</div><div class="kpi-status s-ok">✅</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:95%;background:var(--blue)"></div></div></div>
+      </div>
+      <div class="sec-hdr"><div class="sec-icon" style="background:var(--teal-l)">📋</div><div class="sec-title">Training Update Log — Kỳ T01-02/2025</div></div>
+      <table class="imp-table" style="margin-bottom:20px">
+        <thead><tr><th>Team</th><th>Phản hồi</th><th>Tài liệu</th><th>Gửi IT</th><th>Upload LMS</th><th>Verified</th></tr></thead>
+        <tbody>
+          <tr><td>IT</td><td><span class="d-badge d-up">✅ Có update</span></td><td>SOP_IT_v2.0.docx</td><td>21/01</td><td><span class="d-badge d-up">✅</span></td><td><span class="d-badge d-up">✅</span></td></tr>
+          <tr><td>Design</td><td><span class="d-badge" style="background:#F3F4F6;color:var(--muted)">❌ Không có</span></td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>N-EDU</td><td><span class="d-badge d-up">✅ Có update</span></td><td>Workbook_NEDU_v1.1.docx</td><td>21/01</td><td><span class="d-badge d-up">✅</span></td><td><span class="d-badge d-up">✅</span></td></tr>
+          <tr><td>Social</td><td><span class="d-badge d-up">✅ Có update</span></td><td>SOP_Social_Content_v1.0.docx</td><td>22/01</td><td><span class="d-badge d-up">✅</span></td><td><span class="d-badge d-up">✅</span></td></tr>
+        </tbody>
+      </table>
+      <div class="footer-note">NhiLe Holding · Academy Dashboard · NL-DASH-ACADEMY-001 · v1.0</div>
+    </div>
+
+    <!-- ═══ PAGE: TRANSLATE ═══════════════════════════════════════════════ -->
+    <div class="page" id="page-translate">
+      <div class="sec-hdr"><div class="sec-icon" style="background:var(--purple-l)">🌐</div><div class="sec-title">Translate Log</div><button class="sec-btn" style="background:var(--purple)" onclick="openModal('translate')">+ Yêu cầu dịch</button></div>
+      <table class="imp-table" style="margin-bottom:20px">
+        <thead><tr><th>Ngày nhận</th><th>Tài liệu</th><th>Ngôn ngữ</th><th>Ưu tiên</th><th>Deadline</th><th>Người dịch</th><th>Trạng thái</th></tr></thead>
+        <tbody id="translateBody">
+          <tr><td>05/01</td><td>Training Workbook N-EDU</td><td>Anh→Việt</td><td>🟡 Bình thường</td><td>20/01</td><td>@LamDoan159</td><td><span class="d-badge d-up">✅ Hoàn thành</span></td></tr>
+          <tr><td>15/03</td><td>Prompt Library Design</td><td>Anh→Việt</td><td>🟠 Cao</td><td>20/03</td><td>@lethuytien</td><td><span class="d-badge" style="background:var(--gold-l);color:#7A4A00">🔄 Đang dịch</span></td></tr>
+        </tbody>
+      </table>
+      <div class="footer-note">NhiLe Holding · Academy Dashboard · NL-DASH-ACADEMY-001 · v1.0</div>
+    </div>
+
+    <!-- ═══ PAGE: IMPROVEMENT ════════════════════════════════════════════ -->
+    <div class="page" id="page-improvement">
+      <div class="sec-hdr"><div class="sec-icon" style="background:var(--gold-l)">🔄</div><div class="sec-title">Improvement Loop — Tháng 3/2025</div><button class="sec-btn" style="background:var(--gold)" onclick="openModal('improvement')">+ Thêm item</button></div>
+      <table class="imp-table" style="margin-bottom:20px">
+        <thead><tr><th>Item</th><th>Lý do (Data cụ thể)</th><th>Quyết định</th><th>Thay đổi</th><th>Người thực hiện</th><th>Deadline</th><th>Kết quả</th></tr></thead>
+        <tbody id="improvementBody">
+          <tr><td>SOP đặt tên thư mục</td><td>3 team sai format 2 tháng liên tiếp (Log T11, T12)</td><td><span class="d-badge d-up">✅ Update</span></td><td>Thêm bảng ví dụ tên chuẩn</td><td>@Ritachang12</td><td>15/01</td><td style="color:var(--green)">+30pp ✅</td></tr>
+          <tr><td>Template backup checklist</td><td>Member mất 2 bước vì không có checklist rõ</td><td><span class="d-badge d-up">✅ Update</span></td><td>Tạo checklist 5 bước</td><td>@LamDoan159</td><td>01/02</td><td style="color:var(--gold)">Đang đo lường</td></tr>
+          <tr><td>Quy trình Training T2019</td><td>Không team nào dùng trong 12 tháng</td><td><span class="d-badge d-ar">📦 Archive</span></td><td>Di chuyển vào /Archive</td><td>@chuquangtrung</td><td>28/02</td><td style="color:var(--green)">Đã archive ✅</td></tr>
+        </tbody>
+      </table>
+      <div class="footer-note">NhiLe Holding · Academy Dashboard · NL-DASH-ACADEMY-001 · v1.0</div>
+    </div>
+
+    <!-- ═══ PAGE: TEAM ════════════════════════════════════════════════════ -->
+    <div class="page" id="page-team">
+      <div class="sec-hdr"><div class="sec-icon" style="background:var(--blue-l)">👥</div><div class="sec-title">Team Academy</div></div>
+      <div class="team-grid">
+        <div class="team-card"><div class="team-avatar" style="background:var(--navy)">CQ</div><div class="team-name">@chuquangtrung</div><div class="team-role">🎯 Leader</div><div class="team-tags"><span class="team-tag" style="background:var(--green-l);color:var(--green)">Drive ✅</span><span class="team-tag" style="background:var(--teal-l);color:var(--teal)">Training ✅</span><span class="team-tag" style="background:var(--green-l);color:var(--green)">Report ✅</span></div></div>
+        <div class="team-card"><div class="team-avatar" style="background:var(--blue)">RT</div><div class="team-name">@Ritachang12</div><div class="team-role">🤝 Co-Leader</div><div class="team-tags"><span class="team-tag" style="background:var(--gold-l);color:#7A4A00">Drive 80%</span><span class="team-tag" style="background:var(--green-l);color:var(--green)">Backup ✅</span><span class="team-tag" style="background:var(--teal-l);color:var(--teal)">Training ✅</span></div></div>
+        <div class="team-card"><div class="team-avatar" style="background:var(--teal)">LD</div><div class="team-name">@LamDoan159</div><div class="team-role">🌱 Member</div><div class="team-tags"><span class="team-tag" style="background:var(--green-l);color:var(--green)">Backup ✅</span><span class="team-tag" style="background:var(--green-l);color:var(--green)">Drive ✅</span></div></div>
+        <div class="team-card"><div class="team-avatar" style="background:var(--purple)">TT</div><div class="team-name">@lethuytien</div><div class="team-role">🌱 Member</div><div class="team-tags"><span class="team-tag" style="background:var(--gold-l);color:#7A4A00">Translate 🔄</span><span class="team-tag" style="background:var(--green-l);color:var(--green)">Drive ✅</span></div></div>
+        <div class="team-card"><div class="team-avatar" style="background:var(--red)">DD</div><div class="team-name">@dundun2910</div><div class="team-role">🌱 Member</div><div class="team-tags"><span class="team-tag" style="background:var(--green-l);color:var(--green)">Drive ✅</span><span class="team-tag" style="background:var(--teal-l);color:var(--teal)">Training ✅</span></div></div>
+      </div>
+      <div class="footer-note">NhiLe Holding · Academy Dashboard · NL-DASH-ACADEMY-001 · v1.0</div>
+    </div>
+
+    <!-- ═══ PAGE: SOP ═════════════════════════════════════════════════════ -->
+    <div class="page" id="page-sop">
+      <div class="sec-hdr"><div class="sec-icon" style="background:var(--red-l)">📦</div><div class="sec-title">SOP Backup — 5 bước</div></div>
+      <div class="sop-steps" style="margin-bottom:20px">
+        <div class="sop-grid">
+          <div><div class="sop-step-dot" style="background:var(--red)">01</div><div class="sop-step-label">Nhận thông tin</div><div class="sop-step-sub">Theo dõi kênh chính thức · Ghi vào Asset Queue</div></div>
+          <div><div class="sop-step-dot" style="background:var(--gold)">02</div><div class="sop-step-label">Download & kiểm tra</div><div class="sop-step-sub">≤ 24h · Mở file · Confirm không lỗi</div></div>
+          <div><div class="sop-step-dot" style="background:var(--teal)">03</div><div class="sop-step-label">Đặt tên & Upload</div><div class="sop-step-sub">≤ 48h · Format chuẩn · Đúng thư mục</div></div>
+          <div><div class="sop-step-dot" style="background:var(--navy)">04</div><div class="sop-step-label">Cập nhật Register</div><div class="sop-step-sub">Điền đầy đủ ngay khi upload · Không để trống</div></div>
+          <div><div class="sop-step-dot" style="background:var(--blue)">05</div><div class="sop-step-label">Báo Co-Leader</div><div class="sop-step-sub">Không tự tick Verified · Chờ xác nhận</div></div>
+        </div>
+      </div>
+      <div class="sec-hdr"><div class="sec-icon" style="background:var(--navy-l)">📁</div><div class="sec-title">SOP Drive Audit — 4 bước</div></div>
+      <div class="task-list" style="margin-bottom:20px">
+        <div class="task-row"><div style="width:32px;height:32px;background:var(--navy);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:13px;flex-shrink:0">1</div><div class="t-label"><strong>Ngày 1-5:</strong> Audit cấu trúc thư mục cấp 1-2 theo sơ đồ NLT. Ghi nhận vào Drive Audit Log.</div></div>
+        <div class="task-row"><div style="width:32px;height:32px;background:var(--teal);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:13px;flex-shrink:0">2</div><div class="t-label"><strong>Ngày 5:</strong> Co-Leader liên hệ Leader các team về thư mục phát sinh. Rõ vấn đề + deadline phản hồi.</div></div>
+        <div class="task-row"><div style="width:32px;height:32px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:13px;flex-shrink:0">3</div><div class="t-label"><strong>Ngày 8:</strong> Theo dõi phản hồi. Nếu chưa phản hồi sau 3 ngày — escalate lên Leader Academy.</div></div>
+        <div class="task-row"><div style="width:32px;height:32px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:13px;flex-shrink:0">4</div><div class="t-label"><strong>Ngày 10:</strong> Hoàn thành xử lý. Cập nhật Drive Audit Log trạng thái cuối. Báo cáo Leader kết quả.</div></div>
+      </div>
+      <div class="sec-hdr"><div class="sec-icon" style="background:var(--gold-l)">📋</div><div class="sec-title">Format tên file — học thuộc</div></div>
+      <div style="background:var(--dark);border-radius:12px;padding:18px;margin-bottom:20px">
+        <div style="color:var(--gold);font-family:monospace;font-size:16px;font-weight:700;text-align:center;margin-bottom:12px">[YYYY-MM]_[Loại]_[Nội dung]_[Version].[ext]</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px">
+          <div style="text-align:center"><div style="color:var(--teal);font-weight:700;font-size:12px">YYYY-MM</div><div style="color:#aaa;font-size:11px;margin-top:4px">Tháng/Năm</div><div style="color:white;font-family:monospace;font-size:11px;margin-top:4px">2025-07</div></div>
+          <div style="text-align:center"><div style="color:var(--blue);font-weight:700;font-size:12px">Loại</div><div style="color:#aaa;font-size:11px;margin-top:4px">Video/Strategy/Training</div><div style="color:white;font-family:monospace;font-size:11px;margin-top:4px">Video</div></div>
+          <div style="text-align:center"><div style="color:var(--gold);font-weight:700;font-size:12px">Nội dung</div><div style="color:#aaa;font-size:11px;margin-top:4px">Tên mô tả ngắn</div><div style="color:white;font-family:monospace;font-size:11px;margin-top:4px">THCB-EP01-Raw</div></div>
+          <div style="text-align:center"><div style="color:var(--purple);font-weight:700;font-size:12px">Version</div><div style="color:#aaa;font-size:11px;margin-top:4px">Phiên bản</div><div style="color:white;font-family:monospace;font-size:11px;margin-top:4px">v1</div></div>
+        </div>
+        <div style="background:var(--red-l);border-radius:8px;padding:10px;margin-top:14px;text-align:center;color:var(--red);font-size:12px;font-weight:700">❌ KHÔNG BAO GIỜ: "Video mới.mp4" · "final_FINAL.docx" · "copy của copy.xlsx"</div>
+      </div>
+      <div class="footer-note">NhiLe Holding · Academy Dashboard · NL-DASH-ACADEMY-001 · v1.0</div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main-wrap -->
+
+<!-- ══ MODALS ════════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-asset">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title">📦 Ghi nhận Asset mới</div><button class="modal-close" onclick="closeModal('asset')">✕</button></div>
+    <div class="modal-field"><label class="modal-label">Tên Asset</label><input class="modal-input" placeholder="Ví dụ: THCB EP08 Raw"></div>
+    <div class="modal-field"><label class="modal-label">Loại</label><select class="modal-select"><option>Video YouTube</option><option>Tài liệu chiến lược</option><option>Tài liệu training</option><option>Bản dịch</option><option>Khác</option></select></div>
+    <div class="modal-field"><label class="modal-label">Tên file chuẩn (tự kiểm tra)</label><input class="modal-input" placeholder="[YYYY-MM]_[Loại]_[Tên]_[Version].ext"></div>
+    <div class="modal-field"><label class="modal-label">Đường dẫn Drive</label><input class="modal-input" placeholder="/Archive/Video/2025-03/..."></div>
+    <div class="modal-field"><label class="modal-label">Trạng thái</label><select class="modal-select"><option>⏳ Chưa verify</option><option>✅ Verified</option><option>❌ Lỗi file</option></select></div>
+    <button class="modal-submit" style="background:var(--red)" onclick="submitModal('asset','✅ Asset Register đã cập nhật!')">Lưu vào Asset Register</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-drive">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title">📁 Log Drive vấn đề</div><button class="modal-close" onclick="closeModal('drive')">✕</button></div>
+    <div class="modal-field"><label class="modal-label">Tên Team</label><select class="modal-select"><option>IT</option><option>Design</option><option>HR</option><option>Admin</option><option>Social</option><option>Editor</option><option>N-EDU</option><option>Academy</option><option>NLT</option></select></div>
+    <div class="modal-field"><label class="modal-label">Tên thư mục / vấn đề</label><input class="modal-input" placeholder="Ví dụ: /Drive/HR/temp_2025"></div>
+    <div class="modal-field"><label class="modal-label">Loại vấn đề</label><select class="modal-select"><option>Thư mục phát sinh</option><option>Tên sai chuẩn</option><option>Sai vị trí</option><option>File nằm ngoài folder</option><option>Thiếu thư mục</option></select></div>
+    <div class="modal-field"><label class="modal-label">Hành động đã thực hiện</label><textarea class="modal-textarea" placeholder="Đã liên hệ Leader team, đề nghị..."></textarea></div>
+    <button class="modal-submit" style="background:var(--navy)" onclick="submitModal('drive','✅ Drive Audit Log đã ghi nhận!')">Lưu vào Drive Audit Log</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-translate">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title">🌐 Yêu cầu dịch mới</div><button class="modal-close" onclick="closeModal('translate')">✕</button></div>
+    <div class="modal-field"><label class="modal-label">Bên yêu cầu</label><input class="modal-input" placeholder="Tên team hoặc Leader"></div>
+    <div class="modal-field"><label class="modal-label">Tên tài liệu</label><input class="modal-input" id="trans-name" placeholder="Ví dụ: Prompt Library Design v1.0"></div>
+    <div class="modal-field"><label class="modal-label">Ngôn ngữ</label><select class="modal-select"><option>Anh → Việt</option><option>Việt → Anh</option><option>Khác</option></select></div>
+    <div class="modal-field"><label class="modal-label">Ưu tiên</label><select class="modal-select" id="trans-priority"><option>🟡 Bình thường</option><option>🟠 Cao</option><option>🔴 Gấp</option></select></div>
+    <div class="modal-field"><label class="modal-label">Deadline</label><input class="modal-input" type="date" id="trans-deadline"></div>
+    <button class="modal-submit" style="background:var(--purple)" onclick="submitTranslate()">Tạo Translate Log entry</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-training">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title">📚 Ghi nhận Training Update</div><button class="modal-close" onclick="closeModal('training')">✕</button></div>
+    <div class="modal-field"><label class="modal-label">Tên Team</label><select class="modal-select"><option>IT</option><option>Design</option><option>HR</option><option>Admin</option><option>Social</option><option>Editor</option><option>N-EDU</option><option>Academy</option></select></div>
+    <div class="modal-field"><label class="modal-label">Phản hồi</label><select class="modal-select"><option>✅ Có update</option><option>❌ Không có update</option><option>⏳ Chưa phản hồi</option></select></div>
+    <div class="modal-field"><label class="modal-label">Tên tài liệu (nếu có)</label><input class="modal-input" placeholder="Để trống nếu không có update"></div>
+    <div class="modal-field"><label class="modal-label">Upload LMS</label><select class="modal-select"><option>N/A</option><option>⏳ Đang xử lý</option><option>✅ Đã upload</option></select></div>
+    <button class="modal-submit" style="background:var(--teal)" onclick="submitModal('training','✅ Training Update Log đã lưu!')">Lưu vào Training Log</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-improvement">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title">🔄 Thêm Improvement Item</div><button class="modal-close" onclick="closeModal('improvement')">✕</button></div>
+    <div class="modal-field"><label class="modal-label">Tài liệu / Quy trình</label><input class="modal-input" id="imp-item" placeholder="Tên cụ thể"></div>
+    <div class="modal-field"><label class="modal-label">Lý do — DATA cụ thể</label><textarea class="modal-textarea" id="imp-reason" placeholder="Ví dụ: 3 team sai format 2 tháng liên tiếp (Log T11, T12)"></textarea></div>
+    <div class="modal-field"><label class="modal-label">Quyết định</label><select class="modal-select" id="imp-dec"><option value="up">✅ Update</option><option value="rm">❌ Remove</option><option value="ar">📦 Archive</option></select></div>
+    <div class="modal-field"><label class="modal-label">Người thực hiện</label><select class="modal-select" id="imp-who"><option>@Ritachang12</option><option>@LamDoan159</option><option>@lethuytien</option><option>@dundun2910</option><option>@chuquangtrung</option></select></div>
+    <div class="modal-field"><label class="modal-label">Deadline</label><input class="modal-input" type="date" id="imp-dl"></div>
+    <button class="modal-submit" style="background:var(--gold)" onclick="submitImprovement()">Thêm vào Improvement Log</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-report">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title">📊 Checklist Weekly Report</div><button class="modal-close" onclick="closeModal('report')">✕</button></div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Quy trình thứ Sáu — hoàn thành trong 90 phút</div>
+    <div class="task-row"><div class="t-check" onclick="chk(this)"></div><div class="t-label" style="font-size:12px">08:00 — Co-Leader lấy số liệu từ 4 sheet Tracker</div></div>
+    <div class="task-row"><div class="t-check" onclick="chk(this)"></div><div class="t-label" style="font-size:12px">09:00 — Dùng Prompt E-01 → AI draft report</div></div>
+    <div class="task-row"><div class="t-check" onclick="chk(this)"></div><div class="t-label" style="font-size:12px">10:00 — Review, chỉnh sửa, đảm bảo số liệu chính xác</div></div>
+    <div class="task-row" style="border-bottom:none"><div class="t-check" onclick="chk(this)"></div><div class="t-label" style="font-size:12px">11:00 — Leader review lần cuối → Gửi Operation trước 17:00</div></div>
+    <button class="modal-submit" style="background:var(--navy);margin-top:14px" onclick="closeModal('report')">Đóng</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── INIT ─────────────────────────────────────────────────────────────────────
+const now = new Date();
+document.getElementById('topbarDate').textContent = now.toLocaleDateString('vi-VN',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'});
+const week = Math.ceil((now - new Date(now.getFullYear(),0,1)) / 604800000);
+document.getElementById('topbarWeek').textContent = `Tuần ${week}`;
+
+// ── ROLE ─────────────────────────────────────────────────────────────────────
+let role = 'leader';
+const roleNames = {leader:'Leader 🎯', coleader:'Co-Leader 🤝', member:'Member 🌱'};
+function switchRole(r) {
+  role = r;
+  ['leader','coleader','member'].forEach(x => document.getElementById('rbtn-'+x).classList.remove('active'));
+  document.getElementById('rbtn-'+r).classList.add('active');
+  document.getElementById('heroGreeting').textContent = `Xin chào, ${roleNames[r]} 👋`;
+  ['leader','coleader','member'].forEach(x => {
+    const el = document.getElementById('dash-'+x+'-view');
+    if(el) el.style.display = x === r ? 'block' : 'none';
+  });
+  showToast(`Chuyển sang: ${roleNames[r]}`);
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────────
+const pageNames = {
+  dashboard:'KPI Dashboard', schedule:'Lịch vận hành',
+  drive:'Drive Management', backup:'Asset Backup',
+  training:'Training', translate:'Translate',
+  improvement:'Improvement Loop', team:'Team', sop:'SOP Nhanh'
+};
+function goPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  document.getElementById('topbarPage').textContent = pageNames[name] || name;
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ── TASK TOGGLE ───────────────────────────────────────────────────────────────
+function chk(el) {
+  const done = el.classList.toggle('done');
+  el.textContent = done ? '✓' : '';
+  const lbl = el.nextElementSibling;
+  if(lbl) lbl.classList.toggle('struck', done);
+  showToast(done ? '✅ Task hoàn thành!' : 'Task chưa xong');
+}
+
+// ── MODALS ────────────────────────────────────────────────────────────────────
+function openModal(n){ document.getElementById('modal-'+n).classList.add('show'); }
+function closeModal(n){ document.getElementById('modal-'+n).classList.remove('show'); }
+function submitModal(n, msg){ closeModal(n); showToast(msg); }
+
+function submitTranslate() {
+  const name = document.getElementById('trans-name').value || 'Tài liệu mới';
+  const priority = document.getElementById('trans-priority').value;
+  const deadline = document.getElementById('trans-deadline').value || 'TBD';
+  const tbody = document.getElementById('translateBody');
+  const tr = document.createElement('tr');
+  const today = new Date().toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit'});
+  tr.innerHTML = `<td>${today}</td><td>${name}</td><td>Anh→Việt</td><td>${priority}</td><td>${deadline}</td><td>—</td><td><span class="d-badge" style="background:var(--gold-l);color:#7A4A00">⏳ Chờ phân công</span></td>`;
+  tbody.appendChild(tr);
+  closeModal('translate');
+  showToast('✅ Translate Log đã tạo!');
+  document.getElementById('trans-name').value = '';
+}
+
+function submitImprovement() {
+  const item = document.getElementById('imp-item').value;
+  if(!item){ showToast('⚠️ Điền tên item trước'); return; }
+  const reason = document.getElementById('imp-reason').value || '—';
+  const dec = document.getElementById('imp-dec').value;
+  const who = document.getElementById('imp-who').value;
+  const dl = document.getElementById('imp-dl').value || 'TBD';
+  const badges = {up:'<span class="d-badge d-up">✅ Update</span>', rm:'<span class="d-badge d-rm">❌ Remove</span>', ar:'<span class="d-badge d-ar">📦 Archive</span>'};
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td>${item}</td><td>${reason}</td><td>${badges[dec]}</td><td>—</td><td>${who}</td><td>${dl}</td><td style="color:var(--muted)">⏳ Chờ đo</td>`;
+  document.getElementById('improvementBody').appendChild(tr);
+  closeModal('improvement');
+  showToast('✅ Improvement item đã thêm!');
+  document.getElementById('imp-item').value = '';
+  document.getElementById('imp-reason').value = '';
+}
+
+document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', function(e){ if(e.target===this) this.classList.remove('show'); }));
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// ── ANIMATE BARS ──────────────────────────────────────────────────────────────
+setTimeout(() => {
+  document.querySelectorAll('.kpi-bar-fill').forEach(b => {
+    const w = b.style.width; b.style.width='0%';
+    setTimeout(() => b.style.width=w, 150);
+  });
+}, 300);
+</script>
+</body>
+</html>

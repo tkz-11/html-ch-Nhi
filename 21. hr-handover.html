@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HR Handover — NhiLe Holding</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:#1B3A6B; --navy2:#223d70; --blue:#2E86AB; --teal:#00838F;
+  --gold:#E07B39; --green:#2E7D32; --red:#C62828;
+  --bg:#EEF1F6; --white:#fff;
+  --g50:#F8F9FA; --g100:#EAECEF; --g200:#D1D5DB; --g400:#9CA3AF; --g600:#4B5563; --g900:#111827;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Be Vietnam Pro',sans-serif;background:var(--bg);color:var(--g900);font-size:13px;min-height:100vh}
+
+/* ── ROLE SWITCHER BAR ── */
+.role-bar{
+  display:flex;align-items:center;gap:10px;
+  background:var(--navy);padding:10px 24px;
+  position:sticky;top:0;z-index:200;
+}
+.role-bar-label{font-size:10px;font-weight:800;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase}
+.role-pill{
+  display:flex;align-items:center;gap:6px;
+  padding:5px 14px;border-radius:20px;font-size:11px;font-weight:800;cursor:pointer;
+  border:1.5px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);transition:all .15s;
+}
+.role-pill.active{background:rgba(255,255,255,.15);color:white;border-color:rgba(255,255,255,.4)}
+.role-dot{width:7px;height:7px;border-radius:50%}
+.role-dot.leader{background:var(--gold)}
+.role-dot.admin{background:var(--blue)}
+.role-dot.member{background:var(--teal)}
+.role-bar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.role-badge-active{
+  background:rgba(255,255,255,.12);color:white;
+  padding:4px 12px;border-radius:10px;font-size:10px;font-weight:800;
+  letter-spacing:.5px;
+}
+
+/* ── LAYOUT ── */
+.shell{display:flex;height:calc(100vh - 44px)}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:220px;flex-shrink:0;background:white;
+  border-right:1px solid var(--g100);
+  display:flex;flex-direction:column;overflow-y:auto;
+}
+.sidebar-header{padding:18px 16px 12px;border-bottom:1px solid var(--g100)}
+.sidebar-logo{font-size:14px;font-weight:900;letter-spacing:-.3px;color:var(--navy)}
+.sidebar-sub{font-size:10px;color:var(--g400);font-weight:600;margin-top:2px}
+.sidebar-section{padding:10px 8px 4px;font-size:9px;font-weight:800;color:var(--g400);text-transform:uppercase;letter-spacing:1.2px}
+.nav-item{
+  display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;
+  cursor:pointer;color:var(--g600);font-size:12px;font-weight:500;transition:all .12s;
+  margin:1px 6px;
+}
+.nav-item:hover{background:var(--g50);color:var(--g900)}
+.nav-item.active{background:#EEF3FB;color:var(--navy);font-weight:700}
+.nav-icon{font-size:14px;width:18px;text-align:center;flex-shrink:0}
+.nav-badge{
+  margin-left:auto;font-size:9px;font-weight:800;
+  padding:2px 7px;border-radius:10px;background:var(--gold);color:white;
+}
+.nav-badge.red{background:var(--red)}
+.nav-badge.blue{background:var(--blue)}
+.nav-badge.lock{background:var(--g200);color:var(--g600)}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.topbar{
+  background:white;border-bottom:1px solid var(--g100);
+  padding:0 24px;height:56px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.topbar h1{font-size:17px;font-weight:900;letter-spacing:-.4px}
+.topbar p{font-size:11px;color:var(--g400);margin-top:1px}
+.content{flex:1;overflow-y:auto;padding:20px 24px}
+.content::-webkit-scrollbar{width:3px}
+.content::-webkit-scrollbar-thumb{background:var(--g200);border-radius:2px}
+
+/* ── PANELS ── */
+.panel{display:none;animation:fade .18s ease}
+.panel.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+
+/* ── ACCESS BLOCK ── */
+.access-block{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:60px 24px;background:white;border-radius:16px;
+  border:1.5px dashed var(--g200);text-align:center;gap:10px;
+}
+.access-block .lock-icon{font-size:36px}
+.access-block h3{font-size:16px;font-weight:900;color:var(--g900)}
+.access-block p{font-size:12px;color:var(--g400);max-width:280px}
+
+/* ── CARDS ── */
+.card{background:white;border-radius:14px;border:1px solid var(--g100);padding:18px 20px}
+.card+.card{margin-top:12px}
+.card-title{font-size:13px;font-weight:800;margin-bottom:14px;letter-spacing:-.2px}
+.card-title.lg{font-size:15px;margin-bottom:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+
+/* ── STAT ── */
+.stat{background:white;border-radius:14px;border:1px solid var(--g100);padding:16px 18px}
+.stat-label{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--g400);margin-bottom:4px}
+.stat-val{font-size:30px;font-weight:900;letter-spacing:-1.5px;line-height:1}
+.stat-sub{font-size:10px;color:var(--g400);margin-top:3px;font-weight:500}
+
+/* ── PERMISSION MATRIX ── */
+.perm-table{width:100%;border-collapse:collapse}
+.perm-table th{
+  padding:10px 14px;text-align:left;font-size:9px;font-weight:800;
+  text-transform:uppercase;letter-spacing:.8px;color:var(--g400);
+  background:var(--g50);border-bottom:1px solid var(--g100);
+}
+.perm-table td{padding:11px 14px;border-bottom:1px solid var(--g100);font-size:12px}
+.perm-table tr:last-child td{border:none}
+.perm-table tr:hover td{background:var(--g50)}
+.perm-col{text-align:center;font-size:16px}
+.perm-section-row td{
+  background:#F0F4FA;font-size:10px;font-weight:800;
+  color:var(--navy);text-transform:uppercase;letter-spacing:.5px;
+  padding:6px 14px;
+}
+.role-tag{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 10px;border-radius:20px;font-size:10px;font-weight:800;
+}
+.role-tag.leader{background:#FEF3E2;color:#92400E}
+.role-tag.admin{background:#DBEAFE;color:#1D4ED8}
+.role-tag.member{background:#D1FAE5;color:#065F46}
+
+/* ── CASE HANDOVER ── */
+.case-card{
+  background:white;border-radius:12px;border:1px solid var(--g100);
+  margin-bottom:10px;overflow:hidden;
+  transition:box-shadow .15s;cursor:pointer;
+}
+.case-card:hover{box-shadow:0 3px 16px rgba(0,0,0,.07)}
+.case-header{display:flex;align-items:center;gap:12px;padding:14px 16px}
+.case-id{font-size:10px;font-weight:800;color:var(--g400);min-width:72px}
+.case-name{font-size:13px;font-weight:800;flex:1}
+.case-meta{font-size:11px;color:var(--g400);margin-top:2px;font-weight:500}
+.case-owner{
+  display:flex;align-items:center;gap:6px;
+  font-size:11px;font-weight:700;color:var(--navy);
+}
+.case-owner-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0}
+.case-body{padding:0 16px 14px;display:none}
+.case-card.open .case-body{display:block}
+.case-card.open .case-header{border-bottom:1px solid var(--g100)}
+
+/* ── HANDOVER TIMELINE ── */
+.hl-wrap{position:relative;padding-left:28px;margin-top:8px}
+.hl-line{
+  position:absolute;left:9px;top:4px;bottom:4px;
+  width:2px;background:var(--g100);border-radius:1px;
+}
+.hl-item{position:relative;margin-bottom:14px}
+.hl-dot{
+  position:absolute;left:-22px;top:3px;
+  width:14px;height:14px;border-radius:50%;
+  background:white;border:2px solid var(--g200);
+  display:flex;align-items:center;justify-content:center;
+  font-size:7px;
+}
+.hl-dot.done{border-color:var(--navy);background:var(--navy);color:white}
+.hl-dot.current{border-color:var(--gold);background:var(--gold);color:white}
+.hl-dot.pending{border-color:var(--g200)}
+.hl-meta{font-size:10px;color:var(--g400);font-weight:600;margin-bottom:2px}
+.hl-action{font-size:12px;font-weight:700;color:var(--g900)}
+.hl-note{font-size:11px;color:var(--g600);margin-top:2px}
+.hl-actor{
+  display:inline-flex;align-items:center;gap:4px;
+  background:var(--g50);border-radius:6px;padding:2px 8px;
+  font-size:10px;font-weight:800;color:var(--navy);margin-top:4px;
+}
+.hl-actor-av{
+  width:14px;height:14px;border-radius:4px;
+  background:var(--navy);color:white;
+  display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:900;
+}
+.hl-next{
+  background:#EEF8F3;border:1.5px dashed #A7D7BB;border-radius:8px;
+  padding:8px 12px;margin-top:6px;
+  font-size:11px;color:var(--green);font-weight:700;
+  display:flex;align-items:center;gap:6px;
+}
+
+/* ── ASSIGN BLOCK ── */
+.assign-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 0;border-bottom:1px solid var(--g100);
+}
+.assign-row:last-child{border:none}
+.assignee-av{
+  width:32px;height:32px;border-radius:9px;color:white;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:900;flex-shrink:0;
+}
+
+/* ── ACTIVITY FEED ── */
+.af-item{
+  display:flex;gap:10px;padding:10px 0;
+  border-bottom:1px solid var(--g100);
+}
+.af-item:last-child{border:none}
+.af-av{
+  width:28px;height:28px;border-radius:8px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:900;color:white;
+}
+.af-time{font-size:10px;color:var(--g400);font-weight:600;flex-shrink:0;margin-top:1px;min-width:44px;text-align:right}
+.af-text{font-size:12px;font-weight:500;flex:1}
+.af-text strong{font-weight:800;color:var(--g900)}
+.af-tag{
+  display:inline-block;padding:1px 7px;border-radius:10px;
+  font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;
+  background:var(--g100);color:var(--g600);margin-left:4px;
+}
+.af-tag.assign{background:#FEF3E2;color:#92400E}
+.af-tag.step{background:#DBEAFE;color:#1D4ED8}
+.af-tag.note{background:#D1FAE5;color:#065F46}
+.af-tag.warn{background:#FEE2E2;color:var(--red)}
+
+/* ── MEMBER CARD ── */
+.member-row{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 0;border-bottom:1px solid var(--g100);
+}
+.member-row:last-child{border:none}
+.member-av{
+  width:36px;height:36px;border-radius:10px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:900;color:white;
+}
+.member-name{font-size:13px;font-weight:800}
+.member-sub{font-size:10px;color:var(--g400);font-weight:600;margin-top:2px}
+.workload-bar{height:4px;background:var(--g100);border-radius:2px;margin-top:5px;width:100px;overflow:hidden}
+.workload-fill{height:100%;border-radius:2px}
+
+/* ── BADGE ── */
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:9px;font-weight:800;letter-spacing:.3px;text-transform:uppercase}
+.b-green{background:#DCFCE7;color:var(--green)}
+.b-blue{background:#DBEAFE;color:#1D4ED8}
+.b-amber{background:#FEF3C7;color:#92400E}
+.b-red{background:#FEE2E2;color:var(--red)}
+.b-navy{background:#EEF3FB;color:var(--navy)}
+.b-gray{background:var(--g100);color:var(--g600)}
+.b-gold{background:#FEF3E2;color:#92400E}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;border:none;font-family:inherit;transition:all .12s}
+.btn-navy{background:var(--navy);color:white}
+.btn-navy:hover{background:var(--navy2)}
+.btn-ghost{background:var(--g100);color:var(--g900)}
+.btn-ghost:hover{background:var(--g200)}
+.btn-gold{background:var(--gold);color:white}
+.btn-danger{background:#FEE2E2;color:var(--red)}
+.btn-sm{padding:4px 10px;font-size:10px}
+.btn-xs{padding:3px 8px;font-size:9px}
+
+/* ── TABS ── */
+.tab-bar{display:flex;gap:3px;background:var(--g100);padding:3px;border-radius:9px;width:fit-content;margin-bottom:16px}
+.tab-btn{padding:6px 14px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;border:none;font-family:inherit;background:transparent;color:var(--g400);transition:all .12s}
+.tab-btn.active{background:white;color:var(--g900);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+
+/* ── SELECT ── */
+select{
+  padding:5px 10px;border-radius:8px;border:1px solid var(--g200);
+  font-family:inherit;font-size:11px;font-weight:700;color:var(--g900);
+  background:white;cursor:pointer;outline:none;
+}
+select:focus{border-color:var(--blue)}
+
+/* ── TOOLTIP-LIKE INFO ── */
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--g100)}
+.info-row:last-child{border:none}
+.info-key{font-size:11px;color:var(--g400);font-weight:600}
+.info-val{font-size:12px;font-weight:700}
+
+/* ── UTILS ── */
+.flex{display:flex}.flex-between{display:flex;justify-content:space-between;align-items:center}
+.gap2{gap:8px}.gap3{gap:12px}.mt2{margin-top:8px}.mt3{margin-top:12px}.mb3{margin-bottom:12px}
+.fw{width:100%}
+
+/* ── MODAL ── */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(4px);z-index:300;align-items:center;justify-content:center;padding:20px}
+.modal-ov.show{display:flex}
+.modal-box{background:white;border-radius:18px;padding:24px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto}
+.modal-title{font-size:16px;font-weight:900;letter-spacing:-.3px;margin-bottom:16px}
+.modal-close{width:28px;height:28px;border-radius:7px;background:var(--g100);border:none;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center}
+
+/* ── LOCK OVERLAY ── */
+.locked{opacity:.4;pointer-events:none;user-select:none;filter:blur(1px)}
+.lock-label{
+  position:relative;display:inline-flex;align-items:center;gap:5px;
+  padding:3px 10px;background:#FEF3C7;color:#92400E;
+  border-radius:10px;font-size:10px;font-weight:800;
+}
+</style>
+</head>
+<body>
+
+<!-- ── ROLE SWITCHER ── -->
+<div class="role-bar">
+  <span class="role-bar-label">Xem với quyền:</span>
+  <div class="role-pill active" data-role="leader" onclick="switchRole('leader',this)">
+    <span class="role-dot leader"></span>HR Leader
+  </div>
+  <div class="role-pill" data-role="admin" onclick="switchRole('admin',this)">
+    <span class="role-dot admin"></span>HR Admin
+  </div>
+  <div class="role-pill" data-role="member" onclick="switchRole('member',this)">
+    <span class="role-dot member"></span>HR Member
+  </div>
+  <div class="role-bar-right">
+    <div class="role-badge-active">👁 Đang xem với quyền: <span id="active-role-label">HR Leader</span></div>
+  </div>
+</div>
+
+<div class="shell">
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">NhiLe HR</div>
+    <div class="sidebar-sub">Handover & Permission System</div>
+  </div>
+
+  <div class="sidebar-section">Tổng quan</div>
+  <div class="nav-item active" data-view="overview"><span class="nav-icon">📊</span>Tổng quan<span class="nav-badge">5</span></div>
+
+  <div class="sidebar-section">Phân quyền</div>
+  <div class="nav-item" data-view="permissions"><span class="nav-icon">🔐</span>Ma trận quyền</div>
+  <div class="nav-item" data-view="members-perm"><span class="nav-icon">👥</span>Phân công nhân sự</div>
+
+  <div class="sidebar-section">Handover</div>
+  <div class="nav-item" data-view="cases"><span class="nav-icon">📋</span>Case tracker<span class="nav-badge blue">3</span></div>
+  <div class="nav-item" data-view="audit"><span class="nav-icon">🕐</span>Audit log<span class="nav-badge leader-only" id="badge-audit">Leader</span></div>
+  <div class="nav-item" data-view="my-cases"><span class="nav-icon">🎯</span>Case của tôi<span class="nav-badge blue">2</span></div>
+
+  <div class="sidebar-section">Báo cáo</div>
+  <div class="nav-item" data-view="report"><span class="nav-icon">📈</span>Báo cáo tuần<span class="nav-badge lock member-lock" id="badge-report">🔒</span></div>
+</aside>
+
+<!-- ── MAIN ── -->
+<div class="main">
+  <header class="topbar">
+    <div>
+      <h1 id="page-title">Tổng quan hệ thống</h1>
+      <p id="page-desc">Handover tracker & phân quyền — NhiLe HR Team</p>
+    </div>
+    <div class="flex gap2 items-center">
+      <span id="clock-display" style="font-size:11px;color:var(--g400);font-weight:700"></span>
+      <button class="btn btn-navy btn-sm" onclick="openAssignModal()">+ Assign case</button>
+    </div>
+  </header>
+
+  <div class="content">
+
+  <!-- ══ OVERVIEW ══ -->
+  <div class="panel active" id="view-overview">
+    <div class="grid4 mb3">
+      <div class="stat"><div class="stat-label">Case đang mở</div><div class="stat-val" style="color:var(--blue)">5</div><div class="stat-sub">3 ON · 1 OUT · 1 CROSS</div></div>
+      <div class="stat"><div class="stat-label">Chờ bàn giao</div><div class="stat-val" style="color:var(--gold)">2</div><div class="stat-sub">Cần assign người tiếp</div></div>
+      <div class="stat"><div class="stat-label">Quá SLA</div><div class="stat-val" style="color:var(--red)">1</div><div class="stat-sub">&gt;48h chưa có action</div></div>
+      <div class="stat"><div class="stat-label">Xong tuần này</div><div class="stat-val" style="color:var(--green)">3</div><div class="stat-sub">↑ +1 so tuần trước</div></div>
+    </div>
+
+    <!-- Alert: quá SLA -->
+    <div style="background:#FEF2F2;border:1.5px solid #FECACA;border-radius:12px;padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;gap:12px">
+      <span style="font-size:20px">⚠️</span>
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:800;color:var(--red)">SLA Alert — Trần Văn Hùng (ON-2026-004)</div>
+        <div style="font-size:11px;color:#DC2626;margin-top:2px">Bước 2 chưa hoàn thành sau 52 giờ · Assigned: Hoàng Anh Phú · Cần xử lý ngay</div>
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="navigate('cases')">Xem case →</button>
+    </div>
+
+    <div class="grid2">
+      <!-- Active cases summary -->
+      <div class="card">
+        <div class="flex-between mb3">
+          <div class="card-title lg" style="margin-bottom:0">Case đang mở</div>
+          <button class="btn btn-ghost btn-sm" onclick="navigate('cases')">Xem tất cả →</button>
+        </div>
+
+        <div class="case-summary" style="display:flex;flex-direction:column;gap:8px">
+          <div onclick="navigate('cases')" style="background:var(--g50);border-radius:10px;padding:10px 12px;cursor:pointer;transition:background .12s" onmouseover="this.style.background='#E8EDF5'" onmouseout="this.style.background='var(--g50)'">
+            <div class="flex-between">
+              <div>
+                <div style="font-size:12px;font-weight:800">Phạm Thị Lan <span class="badge b-blue" style="margin-left:6px">ON · B3</span></div>
+                <div style="font-size:10px;color:var(--g400);margin-top:2px">📌 Người phụ trách: <strong style="color:var(--navy)">Nguyễn Linh Tâm</strong></div>
+              </div>
+              <span class="badge b-amber">Chờ PV</span>
+            </div>
+          </div>
+          <div onclick="navigate('cases')" style="background:var(--g50);border-radius:10px;padding:10px 12px;cursor:pointer;transition:background .12s" onmouseover="this.style.background='#E8EDF5'" onmouseout="this.style.background='var(--g50)'">
+            <div class="flex-between">
+              <div>
+                <div style="font-size:12px;font-weight:800">Trần Văn Hùng <span class="badge b-red" style="margin-left:6px">ON · B2 ⚠️</span></div>
+                <div style="font-size:10px;color:var(--g400);margin-top:2px">📌 Người phụ trách: <strong style="color:var(--navy)">Hoàng Anh Phú</strong></div>
+              </div>
+              <span class="badge b-red">Trễ SLA</span>
+            </div>
+          </div>
+          <div onclick="navigate('cases')" style="background:var(--g50);border-radius:10px;padding:10px 12px;cursor:pointer;transition:background .12s" onmouseover="this.style.background='#E8EDF5'" onmouseout="this.style.background='var(--g50)'">
+            <div class="flex-between">
+              <div>
+                <div style="font-size:12px;font-weight:800">Nguyễn Văn An <span class="badge b-amber" style="margin-left:6px">OUT · B4</span></div>
+                <div style="font-size:10px;color:var(--g400);margin-top:2px">📌 Người phụ trách: <strong style="color:var(--navy)">Nguyễn Minh Thư</strong></div>
+              </div>
+              <span class="badge b-amber">Chờ bàn giao</span>
+            </div>
+          </div>
+          <div onclick="navigate('cases')" style="background:var(--g50);border-radius:10px;padding:10px 12px;cursor:pointer;transition:background .12s" onmouseover="this.style.background='#E8EDF5'" onmouseout="this.style.background='var(--g50)'">
+            <div class="flex-between">
+              <div>
+                <div style="font-size:12px;font-weight:800">Lê Thị Bảo <span class="badge b-navy" style="margin-left:6px">CROSS · B1</span></div>
+                <div style="font-size:10px;color:var(--g400);margin-top:2px">📌 Người phụ trách: <strong style="color:var(--navy)">Nguyễn Minh Thư</strong></div>
+              </div>
+              <span class="badge b-green">Đúng tiến độ</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Workload per member -->
+      <div class="card">
+        <div class="card-title lg">Workload HR Team</div>
+        <div class="member-row">
+          <div class="member-av" style="background:var(--navy)">NT</div>
+          <div style="flex:1">
+            <div class="member-name">Nguyễn Linh Tâm <span class="role-tag leader">Leader</span></div>
+            <div class="member-sub">2 case đang xử lý · 0 trễ SLA</div>
+            <div class="workload-bar"><div class="workload-fill" style="width:40%;background:var(--green)"></div></div>
+          </div>
+          <div style="font-size:11px;font-weight:800;color:var(--green)">40%</div>
+        </div>
+        <div class="member-row">
+          <div class="member-av" style="background:var(--blue)">HP</div>
+          <div style="flex:1">
+            <div class="member-name">Hoàng Anh Phú <span class="role-tag admin">Admin</span></div>
+            <div class="member-sub">1 case · <span style="color:var(--red);font-weight:700">1 trễ SLA</span></div>
+            <div class="workload-bar"><div class="workload-fill" style="width:85%;background:var(--red)"></div></div>
+          </div>
+          <div style="font-size:11px;font-weight:800;color:var(--red)">85%</div>
+        </div>
+        <div class="member-row">
+          <div class="member-av" style="background:var(--teal)">MT</div>
+          <div style="flex:1">
+            <div class="member-name">Nguyễn Minh Thư <span class="role-tag member">Member</span></div>
+            <div class="member-sub">2 case đang xử lý · 0 trễ SLA</div>
+            <div class="workload-bar"><div class="workload-fill" style="width:55%;background:var(--gold)"></div></div>
+          </div>
+          <div style="font-size:11px;font-weight:800;color:var(--gold)">55%</div>
+        </div>
+        <div class="member-row">
+          <div class="member-av" style="background:var(--g400)">PD</div>
+          <div style="flex:1">
+            <div class="member-name">Phạm Minh Dũng <span class="role-tag member">Member</span></div>
+            <div class="member-sub">0 case · Rảnh</div>
+            <div class="workload-bar"><div class="workload-fill" style="width:5%;background:var(--green)"></div></div>
+          </div>
+          <div style="font-size:11px;font-weight:800;color:var(--green)">Free</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PERMISSIONS MATRIX ══ -->
+  <div class="panel" id="view-permissions">
+    <div class="card mb3">
+      <div class="card-title lg">🔐 Ma trận phân quyền — HR Team</div>
+      <div style="overflow-x:auto">
+        <table class="perm-table">
+          <thead><tr>
+            <th style="width:42%">Chức năng</th>
+            <th class="perm-col"><span class="role-tag leader">Leader</span></th>
+            <th class="perm-col"><span class="role-tag admin">Admin</span></th>
+            <th class="perm-col"><span class="role-tag member">Member</span></th>
+          </tr></thead>
+          <tbody>
+            <tr class="perm-section-row"><td colspan="4">📋 Nhật ký hồ sơ & Tuyển dụng</td></tr>
+            <tr><td>Xem tất cả case (ON/OUT/CROSS)</td><td class="perm-col">✅</td><td class="perm-col">✅</td><td class="perm-col">⚠️ <span style="font-size:10px;color:var(--g400)">Case của mình</span></td></tr>
+            <tr><td>Thêm case mới vào hệ thống</td><td class="perm-col">✅</td><td class="perm-col">✅</td><td class="perm-col">❌</td></tr>
+            <tr><td>Cập nhật bước tiến độ (step)</td><td class="perm-col">✅</td><td class="perm-col">✅</td><td class="perm-col">⚠️ <span style="font-size:10px;color:var(--g400)">Case của mình</span></td></tr>
+            <tr><td>Duyệt PASS / FAIL ứng viên</td><td class="perm-col">✅</td><td class="perm-col">✅</td><td class="perm-col">❌</td></tr>
+            <tr><td>Xem lịch sử handover đầy đủ</td><td class="perm-col">✅</td><td class="perm-col">✅</td><td class="perm-col">⚠️ <span style="font-size:10px;color:var(--g400)">Case của mình</span></td></tr>
+
+            <tr class="perm-section-row"><td colspan="4">👥 Phân công & Assign</td></tr>
+            <tr><td>Assign người phụ trách case</td><td class="perm-col">✅</td><td class="perm-col">✅</td><td class="perm-col">❌</td></tr>
+            <tr><td>Reassign / chuyển case sang người khác</td><td class="perm-col">✅</td><td class="perm-col">⚠️ <span style="font-size:10px;color:var(--g400)">Phải hỏi Leader</span></td><td class="perm-col">❌</td></tr>
+            <tr><td>Xem workload toàn team</td><td class="perm-col">✅</td><td class="perm-col">✅</td><td class="perm-col">❌</td></tr>
+
+            <tr class="perm-section-row"><td colspan="4">🕐 Audit Log & Báo cáo</td></tr>
+            <tr><td>Xem audit log đầy đủ (ai làm gì, lúc nào)</td><td class="perm-col">✅</td><td class="perm-col">❌</td><td class="perm-col">❌</td></tr>
+            <tr><td>Xem báo cáo KPI tuần toàn team</td><td class="perm-col">✅</td><td class="perm-col">✅</td><td class="perm-col">❌</td></tr>
+            <tr><td>Export dữ liệu</td><td class="perm-col">✅</td><td class="perm-col">❌</td><td class="perm-col">❌</td></tr>
+
+            <tr class="perm-section-row"><td colspan="4">🔧 Quản lý hệ thống</td></tr>
+            <tr><td>Thêm / sửa HR Member</td><td class="perm-col">✅</td><td class="perm-col">❌</td><td class="perm-col">❌</td></tr>
+            <tr><td>Thay đổi quyền (permission)</td><td class="perm-col">✅</td><td class="perm-col">❌</td><td class="perm-col">❌</td></tr>
+            <tr><td>Xem thông tin liên lạc tất cả thành viên</td><td class="perm-col">✅</td><td class="perm-col">✅</td><td class="perm-col">⚠️ <span style="font-size:10px;color:var(--g400)">Chỉ team HR</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top:12px;padding:10px 12px;background:var(--g50);border-radius:8px;font-size:11px;color:var(--g600)">
+        ✅ Toàn quyền &nbsp;·&nbsp; ⚠️ Hạn chế &nbsp;·&nbsp; ❌ Không có quyền
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PHÂN CÔNG NHÂN SỰ ══ -->
+  <div class="panel" id="view-members-perm">
+    <div class="flex-between mb3">
+      <div></div>
+      <button class="btn btn-navy btn-sm leader-only-btn" onclick="openAssignModal()">+ Assign case mới</button>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title lg">Nhân sự HR Team</div>
+        <div class="member-row">
+          <div class="member-av" style="background:var(--navy)">DT</div>
+          <div style="flex:1">
+            <div class="member-name">Trần Nguyên Đoan Trang</div>
+            <div class="member-sub">Manager Leader · Toàn quyền</div>
+          </div>
+          <span class="role-tag leader">Leader</span>
+        </div>
+        <div class="member-row">
+          <div class="member-av" style="background:var(--blue)">NT</div>
+          <div style="flex:1">
+            <div class="member-name">Nguyễn Linh Tâm</div>
+            <div class="member-sub">Leader · Quản lý case, phân công Admin</div>
+          </div>
+          <div class="flex gap2" style="align-items:center">
+            <span class="role-tag leader">Leader</span>
+            <button class="btn btn-ghost btn-xs leader-only-btn">Sửa</button>
+          </div>
+        </div>
+        <div class="member-row">
+          <div class="member-av" style="background:var(--teal)">HP</div>
+          <div style="flex:1">
+            <div class="member-name">Hoàng Anh Phú</div>
+            <div class="member-sub">Admin · Vận hành hàng ngày, duyệt case</div>
+          </div>
+          <div class="flex gap2" style="align-items:center">
+            <span class="role-tag admin">Admin</span>
+            <button class="btn btn-ghost btn-xs leader-only-btn">Sửa</button>
+          </div>
+        </div>
+        <div class="member-row">
+          <div class="member-av" style="background:var(--gold)">MT</div>
+          <div style="flex:1">
+            <div class="member-name">Nguyễn Minh Thư</div>
+            <div class="member-sub">Member · Xử lý case được assign</div>
+          </div>
+          <div class="flex gap2" style="align-items:center">
+            <span class="role-tag member">Member</span>
+            <button class="btn btn-ghost btn-xs leader-only-btn">Sửa</button>
+          </div>
+        </div>
+        <div class="member-row">
+          <div class="member-av" style="background:var(--g400)">PD</div>
+          <div style="flex:1">
+            <div class="member-name">Phạm Minh Dũng</div>
+            <div class="member-sub">Member · Xử lý case được assign</div>
+          </div>
+          <div class="flex gap2" style="align-items:center">
+            <span class="role-tag member">Member</span>
+            <button class="btn btn-ghost btn-xs leader-only-btn">Sửa</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title lg">Phân công hiện tại</div>
+        <div class="assign-row">
+          <div class="flex gap2" style="align-items:center">
+            <div class="assignee-av" style="background:var(--blue);width:28px;height:28px;font-size:9px;font-weight:900;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white">NT</div>
+            <div>
+              <div style="font-size:12px;font-weight:700">Nguyễn Linh Tâm</div>
+              <div style="font-size:10px;color:var(--g400)">Phạm Thị Lan (ON-B3)</div>
+            </div>
+          </div>
+          <div class="flex gap2">
+            <span class="badge b-blue">1 case</span>
+            <button class="btn btn-ghost btn-xs leader-only-btn" onclick="openReassignModal('Phạm Thị Lan')">Reassign</button>
+          </div>
+        </div>
+        <div class="assign-row">
+          <div class="flex gap2" style="align-items:center">
+            <div class="assignee-av" style="background:var(--teal);width:28px;height:28px;font-size:9px;font-weight:900;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white">HP</div>
+            <div>
+              <div style="font-size:12px;font-weight:700">Hoàng Anh Phú</div>
+              <div style="font-size:10px;color:var(--red);font-weight:700">⚠️ Trần Văn Hùng (ON-B2 · Trễ SLA)</div>
+            </div>
+          </div>
+          <div class="flex gap2">
+            <span class="badge b-red">Trễ</span>
+            <button class="btn btn-danger btn-xs leader-only-btn" onclick="openReassignModal('Trần Văn Hùng')">Reassign</button>
+          </div>
+        </div>
+        <div class="assign-row">
+          <div class="flex gap2" style="align-items:center">
+            <div class="assignee-av" style="background:var(--gold);width:28px;height:28px;font-size:9px;font-weight:900;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white">MT</div>
+            <div>
+              <div style="font-size:12px;font-weight:700">Nguyễn Minh Thư</div>
+              <div style="font-size:10px;color:var(--g400)">Nguyễn Văn An (OUT-B4) · Lê Thị Bảo (CROSS-B1)</div>
+            </div>
+          </div>
+          <div class="flex gap2">
+            <span class="badge b-amber">2 case</span>
+            <button class="btn btn-ghost btn-xs leader-only-btn">Reassign</button>
+          </div>
+        </div>
+        <div class="assign-row">
+          <div class="flex gap2" style="align-items:center">
+            <div class="assignee-av" style="background:var(--g400);width:28px;height:28px;font-size:9px;font-weight:900;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white">PD</div>
+            <div>
+              <div style="font-size:12px;font-weight:700">Phạm Minh Dũng</div>
+              <div style="font-size:10px;color:var(--g400)">Không có case — rảnh</div>
+            </div>
+          </div>
+          <div class="flex gap2">
+            <span class="badge b-green">Free</span>
+            <button class="btn btn-navy btn-xs leader-only-btn" onclick="openAssignModal()">Assign</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CASE TRACKER ══ -->
+  <div class="panel" id="view-cases">
+    <div class="tab-bar">
+      <button class="tab-btn active" data-ct="all">Tất cả (5)</button>
+      <button class="tab-btn" data-ct="on">ON-boarding (3)</button>
+      <button class="tab-btn" data-ct="out">OUT Team (1)</button>
+      <button class="tab-btn" data-ct="cross">Chuyển team (1)</button>
+    </div>
+
+    <!-- Case 1 -->
+    <div class="case-card open" id="case-1">
+      <div class="case-header" onclick="toggleCase('case-1')">
+        <div class="case-id">ON-2026-001</div>
+        <div style="flex:1">
+          <div class="case-name">Phạm Thị Lan</div>
+          <div class="case-meta">Design Team · Volunteer · Vào ngày 18/03/2026</div>
+        </div>
+        <div class="flex gap2" style="align-items:center">
+          <span class="badge b-amber">Bước 3/5</span>
+          <div class="case-owner"><span class="case-owner-dot"></span>NT — Nguyễn Linh Tâm</div>
+          <button class="btn btn-ghost btn-xs leader-only-btn" onclick="event.stopPropagation();openReassignModal('Phạm Thị Lan')">Reassign</button>
+        </div>
+      </div>
+      <div class="case-body">
+        <div class="hl-wrap">
+          <div class="hl-line"></div>
+          <div class="hl-item">
+            <div class="hl-dot done">✓</div>
+            <div class="hl-meta">18/03 · 09:15 · Bước 1</div>
+            <div class="hl-action">Sàng lọc & Phân loại hồ sơ</div>
+            <div class="hl-note">Tiếp nhận từ Website. Phân loại: ứng viên mới → nhóm Design.</div>
+            <div class="hl-actor"><div class="hl-actor-av">HP</div>Hoàng Anh Phú · HR Admin</div>
+          </div>
+          <div class="hl-item">
+            <div class="hl-dot done">✓</div>
+            <div class="hl-meta">18/03 · 14:30 · Bước 2</div>
+            <div class="hl-action">Gửi Google Form + xác nhận nhận form</div>
+            <div class="hl-note">Form đã điền đầy đủ lúc 16:20. Dữ liệu đã lưu vào Master Sheet.</div>
+            <div class="hl-actor"><div class="hl-actor-av">HP</div>Hoàng Anh Phú · HR Admin</div>
+            <div class="hl-actor" style="margin-top:4px;background:#EEF3FB"><div class="hl-actor-av" style="background:var(--blue)">NT</div>Bàn giao → Nguyễn Linh Tâm · 18/03 · 17:00</div>
+          </div>
+          <div class="hl-item">
+            <div class="hl-dot current">3</div>
+            <div class="hl-meta">19/03 · 09:00 · Bước 3 · <span style="color:var(--gold);font-weight:800">Đang xử lý</span></div>
+            <div class="hl-action">Đặt lịch phỏng vấn qua Calendly</div>
+            <div class="hl-note">Ứng viên đã chọn slot 27/03 · 14:30. Zoom link đã gửi.</div>
+            <div class="hl-actor"><div class="hl-actor-av" style="background:var(--blue)">NT</div>Nguyễn Linh Tâm · Leader</div>
+            <div class="hl-next">⏭ Bước tiếp: Bước 4 — Nhận kết quả phỏng vấn · Assign: Nguyễn Linh Tâm</div>
+          </div>
+          <div class="hl-item">
+            <div class="hl-dot pending"></div>
+            <div class="hl-meta">Chờ · Bước 4</div>
+            <div class="hl-action" style="color:var(--g400)">Nhận kết quả & xử lý (PASS/FAIL/NDA)</div>
+          </div>
+          <div class="hl-item">
+            <div class="hl-dot pending"></div>
+            <div class="hl-meta">Chờ · Bước 5</div>
+            <div class="hl-action" style="color:var(--g400)">Cập nhật Master Sheet & đóng case</div>
+          </div>
+        </div>
+        <div class="flex gap2 mt2">
+          <button class="btn btn-navy btn-sm">✅ Tiến bước 4</button>
+          <button class="btn btn-ghost btn-sm">📝 Thêm note</button>
+          <button class="btn btn-danger btn-sm">❌ FAIL — Đóng case</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Case 2 - SLA breach -->
+    <div class="case-card" id="case-2" style="border-color:#FECACA">
+      <div class="case-header" onclick="toggleCase('case-2')" style="background:#FFF5F5">
+        <div class="case-id" style="color:var(--red)">ON-2026-004</div>
+        <div style="flex:1">
+          <div class="case-name">Trần Văn Hùng <span style="font-size:10px;color:var(--red);font-weight:800">⚠️ TRỄ SLA +4h</span></div>
+          <div class="case-meta">IT Team · Volunteer · Vào ngày 19/03/2026</div>
+        </div>
+        <div class="flex gap2" style="align-items:center">
+          <span class="badge b-red">Bước 2/5 · Trễ</span>
+          <div class="case-owner" style="color:var(--red)"><span class="case-owner-dot" style="background:var(--red)"></span>HP — Hoàng Anh Phú</div>
+          <button class="btn btn-danger btn-xs leader-only-btn" onclick="event.stopPropagation();openReassignModal('Trần Văn Hùng')">Reassign ngay</button>
+        </div>
+      </div>
+      <div class="case-body">
+        <div style="background:#FEF2F2;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:11px;color:var(--red);font-weight:700">
+          ⚠️ SLA Breach: Bước 2 phải hoàn thành trong 48h (deadline 21/03 · 14:30). Hiện đã trễ 52 giờ. Cần action ngay.
+        </div>
+        <div class="hl-wrap">
+          <div class="hl-line"></div>
+          <div class="hl-item">
+            <div class="hl-dot done">✓</div>
+            <div class="hl-meta">19/03 · 14:30 · Bước 1</div>
+            <div class="hl-action">Sàng lọc & Phân loại hồ sơ</div>
+            <div class="hl-actor"><div class="hl-actor-av">HP</div>Hoàng Anh Phú · HR Admin</div>
+          </div>
+          <div class="hl-item">
+            <div class="hl-dot current" style="background:var(--red);border-color:var(--red)">!</div>
+            <div class="hl-meta" style="color:var(--red)">19/03 · 15:00 · Bước 2 · TRỄ SLA</div>
+            <div class="hl-action">Gửi Google Form — chưa xác nhận điền</div>
+            <div class="hl-note" style="color:var(--red)">Form đã gửi nhưng ứng viên chưa phản hồi. Đã nhắc 1 lần (21/03). Cần escalate.</div>
+            <div class="hl-actor"><div class="hl-actor-av" style="background:var(--teal)">HP</div>Hoàng Anh Phú · HR Admin</div>
+          </div>
+        </div>
+        <div class="flex gap2 mt2">
+          <button class="btn btn-navy btn-sm">📞 Gọi nhắc ứng viên</button>
+          <button class="btn btn-gold btn-sm">↗ Escalate Leader</button>
+          <button class="btn btn-ghost btn-sm">📝 Ghi chú</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Case 3: OUT -->
+    <div class="case-card" id="case-3">
+      <div class="case-header" onclick="toggleCase('case-3')">
+        <div class="case-id">OUT-2026-002</div>
+        <div style="flex:1">
+          <div class="case-name">Nguyễn Văn An</div>
+          <div class="case-meta">Admin Team · Leader · Rời ngày 25/03/2026</div>
+        </div>
+        <div class="flex gap2" style="align-items:center">
+          <span class="badge b-amber">Bước 4/5</span>
+          <div class="case-owner"><span class="case-owner-dot"></span>MT — Nguyễn Minh Thư</div>
+          <button class="btn btn-ghost btn-xs leader-only-btn" onclick="event.stopPropagation()">Reassign</button>
+        </div>
+      </div>
+      <div class="case-body">
+        <div class="hl-wrap">
+          <div class="hl-line"></div>
+          <div class="hl-item">
+            <div class="hl-dot done">✓</div>
+            <div class="hl-meta">25/03 · 09:00 · Bước 1</div>
+            <div class="hl-action">Xác nhận quyết định rời team — ghi nhận lý do</div>
+            <div class="hl-actor"><div class="hl-actor-av" style="background:var(--blue)">NT</div>Nguyễn Linh Tâm · Leader</div>
+          </div>
+          <div class="hl-item">
+            <div class="hl-dot done">✓</div>
+            <div class="hl-meta">25/03 · 10:30 · Bước 2</div>
+            <div class="hl-action">Thu hồi quyền truy cập — Drive, Telegram group, Notion</div>
+            <div class="hl-actor"><div class="hl-actor-av">HP</div>Hoàng Anh Phú · HR Admin</div>
+            <div class="hl-actor" style="margin-top:4px;background:#EEF3FB"><div class="hl-actor-av" style="background:var(--gold)">MT</div>Bàn giao → Nguyễn Minh Thư · 25/03 · 14:00</div>
+          </div>
+          <div class="hl-item">
+            <div class="hl-dot done">✓</div>
+            <div class="hl-meta">26/03 · 08:00 · Bước 3</div>
+            <div class="hl-action">Hỗ trợ bàn giao công việc với team Admin</div>
+            <div class="hl-actor"><div class="hl-actor-av" style="background:var(--gold)">MT</div>Nguyễn Minh Thư · HR Member</div>
+          </div>
+          <div class="hl-item">
+            <div class="hl-dot current">4</div>
+            <div class="hl-meta">27/03 · Hôm nay · Bước 4 · <span style="color:var(--gold);font-weight:800">Đang xử lý</span></div>
+            <div class="hl-action">Hỗ trợ tháo Frame mạng xã hội & gửi lời tri ân</div>
+            <div class="hl-note">Cần: tháo ảnh bìa NhiLe trên Facebook/Zalo + gửi email cảm ơn cá nhân hóa.</div>
+            <div class="hl-actor"><div class="hl-actor-av" style="background:var(--gold)">MT</div>Nguyễn Minh Thư · HR Member</div>
+            <div class="hl-next">⏭ Bước tiếp: Bước 5 — Cập nhật Master Sheet & đóng case</div>
+          </div>
+          <div class="hl-item">
+            <div class="hl-dot pending"></div>
+            <div class="hl-meta">Chờ · Bước 5</div>
+            <div class="hl-action" style="color:var(--g400)">Cập nhật Master Sheet · Đánh dấu hoàn tất</div>
+          </div>
+        </div>
+        <div class="flex gap2 mt2">
+          <button class="btn btn-navy btn-sm">✅ Hoàn thành bước 4</button>
+          <button class="btn btn-ghost btn-sm">📝 Ghi chú</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Case 4: CROSS -->
+    <div class="case-card" id="case-4">
+      <div class="case-header" onclick="toggleCase('case-4')">
+        <div class="case-id">CROSS-2026-001</div>
+        <div style="flex:1">
+          <div class="case-name">Lê Thị Bảo</div>
+          <div class="case-meta">Design → IT Team · Bắt đầu 26/03/2026</div>
+        </div>
+        <div class="flex gap2" style="align-items:center">
+          <span class="badge b-blue">Bước 1/4</span>
+          <div class="case-owner"><span class="case-owner-dot"></span>MT — Nguyễn Minh Thư</div>
+          <button class="btn btn-ghost btn-xs leader-only-btn" onclick="event.stopPropagation()">Reassign</button>
+        </div>
+      </div>
+      <div class="case-body">
+        <div class="hl-wrap">
+          <div class="hl-line"></div>
+          <div class="hl-item">
+            <div class="hl-dot current">1</div>
+            <div class="hl-meta">26/03 · 10:00 · Bước 1 · <span style="color:var(--gold);font-weight:800">Đang xử lý</span></div>
+            <div class="hl-action">Gửi email xác nhận chuyển team cho thành viên</div>
+            <div class="hl-note">Email đã gửi. Đang chờ thành viên xác nhận nhận email.</div>
+            <div class="hl-actor"><div class="hl-actor-av" style="background:var(--gold)">MT</div>Nguyễn Minh Thư · HR Member</div>
+            <div class="hl-next">⏭ Bước tiếp: Bước 2 — Bàn giao team cũ (Design)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ AUDIT LOG (Leader only) ══ -->
+  <div class="panel" id="view-audit">
+    <div class="audit-content">
+    <div class="flex-between mb3">
+      <div class="flex gap2">
+        <select id="audit-filter-who"><option>Tất cả người dùng</option><option>Nguyễn Linh Tâm</option><option>Hoàng Anh Phú</option><option>Nguyễn Minh Thư</option><option>Phạm Minh Dũng</option></select>
+        <select id="audit-filter-type"><option>Tất cả loại</option><option>Assign</option><option>Step update</option><option>Note</option><option>Reassign</option><option>Cảnh báo</option></select>
+        <select><option>7 ngày qua</option><option>Hôm nay</option><option>Tháng này</option></select>
+      </div>
+      <button class="btn btn-ghost btn-sm">📥 Export CSV</button>
+    </div>
+    <div class="card">
+      <div class="card-title lg">📋 Audit Log — Mọi hành động trong hệ thống</div>
+      <div class="af-item">
+        <div class="af-av" style="background:var(--navy)">NT</div>
+        <div style="flex:1">
+          <div class="af-text"><strong>Nguyễn Linh Tâm</strong> cập nhật Phạm Thị Lan lên <strong>Bước 3</strong> và gửi link Zoom<span class="af-tag step">Step</span></div>
+          <div style="font-size:10px;color:var(--g400);margin-top:2px">Case: ON-2026-001 · 19/03/2026</div>
+        </div>
+        <div class="af-time">09:00</div>
+      </div>
+      <div class="af-item">
+        <div class="af-av" style="background:var(--blue)">NT</div>
+        <div style="flex:1">
+          <div class="af-text"><strong>Nguyễn Linh Tâm</strong> reassign case ON-2026-001 từ <strong>Hoàng Anh Phú → Nguyễn Linh Tâm</strong><span class="af-tag assign">Reassign</span></div>
+          <div style="font-size:10px;color:var(--g400);margin-top:2px">Case: ON-2026-001 · 18/03/2026</div>
+        </div>
+        <div class="af-time">17:00</div>
+      </div>
+      <div class="af-item">
+        <div class="af-av" style="background:var(--teal)">HP</div>
+        <div style="flex:1">
+          <div class="af-text"><strong>Hoàng Anh Phú</strong> thêm ghi chú: <em>"Ứng viên hỏi về thời gian cam kết. Phù hợp."</em><span class="af-tag note">Note</span></div>
+          <div style="font-size:10px;color:var(--g400);margin-top:2px">Case: ON-2026-001 · 18/03/2026</div>
+        </div>
+        <div class="af-time">16:30</div>
+      </div>
+      <div class="af-item">
+        <div class="af-av" style="background:var(--red)">SY</div>
+        <div style="flex:1">
+          <div class="af-text"><strong>Hệ thống</strong> phát hiện SLA breach: ON-2026-004 Bước 2 quá 48h<span class="af-tag warn">⚠️ SLA</span></div>
+          <div style="font-size:10px;color:var(--g400);margin-top:2px">Case: ON-2026-004 · 21/03/2026</div>
+        </div>
+        <div class="af-time">14:32</div>
+      </div>
+      <div class="af-item">
+        <div class="af-av" style="background:var(--gold)">MT</div>
+        <div style="flex:1">
+          <div class="af-text"><strong>Nguyễn Minh Thư</strong> nhận bàn giao case OUT-2026-002 từ <strong>Hoàng Anh Phú</strong><span class="af-tag assign">Assign</span></div>
+          <div style="font-size:10px;color:var(--g400);margin-top:2px">Case: OUT-2026-002 · 25/03/2026</div>
+        </div>
+        <div class="af-time">14:00</div>
+      </div>
+      <div class="af-item">
+        <div class="af-av" style="background:var(--blue)">NT</div>
+        <div style="flex:1">
+          <div class="af-text"><strong>Nguyễn Linh Tâm</strong> assign case mới CROSS-2026-001 cho <strong>Nguyễn Minh Thư</strong><span class="af-tag assign">Assign</span></div>
+          <div style="font-size:10px;color:var(--g400);margin-top:2px">Case: CROSS-2026-001 · 26/03/2026</div>
+        </div>
+        <div class="af-time">10:05</div>
+      </div>
+      <div class="af-item">
+        <div class="af-av" style="background:var(--teal)">HP</div>
+        <div style="flex:1">
+          <div class="af-text"><strong>Hoàng Anh Phú</strong> cập nhật Trần Văn Hùng lên <strong>Bước 2</strong> — gửi Google Form<span class="af-tag step">Step</span></div>
+          <div style="font-size:10px;color:var(--g400);margin-top:2px">Case: ON-2026-004 · 19/03/2026</div>
+        </div>
+        <div class="af-time">15:00</div>
+      </div>
+      <div class="af-item">
+        <div class="af-av" style="background:var(--navy)">DT</div>
+        <div style="flex:1">
+          <div class="af-text"><strong>Trần Nguyên Đoan Trang</strong> thay đổi quyền <strong>Hoàng Anh Phú</strong> từ Member → Admin<span class="af-tag assign">Quyền</span></div>
+          <div style="font-size:10px;color:var(--g400);margin-top:2px">Hệ thống · 15/03/2026</div>
+        </div>
+        <div class="af-time">09:22</div>
+      </div>
+    </div>
+    </div>
+    <!-- Leader only notice -->
+    <div class="access-block leader-locked" style="display:none">
+      <div class="lock-icon">🔐</div>
+      <h3>Chỉ HR Leader mới xem được</h3>
+      <p>Audit log chứa toàn bộ lịch sử hành động. Chỉ Leader có quyền truy cập để đảm bảo accountability.</p>
+    </div>
+  </div>
+
+  <!-- ══ CASE CỦA TÔI ══ -->
+  <div class="panel" id="view-my-cases">
+    <div style="background:#EEF3FB;border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:var(--navy);font-weight:700;display:flex;align-items:center;gap:8px">
+      <span>🎯</span>
+      <div id="my-cases-intro">Đang hiển thị case của: <strong>Nguyễn Linh Tâm (Leader)</strong> — bạn thấy tất cả case + có thể assign/reassign</div>
+    </div>
+    <div class="case-card">
+      <div class="case-header">
+        <div class="case-id">ON-2026-001</div>
+        <div style="flex:1">
+          <div class="case-name">Phạm Thị Lan</div>
+          <div class="case-meta">Design Team · Bước 3/5 · Chờ phỏng vấn 27/03 14:30</div>
+        </div>
+        <div class="flex gap2">
+          <span class="badge b-amber">Bước 3</span>
+          <button class="btn btn-navy btn-sm">Cập nhật →</button>
+        </div>
+      </div>
+    </div>
+    <div class="case-card">
+      <div class="case-header">
+        <div class="case-id">ON-2026-004</div>
+        <div style="flex:1">
+          <div class="case-name">Trần Văn Hùng <span style="font-size:10px;color:var(--red);font-weight:800">⚠️ Trễ SLA</span></div>
+          <div class="case-meta" style="color:var(--red)">IT Team · Bước 2/5 · Quá hạn — cần xử lý ngay</div>
+        </div>
+        <div class="flex gap2">
+          <span class="badge b-red">Trễ SLA</span>
+          <button class="btn btn-danger btn-sm">Xử lý ngay →</button>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:20px" id="my-cases-locked-msg" style="display:none">
+    </div>
+  </div>
+
+  <!-- ══ BÁO CÁO ══ -->
+  <div class="panel" id="view-report">
+    <div class="report-content">
+      <div class="grid4 mb3">
+        <div class="stat"><div class="stat-label">Case xử lý tuần này</div><div class="stat-val" style="color:var(--blue)">8</div><div class="stat-sub">↑ +2 so tuần trước</div></div>
+        <div class="stat"><div class="stat-label">SLA đúng hạn</div><div class="stat-val" style="color:var(--green)">87%</div><div class="stat-sub">7/8 case đúng hạn</div></div>
+        <div class="stat"><div class="stat-label">Avg thời gian/case</div><div class="stat-val" style="color:var(--navy)">31h</div><div class="stat-sub">SLA target ≤48h</div></div>
+        <div class="stat"><div class="stat-label">Hoàn tất tuần này</div><div class="stat-val" style="color:var(--green)">3</div><div class="stat-sub">ON: 2 · OUT: 1</div></div>
+      </div>
+      <div class="grid2">
+        <div class="card">
+          <div class="card-title lg">Hiệu suất từng HR Member</div>
+          <div class="member-row">
+            <div class="member-av" style="background:var(--blue)">NT</div>
+            <div style="flex:1">
+              <div class="member-name">Nguyễn Linh Tâm <span class="role-tag leader" style="font-size:9px">Leader</span></div>
+              <div style="display:flex;gap:12px;margin-top:4px;font-size:10px;color:var(--g400)">
+                <span>3 case xử lý</span><span style="color:var(--green)">100% đúng SLA</span><span>Avg: 28h</span>
+              </div>
+            </div>
+          </div>
+          <div class="member-row">
+            <div class="member-av" style="background:var(--teal)">HP</div>
+            <div style="flex:1">
+              <div class="member-name">Hoàng Anh Phú <span class="role-tag admin" style="font-size:9px">Admin</span></div>
+              <div style="display:flex;gap:12px;margin-top:4px;font-size:10px;color:var(--g400)">
+                <span>3 case xử lý</span><span style="color:var(--red)">67% đúng SLA</span><span>Avg: 38h</span>
+              </div>
+            </div>
+          </div>
+          <div class="member-row">
+            <div class="member-av" style="background:var(--gold)">MT</div>
+            <div style="flex:1">
+              <div class="member-name">Nguyễn Minh Thư <span class="role-tag member" style="font-size:9px">Member</span></div>
+              <div style="display:flex;gap:12px;margin-top:4px;font-size:10px;color:var(--g400)">
+                <span>2 case xử lý</span><span style="color:var(--green)">100% đúng SLA</span><span>Avg: 24h</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title lg">Điểm chú ý tuần này</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="background:#FEF2F2;border-radius:8px;padding:10px 12px;font-size:11px">
+              <div style="font-weight:800;color:var(--red);margin-bottom:3px">⚠️ SLA Breach — Hoàng Anh Phú</div>
+              <div style="color:var(--g600)">Case ON-2026-004 trễ 52h. Cần review quy trình nhắc nhở ứng viên.</div>
+            </div>
+            <div style="background:#F0FDF4;border-radius:8px;padding:10px 12px;font-size:11px">
+              <div style="font-weight:800;color:var(--green);margin-bottom:3px">✅ Nguyễn Minh Thư — Xuất sắc</div>
+              <div style="color:var(--g600)">2 case hoàn thành đúng hạn. Avg 24h — nhanh nhất team. Xem xét nâng Admin.</div>
+            </div>
+            <div style="background:#EFF6FF;border-radius:8px;padding:10px 12px;font-size:11px">
+              <div style="font-weight:800;color:var(--blue);margin-bottom:3px">📌 Phạm Minh Dũng — 0 case tuần này</div>
+              <div style="color:var(--g600)">Rảnh toàn bộ tuần. Assign case mới để tối ưu workload team.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="access-block report-locked" style="display:none">
+      <div class="lock-icon">🔒</div>
+      <h3>Không có quyền truy cập</h3>
+      <p>Báo cáo tuần chỉ dành cho HR Admin và HR Leader. Liên hệ Leader để được cấp quyền.</p>
+    </div>
+  </div>
+
+  </div><!-- end content -->
+</div><!-- end main -->
+</div><!-- end shell -->
+
+<!-- ── MODAL: Assign Case ── -->
+<div class="modal-ov" id="assign-modal">
+  <div class="modal-box">
+    <div class="flex-between mb3">
+      <div class="modal-title">📋 Assign Case Mới</div>
+      <button class="modal-close" onclick="closeModal('assign-modal')">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div>
+        <label style="font-size:10px;font-weight:800;color:var(--g400);text-transform:uppercase;display:block;margin-bottom:4px">Loại case</label>
+        <select style="width:100%;padding:8px 12px">
+          <option>ON-boarding — Ứng viên mới</option>
+          <option>OUT Team — Thành viên rời</option>
+          <option>CROSS — Chuyển team</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:10px;font-weight:800;color:var(--g400);text-transform:uppercase;display:block;margin-bottom:4px">Tên ứng viên / thành viên</label>
+        <input style="width:100%;padding:8px 12px;border:1px solid var(--g200);border-radius:8px;font-family:inherit;font-size:12px;outline:none" placeholder="Họ và tên...">
+      </div>
+      <div>
+        <label style="font-size:10px;font-weight:800;color:var(--g400);text-transform:uppercase;display:block;margin-bottom:4px">Người phụ trách (Assign to)</label>
+        <select style="width:100%;padding:8px 12px">
+          <option>Nguyễn Linh Tâm · Leader</option>
+          <option>Hoàng Anh Phú · Admin · ⚠️ Workload cao</option>
+          <option>Nguyễn Minh Thư · Member</option>
+          <option>Phạm Minh Dũng · Member · ✅ Rảnh</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:10px;font-weight:800;color:var(--g400);text-transform:uppercase;display:block;margin-bottom:4px">Ghi chú ban đầu</label>
+        <textarea style="width:100%;padding:8px 12px;border:1px solid var(--g200);border-radius:8px;font-family:inherit;font-size:12px;resize:none;height:64px;outline:none" placeholder="Thông tin thêm về case này..."></textarea>
+      </div>
+      <div class="flex gap2" style="justify-content:flex-end;margin-top:4px">
+        <button class="btn btn-ghost" onclick="closeModal('assign-modal')">Hủy</button>
+        <button class="btn btn-navy">Tạo case & Assign ✓</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: Reassign ── -->
+<div class="modal-ov" id="reassign-modal">
+  <div class="modal-box">
+    <div class="flex-between mb3">
+      <div class="modal-title">🔄 Reassign Case</div>
+      <button class="modal-close" onclick="closeModal('reassign-modal')">✕</button>
+    </div>
+    <div style="background:var(--g50);border-radius:10px;padding:12px;margin-bottom:14px;font-size:12px">
+      <div style="font-weight:800;margin-bottom:4px">Case: <span id="reassign-case-name">—</span></div>
+      <div style="color:var(--g400)">Người hiện tại: <strong id="reassign-current">—</strong></div>
+    </div>
+    <div style="margin-bottom:12px">
+      <label style="font-size:10px;font-weight:800;color:var(--g400);text-transform:uppercase;display:block;margin-bottom:6px">Chuyển sang</label>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--g50);border-radius:8px;cursor:pointer">
+          <input type="radio" name="reassign-to" value="NT"> <div><div style="font-size:12px;font-weight:700">Nguyễn Linh Tâm</div><div style="font-size:10px;color:var(--g400)">Leader · 2 case · 40% workload</div></div>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#FFF5F5;border-radius:8px;cursor:pointer;border:1px solid #FECACA">
+          <input type="radio" name="reassign-to" value="HP"> <div><div style="font-size:12px;font-weight:700">Hoàng Anh Phú ⚠️</div><div style="font-size:10px;color:var(--red)">Admin · Workload cao · 1 SLA breach</div></div>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--g50);border-radius:8px;cursor:pointer">
+          <input type="radio" name="reassign-to" value="MT"> <div><div style="font-size:12px;font-weight:700">Nguyễn Minh Thư</div><div style="font-size:10px;color:var(--g400)">Member · 2 case · 55% workload</div></div>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#F0FDF4;border-radius:8px;cursor:pointer;border:1px solid #BBF7D0">
+          <input type="radio" name="reassign-to" value="PD" checked> <div><div style="font-size:12px;font-weight:700">Phạm Minh Dũng ✅ Đề xuất</div><div style="font-size:10px;color:var(--green)">Member · Rảnh · 0 case hiện tại</div></div>
+        </label>
+      </div>
+    </div>
+    <div style="margin-bottom:14px">
+      <label style="font-size:10px;font-weight:800;color:var(--g400);text-transform:uppercase;display:block;margin-bottom:4px">Lý do reassign (ghi vào audit log)</label>
+      <textarea style="width:100%;padding:8px 12px;border:1px solid var(--g200);border-radius:8px;font-family:inherit;font-size:12px;resize:none;height:56px;outline:none" placeholder="Lý do chuyển..."></textarea>
+    </div>
+    <div class="flex gap2" style="justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="closeModal('reassign-modal')">Hủy</button>
+      <button class="btn btn-navy">Xác nhận Reassign</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── TITLES ──
+const titles = {
+  overview:      {title:'Tổng quan hệ thống',       desc:'Handover tracker & phân quyền — NhiLe HR Team'},
+  permissions:   {title:'Ma trận phân quyền',        desc:'Ai được làm gì trong hệ thống HR'},
+  'members-perm':{title:'Phân công nhân sự',         desc:'Assign & reassign case cho từng HR Member'},
+  cases:         {title:'Case Tracker',              desc:'Lịch sử handover từng case — ai làm gì, lúc nào'},
+  audit:         {title:'Audit Log',                 desc:'Toàn bộ lịch sử hành động — chỉ Leader xem được'},
+  'my-cases':    {title:'Case của tôi',              desc:'Các case đang phụ trách'},
+  report:        {title:'Báo cáo tuần',              desc:'Hiệu suất HR Team — KPI & SLA tracking'},
+};
+
+// ── NAVIGATE ──
+function navigate(view) {
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  const nav = document.querySelector(`.nav-item[data-view="${view}"]`);
+  if (nav) nav.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  const panel = document.getElementById(`view-${view}`);
+  if (panel) panel.classList.add('active');
+  if (titles[view]) {
+    document.getElementById('page-title').textContent = titles[view].title;
+    document.getElementById('page-desc').textContent = titles[view].desc;
+  }
+}
+
+document.querySelectorAll('.nav-item[data-view]').forEach(btn => {
+  btn.addEventListener('click', () => navigate(btn.getAttribute('data-view')));
+});
+
+// ── ROLE SYSTEM ──
+const roleLabels = {leader:'HR Leader', admin:'HR Admin', member:'HR Member'};
+const myCasesText = {
+  leader:'Đang hiển thị case của: <strong>Nguyễn Linh Tâm (Leader)</strong> — bạn thấy tất cả case + có thể assign/reassign',
+  admin: 'Đang hiển thị case của: <strong>Hoàng Anh Phú (Admin)</strong> — bạn thấy tất cả case bạn đang phụ trách',
+  member:'Đang hiển thị case của: <strong>Nguyễn Minh Thư (Member)</strong> — chỉ thấy case được assign cho bạn',
+};
+
+function switchRole(role, el) {
+  document.querySelectorAll('.role-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('active-role-label').textContent = roleLabels[role];
+
+  // Leader-only buttons
+  document.querySelectorAll('.leader-only-btn').forEach(b => {
+    b.style.display = (role === 'leader' || role === 'admin') ? '' : 'none';
+  });
+
+  // Audit log access
+  const auditContent = document.querySelector('.audit-content');
+  const auditLocked = document.querySelector('.leader-locked');
+  if (role === 'leader') {
+    if (auditContent) auditContent.style.display = 'block';
+    if (auditLocked) auditLocked.style.display = 'none';
+    document.getElementById('badge-audit').textContent = 'Leader';
+    document.getElementById('badge-audit').className = 'nav-badge blue';
+  } else {
+    if (auditContent) auditContent.style.display = 'none';
+    if (auditLocked) auditLocked.style.display = 'flex';
+    document.getElementById('badge-audit').textContent = '🔒';
+    document.getElementById('badge-audit').className = 'nav-badge lock';
+  }
+
+  // Report access
+  const reportContent = document.querySelector('.report-content');
+  const reportLocked = document.querySelector('.report-locked');
+  if (role === 'leader' || role === 'admin') {
+    if (reportContent) reportContent.style.display = 'block';
+    if (reportLocked) reportLocked.style.display = 'none';
+    document.getElementById('badge-report').textContent = '';
+    document.getElementById('badge-report').style.display = 'none';
+  } else {
+    if (reportContent) reportContent.style.display = 'none';
+    if (reportLocked) reportLocked.style.display = 'flex';
+    document.getElementById('badge-report').style.display = '';
+    document.getElementById('badge-report').textContent = '🔒';
+  }
+
+  // My cases text
+  const intro = document.getElementById('my-cases-intro');
+  if (intro) intro.innerHTML = myCasesText[role] || myCasesText.leader;
+
+  // Case cards: member sees only their own
+  if (role === 'member') {
+    document.querySelectorAll('.case-card').forEach(c => {
+      const ownerText = c.querySelector('.case-owner')?.textContent || '';
+      const isMine = ownerText.includes('MT') || ownerText.includes('Minh Thư');
+      c.style.display = isMine ? '' : 'none';
+    });
+    // Reassign buttons hidden
+    document.querySelectorAll('[onclick*="Reassign"], [onclick*="reassign"]').forEach(b => b.style.display = 'none');
+  } else {
+    document.querySelectorAll('.case-card').forEach(c => c.style.display = '');
+  }
+
+  // Workload: member can't see all workload
+  const workloadCard = document.querySelector('#view-overview .grid2 .card:last-child');
+  if (workloadCard) {
+    workloadCard.style.opacity = role === 'member' ? '0.4' : '1';
+    workloadCard.style.pointerEvents = role === 'member' ? 'none' : '';
+  }
+}
+
+// ── TOGGLE CASE ──
+function toggleCase(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+
+// ── MODALS ──
+function openAssignModal() { document.getElementById('assign-modal').classList.add('show'); }
+function openReassignModal(name) {
+  document.getElementById('reassign-case-name').textContent = name;
+  const owners = {
+    'Phạm Thị Lan':'Nguyễn Linh Tâm',
+    'Trần Văn Hùng':'Hoàng Anh Phú',
+    'Nguyễn Văn An':'Nguyễn Minh Thư',
+    'Lê Thị Bảo':'Nguyễn Minh Thư',
+  };
+  document.getElementById('reassign-current').textContent = owners[name] || '—';
+  document.getElementById('reassign-modal').classList.add('show');
+}
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+document.querySelectorAll('.modal-ov').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('show'); });
+});
+
+// ── CLOCK ──
+function tick() {
+  const n = new Date();
+  document.getElementById('clock-display').textContent =
+    n.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}) + ' · 27/03/2026';
+}
+tick(); setInterval(tick,1000);
+
+// ── CASE TABS ──
+document.querySelectorAll('[data-ct]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-ct]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    // just visual filter — full impl would filter DOM
+  });
+});
+
+// Hide admin buttons initially (showing leader by default)
+// already leader = all visible
+</script>
+</body>
+</html>
